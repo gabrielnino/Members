@@ -1,95 +1,85 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Autodesk.Domain.Test
+﻿namespace Autodesk.Domain.Test
 {
-    public class UserTestcs
+    /// <summary>
+    /// Unit tests for the <see cref="User"/> entity.
+    /// </summary>
+    public class UserTests
     {
-
         [Fact]
-        public void GivenNewActivatable_WhenChecked_ThenIsInactiveByDefault()
+        public void GivenNewUser_WhenInstantiated_ThenIsInactiveByDefault()
         {
-            // Given: a fresh IActivatable implementation
+            // Given: a new User with a valid ID
             var sut = new User(Guid.NewGuid().ToString());
 
-            // When: we read its Active property
+            // When: we inspect its Active property
             var isActive = sut.Active;
 
-            // Then: it should default to false
+            // Then: it should be false by default
             Assert.False(isActive);
         }
 
         [Fact]
-        public void GivenActivatable_WhenSetActive_ThenActiveIsTrue()
+        public void GivenUser_WhenActivated_ThenActiveIsTrue()
         {
-            // Given: a fresh IActivatable implementation
-            var sut = new User(Guid.NewGuid().ToString())
-            {
-                // When: we set Active = true
-                Active = true
-            };
+            // Given: a new User
+            var sut = new User(Guid.NewGuid().ToString());
 
-            // Then: the getter should return true
+            // When: we set Active = true
+            sut.Active = true;
+
+            // Then: Active should return true
             Assert.True(sut.Active);
         }
 
         [Fact]
-        public void GivenActiveActivatable_WhenSetInactive_ThenActiveIsFalse()
+        public void GivenActiveUser_WhenDeactivated_ThenActiveIsFalse()
         {
-            // Given: an IActivatable that’s already active
+            // Given: a User that is currently active
             var sut = new User(Guid.NewGuid().ToString()) { Active = true };
 
             // When: we set Active = false
             sut.Active = false;
 
-            // Then: the getter should return false
+            // Then: Active should return false
             Assert.False(sut.Active);
         }
 
         [Fact]
-        public void GivenIdentifiableWithSpecificId_WhenAccessingId_ThenReturnsThatId()
+        public void GivenValidId_WhenConstructingUser_ThenIdIsSetCorrectly()
         {
-            // Given: an IIdentifiable implementation with a specific ID
+            // Given: a specific, non-null, non-empty ID
             var expectedId = Guid.NewGuid().ToString();
+
+            // When: we create a User with that ID
             var sut = new User(expectedId);
 
-            // When: we read the ID
-            var actualId = sut.Id;
-
-            // Then: it should return the same ID
-            Assert.Equal(expectedId, actualId);
+            // Then: its Id property should match the provided ID
+            Assert.Equal(expectedId, sut.Id);
         }
 
         [Fact]
-        public void GivenIdentifiableWithNullId_WhenAccessingId_ThenArgumentException()
+        public void GivenNullId_WhenConstructingUser_ThenThrowsArgumentNullException()
         {
-            // Given: an IIdentifiable implementation with a null ID
+            // Given: a null ID
+            string? invalidId = null;
 
-
-            // When: we read the ID
-            string expectedId = null;
-
-
-            // Then: it should return ArgumentException
-            Assert.Throws<ArgumentNullException>(() => new User(expectedId));
+            // When
+            
+            //Then: constructing a User should throw ArgumentNullException
+            Assert.Throws<ArgumentNullException>(() => new User(invalidId!));
         }
 
-        [Fact]
-        public void GivenIdentifiableWithEmptyId_WhenAccessingId_ThenReturnsException()
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void GivenEmptyOrWhitespaceId_WhenConstructingUser_ThenThrowsArgumentException(string invalidId)
         {
-            // Given: an IIdentifiable implementation with an empty ID
+            // Given: an empty or whitespace-only ID
 
-
-
-            // When: we read the ID
-            string expectedId = string.Empty;
-
-            // Then: it should return an empty string
-            Assert.Throws<ArgumentException>(() => new User(expectedId));
+            // When
+            
+            //Then: constructing a User should throw ArgumentException
+            Assert.Throws<ArgumentException>(() => new User(invalidId));
         }
     }
 }
