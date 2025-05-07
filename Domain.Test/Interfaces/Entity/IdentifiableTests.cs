@@ -27,7 +27,7 @@ namespace Domain.Test.Interfaces.Entity
         public void GivenIdentifiableWithNullId_WhenAccessingId_ThenReturnsNull()
         {
             // Given: an IIdentifiable implementation with a null ID
-            string expectedId = null;
+            string? expectedId = null;
             var sut = new TestIdentifiable(expectedId);
 
             // When: we read the ID
