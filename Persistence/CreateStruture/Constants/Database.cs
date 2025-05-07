@@ -3,12 +3,12 @@
     /// <summary>
     /// Represents a Database.
     /// </summary>
-    internal static class Database
+    public static class Database
     {
         /// <summary>
         /// Contains names of database tables.
         /// </summary>
-        internal static class Tables
+        public static class Tables
         {
             /// <summary>
             /// Name of the Users table.
@@ -19,7 +19,7 @@
         /// <summary>
         /// Contains names of database indexes.
         /// </summary>
-        internal static class Index
+        public static class Index
         {
             /// <summary>
             ///  Unique index on the Email column in the Users table.
