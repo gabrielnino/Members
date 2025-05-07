@@ -1,10 +1,6 @@
 ﻿using Domain.Interfaces.Entity;
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain
 {
@@ -15,6 +11,8 @@ namespace Domain
         /// Gets or sets the unique identifier for the entity.
         /// Required by the <see cref="IIdentifiable"/> interface.
         /// </summary>
+        [Key]
+        [Required(ErrorMessage = "Id is required.")]
         public required string Id { get; set; }
 
         /// <summary>
