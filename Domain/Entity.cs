@@ -4,6 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Domain
 {
+    /// <summary>
+    /// Represents a Entity.
+    /// </summary>
     public class Entity : IEntity
     {
 
