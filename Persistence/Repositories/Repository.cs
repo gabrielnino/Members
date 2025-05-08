@@ -9,25 +9,28 @@ namespace Persistence.Repositories
         private new readonly DbContext _context = RepositoryHelper.ValidateArgument(context);
         private new readonly DbSet<T> _dbSet = context.Set<T>();
 
-        public async Task Create(T? entity)
+        public async Task<bool> Create(T? entity)
         {
             entity = RepositoryHelper.ValidateArgument(entity);
             _dbSet.Add(entity);
-            await SaveChangesAsync();
+            var result = await SaveChangesAsync();
+            return result > 0;
         }
 
-        public async Task Update(T entity)
+        public async Task<bool> Update(T entity)
         {
             RepositoryHelper.ValidateArgument(entity);
             _context.Entry(entity).State = EntityState.Modified;
-            await SaveChangesAsync();
+            var result = await SaveChangesAsync();
+            return result > 0;
         }
 
-        public async Task Delete(T entity)
+        public async Task<bool> Delete(T entity)
         {
             RepositoryHelper.ValidateArgument(entity);
             _dbSet.Remove(entity);
-            await SaveChangesAsync();
+            var result = await SaveChangesAsync();
+            return result > 0;
         }
 
         private async Task<int> SaveChangesAsync()

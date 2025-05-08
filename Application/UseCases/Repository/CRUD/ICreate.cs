@@ -5,6 +5,6 @@ namespace Application.UseCases.Repository.CRUD
 {
     public interface ICreate<T> where T : class, IEntity
     {
-        Task<Operation<string>> Create(T entity);
+        Task<Operation<bool>> Create(T entity);
     }
 }

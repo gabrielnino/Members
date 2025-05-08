@@ -12,18 +12,18 @@ namespace Persistence.Repositories.Interface
         /// </summary>
         /// <param name="entity">The entity to create.</param>
         /// <returns>The task.</returns>
-        Task Create(T entity);
+        Task<bool> Create(T entity);
         /// <summary>
         /// Update the entity.
         /// </summary>
         /// <param name="entity">The entity to update.</param>
         /// <returns>The task</returns>
-        Task Update(T entity);
+        Task<bool> Update(T entity);
         /// <summary>
         /// Delete the entity.
         /// </summary>
         /// <param name="entity">The entity to delete.</param>
         /// <returns>The task.</returns>
-        Task Delete(T entity);
+        Task<bool> Delete(T entity);
     }
 }

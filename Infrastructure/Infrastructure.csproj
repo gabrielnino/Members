@@ -1,0 +1,97 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Persistence\Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Repositories\Abstract\CRUD\Create\CreateLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Delete\DeleteLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DeleteLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilterCount\ReadFilterCountLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReadFilterCountLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilterPage\ReadFilterPageLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReadFilterPageLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilter\ReadFilterLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReadFilterLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Query\ReadId\ReadIdLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReadIdLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Util\UtilEntityLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UtilEntityLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Repositories\Abstract\CRUD\Validation\EntityCheckerLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EntityCheckerLabels.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Create\CreateLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CreateLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Delete\DeleteLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DeleteLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilterCount\ReadFilterCountLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ReadFilterCountLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilterPage\ReadFilterPageLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ReadFilterPageLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilter\ReadFilterLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ReadFilterLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadId\ReadIdLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ReadIdLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Util\UtilEntityLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UtilEntityLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Validation\EntityCheckerLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EntityCheckerLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

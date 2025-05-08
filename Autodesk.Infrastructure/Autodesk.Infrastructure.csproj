@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Autodesk.Application\Autodesk.Application.csproj" />
+    <ProjectReference Include="..\Autodesk.Domain\Autodesk.Domain.csproj" />
+    <ProjectReference Include="..\Autodesk.Persistence\Autodesk.Persistence.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Implementation\CRUD\User\Create\UserCreateLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserCreateLabels.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Implementation\CRUD\User\Update\UserUpdateLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserUpdateLabels.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Implementation\CRUD\User\Create\UserCreateLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserCreateLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Implementation\CRUD\User\Update\UserUpdateLabels.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserUpdateLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
