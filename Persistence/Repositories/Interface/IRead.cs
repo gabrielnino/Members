@@ -5,8 +5,7 @@ namespace Persistence.Repositories.Interface
     /// <summary>
     /// Defines a contract for be an Read.
     /// </summary>
-    public interface IRead<T>
-           where T : class
+    public interface IRead<T> where T : class
     {
         /// <summary>
         /// Retrives all entites that satisfy the filter.

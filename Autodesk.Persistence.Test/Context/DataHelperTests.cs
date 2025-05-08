@@ -1,11 +1,16 @@
 ﻿using Autodesk.Domain;
+using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
 using Persistence.CreateStruture.Constants.ColumnType;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using Database = Persistence.CreateStruture.Constants.Database;
-namespace Persistence.Test.Context
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Persistence.CreateStruture.Constants;
+
+namespace Autodesk.Persistence.Test.Context
 {
     public class DataHelperTests
     {

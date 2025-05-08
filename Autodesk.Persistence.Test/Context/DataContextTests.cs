@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
+﻿using Autodesk.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.CreateStruture.Constants.ColumnType;
 
-namespace Persistence.Test.Context.Interface
+namespace Autodesk.Persistence.Test.Context
 {
     public class DataContextTests
     {
-        // Minimal stub for IColumnTypes
+        // Fake IColumnTypes for testing
         private class FakeColumnTypes : IColumnTypes
         {
             public string Integer => "INTEGER";
@@ -24,17 +25,16 @@ namespace Persistence.Test.Context.Interface
             public object? Value => null;
         }
 
-        // Helper to build In-Memory options
-        private static DbContextOptions<DataContext> CreateOptions() =>
+        private static DbContextOptions<DataContext> CreateInMemoryOptions() =>
             new DbContextOptionsBuilder<DataContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
         [Fact]
-        public void GivenNewContext_WhenInitialize_ThenReturnsTrue()
+        public void GivenNewDataContext_WhenInitialize_ThenReturnsTrue()
         {
             // Arrange
-            var options = CreateOptions();
+            var options = CreateInMemoryOptions();
             var ctx = new DataContext(options, new FakeColumnTypes());
 
             // Act
@@ -45,10 +45,10 @@ namespace Persistence.Test.Context.Interface
         }
 
         [Fact]
-        public void GivenInitializedContext_WhenQueryUsers_ThenUsersSetIsEmpty()
+        public void GivenInitializedDataContext_WhenQueryUsers_ThenUsersIsEmpty()
         {
             // Arrange
-            var options = CreateOptions();
+            var options = CreateInMemoryOptions();
             var ctx = new DataContext(options, new FakeColumnTypes());
             ctx.Initialize();
 

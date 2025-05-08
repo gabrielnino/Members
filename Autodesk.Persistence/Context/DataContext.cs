@@ -1,9 +1,9 @@
-﻿using Persistence.Context.Interface;
-using Persistence.CreateStruture.Constants.ColumnType;
-using Autodesk.Domain;
+﻿using Autodesk.Domain;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
+using Persistence.CreateStruture.Constants.ColumnType;
 
-namespace Persistence.Context
+namespace Autodesk.Persistence.Context
 {
     /// <summary>
     /// Represents a DataContentext

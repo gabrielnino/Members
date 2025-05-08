@@ -16,13 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\Autodesk.Persistence\Autodesk.Persistence.csproj" />
+    <ProjectReference Include="..\Persistence\Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Autodesk.Domain\Autodesk.Domain.csproj" />
-    <ProjectReference Include="..\Autodesk.Persistence\Autodesk.Persistence.csproj" />
-    <ProjectReference Include="..\Persistence\Persistence.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>
