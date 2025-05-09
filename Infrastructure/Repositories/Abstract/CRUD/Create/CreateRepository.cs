@@ -1,5 +1,4 @@
 ﻿using Application.Result;
-using Application.Result.EnumType;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;

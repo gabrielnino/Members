@@ -1,15 +1,8 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD.Query;
-using Infrastructure.Constants;
-using Infrastructure.Result;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadFilterCount
 {

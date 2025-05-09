@@ -4,7 +4,6 @@ using Domain.Interfaces.Entity;
 using Infrastructure.Repositories.Abstract.CRUD.Validation;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
-using static Application.Constants.Messages;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Delete
 {

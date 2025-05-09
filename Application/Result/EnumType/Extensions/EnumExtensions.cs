@@ -18,17 +18,6 @@
             return GetEnumMetadata(enumValue)?.Description ?? Messages.EnumExtensions.DescriptionNotAvailable;
         }
 
-        public static TEnum GetEnumByName<TEnum>(this string value)
-            where TEnum : struct, Enum
-        {
-            if (Enum.TryParse(value, out TEnum result))
-            {
-                return result;
-            }
-
-            throw new ArgumentException(string.Format(Messages.EnumExtensions.NoEnumValueFound, value, typeof(TEnum)));
-        }
-
         private static EnumMetadata? GetEnumMetadata<TEnum>(TEnum enumValue)
             where TEnum : Enum
         {
