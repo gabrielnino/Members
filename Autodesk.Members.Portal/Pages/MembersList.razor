@@ -1,57 +1,101 @@
 ﻿@page "/MembersList"
-@using Application.Common
 @using Application.Common.Pagination
 @using Autodesk.Domain
 @inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
 
-<h3>People</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">People</h3>
+    <div class="input-group w-25">
+        <input class="form-control" placeholder="Search by name..." @bind="FilterName" @bind:event="oninput" />
+        <button class="btn btn-outline-secondary" @onclick="OnSearch">
+            <i class="fas fa-search" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
 
 @if (Users.Count == 0 && !Loading)
 {
-    <p><em>No hay registros.</em></p>
+    <div class="alert alert-info">No records found.</div>
 }
-else
-{
-    <table class="table">
-        <thead><tr><th>Nombre</th><th>…</th></tr></thead>
-        <tbody>
-            @foreach (var u in Users)
-            {
-                <tr><td>@u.Name</td><td>…</td></tr>
-            }
-        </tbody>
-    </table>
 
-    @if (NextCursor != null)
+<div class="row g-3">
+    @foreach (var u in Users)
     {
-        <button class="btn btn-primary"
-                @onclick="LoadMore"
-                disabled="@Loading">
-            @if (Loading)
-            {
-                <span class="spinner-border spinner-border-sm"></span>
-            }
-            Cargar más
-        </button>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-truncate">@u.Name @u.Lastname</h5>
+                    <p class="card-text text-truncate">@u.Email</p>
+                    <div class="mt-auto d-flex justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => Edit(u.Id)">
+                            <i class="fas fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(u.Id)">
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
-}
+</div>
+
+<div class="text-center mt-4" style="visibility:@(NextCursor != null ? "visible" : "hidden");">
+    <button class="btn btn-primary px-5" @onclick="LoadMore" disabled="@Loading">
+        @if (Loading)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        Load More
+    </button>
+</div>
 
 @code {
-    List<User> Users = new();
-    string? NextCursor;
-    bool Loading;
+    private List<User> Users { get; set; } = new();
+    private string? NextCursor;
+    private bool Loading;
+    private string FilterName = string.Empty;
 
     protected override async Task OnInitializedAsync()
-      => await LoadMore();
+    {
+        await ResetAndLoad();
+    }
+
+    private async Task OnSearch()
+    {
+        await ResetAndLoad();
+    }
+
+    private async Task ResetAndLoad()
+    {
+        Users.Clear();
+        NextCursor = null;
+        await LoadMore();
+    }
 
     private async Task LoadMore()
     {
         Loading = true;
         var client = HttpClientFactory.CreateClient("AutodeskApi");
-        var url = $"api/v1/users/cursor?name=&cursor={NextCursor}&pageSize=20";
+        var url = $"api/v1/users/cursor?name={Uri.EscapeDataString(FilterName)}&cursor={NextCursor}&pageSize=20";
         var page = await client.GetFromJsonAsync<PagedResult<User>>(url);
-        Users.AddRange(page.Items);
-        NextCursor = page.NextCursor;
+        if (page != null)
+        {
+            Users.AddRange(page.Items);
+            NextCursor = page.NextCursor;
+        }
         Loading = false;
+    }
+
+    private void Edit(string id)
+    {
+        Navigation.NavigateTo($"/UserForm/{id}");
+    }
+
+    private async Task Delete(string id)
+    {
+        // implement delete logic or navigation
+        Navigation.NavigateTo($"/Person/{id}/delete");
     }
 }
