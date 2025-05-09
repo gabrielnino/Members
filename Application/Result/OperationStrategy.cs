@@ -1,16 +1,19 @@
-﻿using Application.Result.Error;
+﻿using Application.Result.EnumType.Extensions;
+using Application.Result.Error;
 
 namespace Application.Result
 {
     public interface IErrorCreationStrategy<T>
     {
         Operation<T> CreateFailure(string message);
+        Operation<T> CreateFailure();
     }
     public abstract class ErrorStrategyBase<T>(ErrorTypes errorType) : IErrorCreationStrategy<T>
     {
         private readonly ErrorTypes _errorType = errorType;
 
         public Operation<T> CreateFailure(string message) => Operation<T>.Failure(message, _errorType);
+        public Operation<T> CreateFailure() => Operation<T>.Failure(_errorType.GetDescription(), _errorType);
     }
     public class BusinessStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.BusinessValidation);
     public class ConfigMissingStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.ConfigMissing);

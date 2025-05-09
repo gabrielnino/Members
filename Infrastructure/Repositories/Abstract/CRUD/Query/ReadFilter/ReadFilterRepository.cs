@@ -25,7 +25,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadFilter
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<IQueryable<T>>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<IQueryable<T>>(ex);
             }
         }
     }

@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadFilterCount
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<int>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<int>(ex);
             }
         }
 

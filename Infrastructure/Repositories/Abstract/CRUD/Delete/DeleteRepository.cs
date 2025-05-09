@@ -28,7 +28,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<bool>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<bool>(ex);
             }
         }
     }

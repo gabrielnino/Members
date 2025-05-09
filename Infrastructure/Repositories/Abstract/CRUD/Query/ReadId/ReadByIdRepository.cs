@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<T>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<T>(ex);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<T>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<T>(ex);
             }
         }
     }

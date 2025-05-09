@@ -32,7 +32,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             var result = await userCreate.Create(user);
             if (!result.IsSuccessful)
             {
-                return BadRequest(result.Error);
+                return BadRequest(result.Message);
             }
             return CreatedAtAction(nameof(ReadById), new { id = user.Id }, user);
         }

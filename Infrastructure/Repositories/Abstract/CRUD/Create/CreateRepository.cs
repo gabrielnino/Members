@@ -34,7 +34,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Create
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<bool>(ex, "failedToUploadImage");
+                return errorStrategyHandler.Fail<bool>(ex);
             }
         }
 

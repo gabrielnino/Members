@@ -30,6 +30,28 @@ namespace Infrastructure.Result
             return strategy.CreateFailure(errorMessage);
         }
 
+        public Operation<T> Fail<T>(Exception? ex)
+        {
+            if (ex == null)
+            {
+                return new NullExceptionStrategy<T>().CreateFailure("Exception is null.");
+            }
+
+            if (ErrorMappings.Value.IsEmpty)
+            {
+                return new NullExceptionStrategy<T>().CreateFailure("ErrorMappings is not loaded or empty.");
+            }
+
+            if (!ErrorMappings.Value.TryGetValue(ex.GetType().Name, out var strategyName))
+            {
+                return new NullExceptionStrategy<T>().CreateFailure($"No strategy matches exception type: {ex.GetType().Name}.");
+            }
+
+            var strategy = CreateStrategyInstance<T>(strategyName);
+
+            return strategy.CreateFailure();
+        }
+
         private static IErrorCreationStrategy<T> CreateStrategyInstance<T>(string strategyName) =>
             strategyName switch
             {
