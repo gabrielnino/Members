@@ -2,6 +2,7 @@
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Autodesk.Api.Controllers.api.v1.Autodesk
 {
@@ -49,13 +50,29 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         public async Task<IActionResult> ReadFilter([FromQuery] string? name)
         {
             name ??= string.Empty;
-            var op = await _readFilter.ReadFilter(u => u.Name != null && u.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+
+            // Use SQL’s LIKE operator instead of Contains(..., StringComparison)
+            var op = await _readFilter.ReadFilter(u =>
+                u.Name != null &&
+                EF.Functions.Like(u.Name, $"%{name}%")
+            );
+
             if (!op.IsSuccessful)
             {
                 return BadRequest(op.Message);
             }
+                
 
-            return Ok(op.Data.ToArray() ?? []);
+            // materialize
+            var users = await op.Data.ToListAsync();
+
+            if (users.Count == 0)
+            {
+                return NotFound();
+            }
+                
+
+            return Ok(users);
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
+using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilterCount;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilterPage;
@@ -33,6 +34,7 @@ namespace Autodesk.Api.Program
             builder.Services.AddScoped<IUserReadFilterPage, UserReadFilterPage>();
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();
+            builder.Services.AddScoped<IUserDelete, UserDelete>();
 
         }
 
