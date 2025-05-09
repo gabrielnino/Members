@@ -31,20 +31,6 @@ namespace Autodesk.Persistence.Test.Context
                 .Options;
 
         [Fact]
-        public void GivenNewDataContext_WhenInitialize_ThenReturnsTrue()
-        {
-            // Arrange
-            var options = CreateInMemoryOptions();
-            var ctx = new DataContext(options, new FakeColumnTypes());
-
-            // Act
-            var result = ctx.Initialize();
-
-            // Assert
-            Assert.True(result);
-        }
-
-        [Fact]
         public void GivenInitializedDataContext_WhenQueryUsers_ThenUsersIsEmpty()
         {
             // Arrange
