@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Autodesk.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250509144818_InitialCreate")]
+    [Migration("20250509151009_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
