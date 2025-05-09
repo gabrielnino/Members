@@ -1,102 +1,57 @@
 ﻿@page "/MembersList"
+@using Application.Common
+@using Application.Common.Pagination
 @using Autodesk.Domain
-@using System.Net
 @inject IHttpClientFactory HttpClientFactory
-@inject NavigationManager Navigation
 
 <h3>People</h3>
-@if (Users == null)
+
+@if (Users.Count == 0 && !Loading)
 {
-    <p><em>Loading...</em></p>
-}
-else @if (!Users.Any())
-{
-    <p><em>Person is not avaible...</em></p>
+    <p><em>No hay registros.</em></p>
 }
 else
 {
     <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
+        <thead><tr><th>Nombre</th><th>…</th></tr></thead>
         <tbody>
-            @foreach (var person in Users)
+            @foreach (var u in Users)
             {
-                <tr>
-                    <td>@person.Name</td>
-                    <td><button class="btn btn-secondary" @onclick="()=>Update(person.Id)">Edit</button></td>
-                    <td><button class="btn btn-danger" @onclick="()=>Delete(person.Id)">Delete</button></td>
-                </tr>
+                <tr><td>@u.Name</td><td>…</td></tr>
             }
-            <tr>
-                <td></td>
-                <td></td>
-                <td><button class="btn btn-success" @onclick="()=>Create()">Create</button></td>
-            </tr>
         </tbody>
     </table>
-}
-@code {
-    List<User>? Users { get; set; }
-    protected override async Task OnInitializedAsync()
+
+    @if (NextCursor != null)
     {
-        var client = HttpClientFactory.CreateClient("AutodeskApi");
-        var filter = "luis";
-        var url = $"api/v1/users?name={Uri.EscapeDataString(filter)}";
-
-        var response = await client.GetAsync(url);
-
-        if (response.IsSuccessStatusCode)
-        {
-            // 200 OK → materialize the list
-            Users = await response.Content.ReadFromJsonAsync<List<User>>()
-                    ?? new List<User>();
-        }
-        else if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            // 404 → no users matched the filter
-            Users = new List<User>();
-        }
-        else
-        {
-            // other errors → bubble up or handle as you see fit
-            var msg = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Error fetching users: {response.StatusCode} – {msg}");
-        }
-    }
-
-    private void Update(string id)
-    {
-        Navigation.NavigateTo($"/Person/{id}");
-    }
-
-    private async Task Delete(string id)
-    {
-        if (Users == null)
-        {
-            return;
-        }
-        var client = HttpClientFactory.CreateClient("ApiClient");
-        HttpResponseMessage responseMessage;
-        responseMessage = await client.DeleteAsync($"/person/{id}");
-        if (responseMessage.IsSuccessStatusCode)
-        {
-            var person = Users.Find(p => p.Id == id);
-            if (person == null)
+        <button class="btn btn-primary"
+                @onclick="LoadMore"
+                disabled="@Loading">
+            @if (Loading)
             {
-                return;
+                <span class="spinner-border spinner-border-sm"></span>
             }
-            Users.Remove(person);
-            StateHasChanged();
-        }
+            Cargar más
+        </button>
     }
+}
 
-    private void Create()
+@code {
+    List<User> Users = new();
+    string? NextCursor;
+    bool Loading;
+
+    protected override async Task OnInitializedAsync()
+      => await LoadMore();
+
+    private async Task LoadMore()
     {
-        Navigation.NavigateTo("/person");
+        Loading = true;
+        var client = HttpClientFactory.CreateClient("AutodeskApi");
+        var url = $"api/v1/users/cursor?name=&cursor={NextCursor}&pageSize=20";
+        var page = await client.GetFromJsonAsync<PagedResult<User>>(url);
+        Users.AddRange(page.Items);
+        NextCursor = page.NextCursor;
+        Loading = false;
     }
 }

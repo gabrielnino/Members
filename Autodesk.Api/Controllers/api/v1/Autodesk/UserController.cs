@@ -23,19 +23,19 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         /// <summary>
         /// Create a new user.
         /// </summary>
-        //[HttpPost]
-        //[ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<IActionResult> Create([FromBody] User user)
-        //{
-        //    var op = await _create.Create(user);
-        //    if (!op.IsSuccessful)
-        //    {
-        //        return BadRequest(op.Message);
-        //    }
+        [HttpPost]
+        [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] User user)
+        {
+            var op = await _create.Create(user);
+            if (!op.IsSuccessful)
+            {
+                return BadRequest(op.Message);
+            }
 
-        //    return CreatedAtAction(nameof(ReadById), new { id = user.Id }, user);
-        //}
+            return CreatedAtAction(nameof(ReadFilterCursor), new { id = user.Id }, user);
+        }
 
         /// <summary>
         /// GET /api/v1/users/cursor?name=&amp;cursor=&amp;pageSize=
