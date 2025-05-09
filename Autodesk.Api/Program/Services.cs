@@ -4,12 +4,6 @@
     {
         protected static void ConfigureServices(WebApplicationBuilder builder)
         {
-            var provider = builder.Configuration.GetValue<string>("DatabaseProvider");
-            if (provider == null)
-            {
-                return;
-            }
-
             string connectionString = GetConnectionString(builder);
             Database.SetDatabase(builder);
             AddScoped(builder);
@@ -26,6 +20,7 @@
             builder.Services.AddDistributedMemoryCache();
             AddConfigureSettings(builder);
             AddJwtBearer(builder);
+            RunErrorStrategy(builder);
         }
     }
 }

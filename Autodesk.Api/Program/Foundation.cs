@@ -5,11 +5,23 @@ using Autodesk.Persistence.Context;
 using System.Data;
 using System.Text;
 using Domain.Settings;
+using Application.Result;
 
 namespace Autodesk.Api.Program
 {
     internal class Foundation : Injection
     {
+        protected static void RunErrorStrategy(WebApplicationBuilder builder)
+        {
+            using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<IErrorStrategyHandler>();
+            if (!context.Any())
+            {
+                var errorStrategyHandler = scope.ServiceProvider.GetRequiredService<IErrorStrategyHandler>();
+                errorStrategyHandler.LoadErrorMappings("ErrorMappings.json");
+            }
+        }
+
         protected static void AddJwtBearer(WebApplicationBuilder builder)
         {
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Repository.CRUD;
+﻿using Application.Result;
+using Application.UseCases.Repository.CRUD;
 using Application.UseCases.Repository.CRUD.Query;
 using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Application.UseCases.CRUD.User.Query;
@@ -10,6 +11,8 @@ using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilterPage;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadId;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
+using Infrastructure.Result;
+using System.Data;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Autodesk.Api.Program
@@ -31,6 +34,11 @@ namespace Autodesk.Api.Program
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();
 
+        }
+
+        protected static void DataSeeder(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IErrorStrategyHandler, ErrorStrategyHandler>();
         }
     }
 }

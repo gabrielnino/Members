@@ -4,6 +4,7 @@
     {
         protected static void AddScoped(WebApplicationBuilder builder)
         {
+            DataSeeder(builder);
             User(builder);
             Util(builder);
         }
