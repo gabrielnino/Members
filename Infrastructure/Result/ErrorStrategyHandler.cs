@@ -55,7 +55,6 @@ namespace Infrastructure.Result
         private static IErrorCreationStrategy<T> CreateStrategyInstance<T>(string strategyName) =>
             strategyName switch
             {
-                "ExternalServiceStrategy" => new ExternalServiceStrategy<T>(),
                 "NetworkErrorStrategy" => new NetworkErrorStrategy<T>(),
                 "ConfigMissingStrategy" => new ConfigMissingStrategy<T>(),
                 "InvalidDataStrategy" => new InvalidDataStrategy<T>(),

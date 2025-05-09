@@ -19,7 +19,6 @@ namespace Application.Result
     public class ConfigMissingStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.ConfigMissing);
     public class DatabaseStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.Database);
     public class InvalidDataStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.InvalidData);
-    public class ExternalServiceStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.ExternalService);
     public class UnexpectedErrorStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.Unexpected);
     public class NetworkErrorStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.Network);
     public class NullExceptionStrategy<T>() : ErrorStrategyBase<T>(ErrorTypes.NullExceptionStrategy);
