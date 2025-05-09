@@ -43,7 +43,7 @@ namespace Autodesk.Api.Program
             connectionString = ValidateArgument(connectionString);
             builder.Services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlite(connectionString);
+                options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"));
             });
         }
 

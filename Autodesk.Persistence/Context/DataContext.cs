@@ -25,7 +25,7 @@ namespace Autodesk.Persistence.Context
         {
             try
             {
-                Database.EnsureCreated();
+                Database.Migrate();
                 return true;
             }
             catch (Exception ex)
@@ -48,5 +48,9 @@ namespace Autodesk.Persistence.Context
             base.OnModelCreating(modelBuilder);
             DataHelper.SetTableUsers(modelBuilder, _columnTypes);
         }
+
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        => options.UseSqlite("Data Source=AutodeskMembers.db;Mode=ReadWriteCreate;Cache=Shared");
     }
 }

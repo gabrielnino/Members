@@ -1,6 +1,7 @@
 namespace Api.Program
 {
     using Autodesk.Api.Program;
+    using Autodesk.Persistence.Context;
     using System.Text.RegularExpressions;
 
     internal class Program : Services
@@ -12,6 +13,15 @@ namespace Api.Program
             ConfigureServices(builder);
             WebApplication app = builder.Build();
             ConfigureMiddleware(app);
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                if (!db.Initialize())
+                {
+                    // initialization failed — you could log and/or stop the app
+                    throw new Exception("Database initialization failed");
+                }
+            }
             var services = builder.Services;
             foreach (var service in services)
             {
