@@ -9,7 +9,7 @@ namespace Persistence.Repositories
     /// </summary>
     /// <typeparam name="T">Entity type.</typeparam>
     /// <param name="context">EF Core context.</param>
-    public abstract class Read<T>(DbContext context) : IRead<T> where T : class
+    public abstract class Read<T>(DbContext context) where T : class
     {
         /// <summary>
         /// Validated EF Core context.
@@ -26,38 +26,10 @@ namespace Persistence.Repositories
         /// </summary>
         /// <param name="predicate">Filter expression.</param>
         /// <returns>Matching entities.</returns>
-        public Task<IQueryable<T>> ReadFilter(Expression<Func<T, bool>> predicate)
+        protected Task<IQueryable<T>> ReadFilter(Expression<Func<T, bool>> predicate)
         {
             RepositoryHelper.ValidateArgument(predicate);
             return Task.FromResult(_dbSet.Where(predicate));
-        }
-
-        /// <summary>
-        /// Count entities matching <paramref name="predicate"/>.
-        /// </summary>
-        /// <param name="predicate">Filter expression.</param>
-        /// <returns>Match count.</returns>
-        public Task<int> ReadCountFilter(Expression<Func<T, bool>> predicate)
-        {
-            RepositoryHelper.ValidateArgument(predicate);
-            return Task.FromResult(_dbSet.Count(predicate));
-        }
-
-        /// <summary>
-        /// Get a page of entities matching <paramref name="predicate"/>.
-        /// </summary>
-        /// <param name="predicate">Filter expression.</param>
-        /// <param name="pageNumber">Zero-based page index.</param>
-        /// <param name="pageSize">Items per page.</param>
-        /// <returns>Paged entities.</returns>
-        public Task<IQueryable<T>> ReadPageByFilter(
-            Expression<Func<T, bool>> predicate,
-            int pageNumber,
-            int pageSize)
-        {
-            RepositoryHelper.ValidateArgument(predicate);
-            int skip = pageNumber * pageSize;
-            return Task.FromResult(_dbSet.Where(predicate).Skip(skip).Take(pageSize));
         }
     }
 }

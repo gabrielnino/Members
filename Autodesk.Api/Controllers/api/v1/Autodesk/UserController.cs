@@ -1,4 +1,5 @@
-﻿using Autodesk.Application.UseCases.CRUD.User;
+﻿using Application.Common.Pagination;
+using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -10,93 +11,48 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
     [Route("api/v1/users")]
     public class UserController(
         IUserCreate userCreate,
-        IUserReadFilter userReadFilter,
-        IUserReadFilterCount userReadFilterCount,
-        IUserReadFilterPage userReadFilterPage,
-        IUserReadById userReadById,
+        IUserReadFilterCursor readFilterCursor,
         IUserUpdate userUpdate,
         IUserDelete userDelete) : ControllerBase
     {
         private readonly IUserCreate _create = userCreate;
-        private readonly IUserReadFilter _readFilter = userReadFilter;
-        private readonly IUserReadFilterCount _readCount = userReadFilterCount;
-        private readonly IUserReadFilterPage _readPage = userReadFilterPage;
-        private readonly IUserReadById _readById = userReadById;
+        private readonly IUserReadFilterCursor _readFilterCursor = readFilterCursor;
         private readonly IUserUpdate _update = userUpdate;
         private readonly IUserDelete _delete = userDelete;
 
         /// <summary>
         /// Create a new user.
         /// </summary>
-        [HttpPost]
-        [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] User user)
-        {
-            var op = await _create.Create(user);
-            if (!op.IsSuccessful)
-            {
-                return BadRequest(op.Message);
-            }
+        //[HttpPost]
+        //[ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public async Task<IActionResult> Create([FromBody] User user)
+        //{
+        //    var op = await _create.Create(user);
+        //    if (!op.IsSuccessful)
+        //    {
+        //        return BadRequest(op.Message);
+        //    }
 
-            return CreatedAtAction(nameof(ReadById), new { id = user.Id }, user);
-        }
-
-        /// <summary>
-        /// Retrieve users whose names contain the given filter.
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ReadFilter([FromQuery] string? name)
-        {
-            name ??= string.Empty;
-
-            // Use SQL’s LIKE operator instead of Contains(..., StringComparison)
-            var op = await _readFilter.ReadFilter(u =>
-                u.Name != null &&
-                EF.Functions.Like(u.Name, $"%{name}%")
-            );
-
-            if (!op.IsSuccessful)
-            {
-                return BadRequest(op.Message);
-            }
-                
-
-            // materialize
-            var users = await op.Data.ToListAsync();
-
-            if (users.Count == 0)
-            {
-                return NotFound();
-            }
-                
-
-            return Ok(users);
-        }
+        //    return CreatedAtAction(nameof(ReadById), new { id = user.Id }, user);
+        //}
 
         /// <summary>
-        /// Retrieve a single user by its identifier.
+        /// GET /api/v1/users/cursor?name=&amp;cursor=&amp;pageSize=
         /// </summary>
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReadById(string id)
+        [HttpGet("cursor")]
+        [ProducesResponseType(typeof(PagedResult<User>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ReadFilterCursor(
+            [FromQuery] string? id,
+            [FromQuery] string? name,
+            [FromQuery] string? cursor,
+            [FromQuery] int pageSize = 20)
         {
-            var op = await _readById.ReadById(id);
-            if (!op.IsSuccessful)
-            {
-                return BadRequest(op.Message);
-            }
-
-            if (op.Data == null)
-            {
-                return NotFound();
-            }
-
-
+            var op = await readFilterCursor.ReadFilterCursor(id, name, cursor, pageSize);
+            if (!op.IsSuccessful) return BadRequest(op.Message);
             return Ok(op.Data);
         }
+
 
         /// <summary>
         /// Update an existing user.

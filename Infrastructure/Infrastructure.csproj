@@ -27,21 +27,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DeleteLabels.resx</DependentUpon>
     </Compile>
-    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilterCount\ReadFilterCountLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ReadFilterCountLabels.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilterPage\ReadFilterPageLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ReadFilterPageLabels.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Repositories\Abstract\CRUD\Query\ReadFilter\ReadFilterLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ReadFilterLabels.resx</DependentUpon>
-    </Compile>
     <Compile Update="Repositories\Abstract\CRUD\Query\ReadId\ReadIdLabels.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -67,18 +52,6 @@
     <EmbeddedResource Update="Repositories\Abstract\CRUD\Delete\DeleteLabels.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DeleteLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilterCount\ReadFilterCountLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ReadFilterCountLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilterPage\ReadFilterPageLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ReadFilterPageLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadFilter\ReadFilterLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ReadFilterLabels.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Repositories\Abstract\CRUD\Query\ReadId\ReadIdLabels.resx">
       <Generator>ResXFileCodeGenerator</Generator>

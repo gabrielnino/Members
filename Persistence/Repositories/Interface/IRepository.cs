@@ -5,7 +5,7 @@ namespace Persistence.Repositories.Interface
     /// <summary>
     /// Defines a contract for be an Repository.
     /// </summary>
-    public interface IRepository<T> : IRead<T> where T : class, IEntity
+    public interface IRepository<T> where T : class, IEntity
     {
         /// <summary>
         /// Create an entity

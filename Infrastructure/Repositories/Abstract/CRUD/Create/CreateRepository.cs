@@ -25,7 +25,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Create
                     return validationResult.ConvertTo<bool>();
                 }
 
-                var unique = base.ReadCountFilter(E => E.Id == entity.Id);
+                var unique = base.ReadFilter(E => E.Id == entity.Id);
                 var addedEntityResult = await base.Create(validationResult.Data);
                 var creationSuccess = await GetCreationSuccess();
                 var successMessage = string.Format(creationSuccess, typeof(T).Name);
