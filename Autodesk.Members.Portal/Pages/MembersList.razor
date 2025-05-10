@@ -4,72 +4,72 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0 section-title">People</h3>
-    <div class="d-flex align-items-center">
-        <button class="btn create-btn" data-tooltip="Create new member" @onclick="Create">
-            <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" id="add-user-5" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color">
-                <path id="secondary" d="M17,17h4m-2-2v4" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
-                <path id="primary" d="M15,13.1a4.71,4.71,0,0,0-1-.1H8a5,5,0,0,0-5,5v1s2,2,8,2a22,22,0,0,0,3-.19c.35,0,.69-.1,1-.17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
-                <circle id="primary-2" data-name="primary" cx="11" cy="8" r="5" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></circle>
-            </svg>
-            <span class="visually-hidden">Create</span>
-        </button>
-        <input class="form-control search-input" placeholder="Search by name..." @bind="FilterName" @bind:event="oninput" />
-        <button class="btn search-btn" @onclick="OnSearch">
-            <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.027 9.92L16 13.95 14 16l-4.075-3.976A6.465 6.465 0 0 1 6.5 13C2.91 13 0 10.083 0 6.5 0 2.91 2.917 0 6.5 0 10.09 0 13 2.917 13 6.5a6.463 6.463 0 0 1-.973 3.42zM1.997 6.452c0 2.48 2.014 4.5 4.5 4.5 2.48 0 4.5-2.015 4.5-4.5 0-2.48-2.015-4.5-4.5-4.5-2.48 0-4.5 2.014-4.5 4.5z" fill-rule="evenodd" />
-            </svg>
-            <i class="fas fa-search" aria-hidden="true"></i>
-        </button>
+<div class="members-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 section-title">People</h3>
+        <div class="d-flex align-items-center">
+            <button class="btn create-btn" data-tooltip="Create new member" @onclick="Create">
+                <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" id="add-user-5" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color">
+                    <path id="secondary" d="M17,17h4m-2-2v4" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                    <path id="primary" d="M15,13.1a4.71,4.71,0,0,0-1-.1H8a5,5,0,0,0-5,5v1s2,2,8,2a22,22,0,0,0,3-.19c.35,0,.69-.1,1-.17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                    <circle id="primary-2" data-name="primary" cx="11" cy="8" r="5" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></circle>
+                </svg>
+                <span class="visually-hidden">Create</span>
+            </button>
+            <input class="form-control search-input" placeholder="Search by name..." @bind="FilterName" @bind:event="oninput" />
+            <button class="btn search-btn" @onclick="OnSearch">
+                <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.027 9.92L16 13.95 14 16l-4.075-3.976A6.465 6.465 0 0 1 6.5 13C2.91 13 0 10.083 0 6.5 0 2.91 2.917 0 6.5 0 10.09 0 13 2.917 13 6.5a6.463 6.463 0 0 1-.973 3.42zM1.997 6.452c0 2.48 2.014 4.5 4.5 4.5 2.48 0 4.5-2.015 4.5-4.5 0-2.48-2.015-4.5-4.5-4.5-2.48 0-4.5 2.014-4.5 4.5z" fill-rule="evenodd" />
+                </svg>
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
-</div>
 
-<div class="row g-4">
-    @foreach (var u in Users)
-    {
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-lg">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-truncate">@u.Name @u.Lastname</h5>
-                    <p class="card-text text-truncate">@u.Email</p>
-                    <div class="mt-auto d-flex justify-content-end">
-                        <button class="btn btn-edit" @onclick="() => Edit(u.Id)">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H9M15 5H17C18.1046 5 19 5.89543 19 7V9" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M14.902 20.3343L12.7153 20.7716L13.1526 18.585C13.1914 18.3914 13.2865 18.2136 13.4261 18.074L17.5 14L19.5 12L21.4869 13.9869L19.4869 15.9869L15.413 20.0608C15.2734 20.2004 15.0956 20.2956 14.902 20.3343Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span class="visually-hidden">Edit</span>
-                        </button>
-                        <button class="btn btn-delete" @onclick="() => Delete(u.Id)">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span class="visually-hidden">Delete</span>
-                        </button>
+    <div class="row g-4">
+        @foreach (var u in Users)
+        {
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="user-card h-100 shadow-lg">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate">@u.Name @u.Lastname</h5>
+                        <p class="card-text text-truncate">@u.Email</p>
+                        <div class="mt-auto d-flex justify-content-end">
+                            <button class="btn btn-edit" @onclick="() => Edit(u.Id)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H9M15 5H17C18.1046 5 19 5.89543 19 7V9" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M14.902 20.3343L12.7153 20.7716L13.1526 18.585C13.1914 18.3914 13.2865 18.2136 13.4261 18.074L17.5 14L19.5 12L21.4869 13.9869L19.4869 15.9869L15.413 20.0608C15.2734 20.2004 15.0956 20.2956 14.902 20.3343Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="visually-hidden">Edit</span>
+                            </button>
+                            <button class="btn btn-delete" @onclick="() => Delete(u.Id)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="visually-hidden">Delete</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
-
-<div class="text-center mt-4">
-    <button class="btn load-more-btn px-5" @onclick="LoadMore" disabled="@Loading">
-        @if (Loading)
-        {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         }
-        Load More
-    </button>
-</div>
+    </div>
 
+    <div class="text-center mt-4">
+        <button class="btn load-more-btn px-5" @onclick="LoadMore" disabled="@Loading">
+            @if (Loading)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Load More
+        </button>
+    </div>
+</div>
 @code {
     private List<User> Users { get; set; } = new();
     private string? NextCursor;
