@@ -1,5 +1,4 @@
 ﻿using Application.Result;
-using Application.UseCases.Repository.CRUD.Query;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
 
@@ -15,12 +14,6 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Util
                 return OperationStrategy<T>.Fail(utilEntityFailedNecesaryData, new BusinessStrategy<T>());
             }
 
-            var utilEntitySuccess = UtilEntityLabels.UtilEntitySuccess;
-            return Operation<T>.Success(entity, utilEntitySuccess);
-        }
-
-        public async Task<Operation<T>> HasUnique(T entity)
-        {
             var utilEntitySuccess = UtilEntityLabels.UtilEntitySuccess;
             return Operation<T>.Success(entity, utilEntitySuccess);
         }
