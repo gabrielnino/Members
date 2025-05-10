@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Autodesk.Domain\Autodesk.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\image\" />
+  </ItemGroup>
+
 </Project>
