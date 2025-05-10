@@ -11,9 +11,9 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     {
         public override async Task<Operation<User>> UpdateEntity(User entityModified, User entityUnmodified)
         {
-            var email = entityModified?.Email ?? string.Empty;
-            var id = entityModified?.Id ?? string.Empty;
-            var userByEmail = await ReadFilter(p => (p.Email ?? string.Empty).Equals(email) && !p.Id.Equals(id));
+            entityUnmodified.Name = entityModified.Name;
+            entityUnmodified.Lastname = entityModified.Lastname;
+            entityUnmodified.Email = entityModified.Email;
             var updateSuccessfullySearchGeneric = UserUpdateLabels.UpdateSuccessfullySearchGeneric;
             var successMessage = string.Format(updateSuccessfullySearchGeneric, typeof(User).Name);
             return Operation<User>.Success(entityUnmodified, successMessage);
