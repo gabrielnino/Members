@@ -3,11 +3,12 @@
 @using Autodesk.Domain
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0 section-title">People</h3>
     <div class="d-flex align-items-center">
-        <button class="btn create-btn" @onclick="Create">
+        <button class="btn create-btn" data-tooltip="Create new member" @onclick="Create">
             <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" id="add-user-5" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color">
                 <path id="secondary" d="M17,17h4m-2-2v4" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
                 <path id="primary" d="M15,13.1a4.71,4.71,0,0,0-1-.1H8a5,5,0,0,0-5,5v1s2,2,8,2a22,22,0,0,0,3-.19c.35,0,.69-.1,1-.17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
@@ -35,7 +36,6 @@
                     <p class="card-text text-truncate">@u.Email</p>
                     <div class="mt-auto d-flex justify-content-end">
                         <button class="btn btn-edit" @onclick="() => Edit(u.Id)">
-     
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H9M15 5H17C18.1046 5 19 5.89543 19 7V9" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M14.902 20.3343L12.7153 20.7716L13.1526 18.585C13.1914 18.3914 13.2865 18.2136 13.4261 18.074L17.5 14L19.5 12L21.4869 13.9869L19.4869 15.9869L15.413 20.0608C15.2734 20.2004 15.0956 20.2956 14.902 20.3343Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -43,7 +43,6 @@
                             </svg>
                             <span class="visually-hidden">Edit</span>
                         </button>
-
                         <button class="btn btn-delete" @onclick="() => Delete(u.Id)">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -54,7 +53,6 @@
                             </svg>
                             <span class="visually-hidden">Delete</span>
                         </button>
-
                     </div>
                 </div>
             </div>
@@ -119,8 +117,30 @@
         Navigation.NavigateTo($"/UserForm/{id}");
     }
 
+
     private async Task Delete(string id)
     {
-        Navigation.NavigateTo($"/Person/{id}/delete");
+        bool confirmed = await JS.InvokeAsync<bool>(
+            "confirm",
+            "Are you sure you want to delete this user?"
+        );
+        if (!confirmed)
+            return;
+
+        var client = HttpClientFactory.CreateClient("AutodeskApi");
+        var response = await client.DeleteAsync($"api/v1/users/{Uri.EscapeDataString(id)}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var userToRemove = Users.FirstOrDefault(u => u.Id == id);
+            if (userToRemove != null)
+                Users.Remove(userToRemove);
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.Error.WriteLine($"Delete failed: {response.StatusCode} – {error}");
+            await JS.InvokeVoidAsync("alert", "Failed to delete the user. Please try again.");
+        }
     }
 }
