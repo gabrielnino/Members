@@ -32,10 +32,11 @@
         @if(isSaving)
         {
             <span class="spinner-border spinner-border-sm me-1"></span>
+                        Sending…
         }
         else
         {
-            @(isEdit ? "Update" : "Create")
+                         
         }
     </button>
     <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel" disabled="@isSaving">
