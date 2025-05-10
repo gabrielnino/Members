@@ -190,10 +190,17 @@ code {
 
 .search-btn {
     background-color: #1abc9c;
+    width: 3rem; /* slightly bigger button */
+    height: 3rem;
     color: #fff;
     border: none;
     border-radius: 0 0.5rem 0.5rem 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
 }
+
 
     .search-btn:hover {
         background-color: #17a589;
