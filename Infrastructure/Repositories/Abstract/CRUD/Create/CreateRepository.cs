@@ -6,7 +6,7 @@ using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Create
 {
-    public abstract class CreateRepository<T>(DbContext context, IUtilEntity<T> utilEntity, IErrorStrategyHandler errorStrategyHandler) : Repository<T>(context), ICreate<T> where T : class, IEntity
+    public abstract class CreateRepository<T>(DbContext context, IUtilEntity<T> utilEntity, IErrorStrategyHandler errorStrategyHandler) : RepositoryCreate<T>(context), ICreate<T> where T : class, IEntity
     {
 
         public new async Task<Operation<bool>> Create(T entity)

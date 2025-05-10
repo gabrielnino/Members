@@ -8,7 +8,7 @@ namespace Persistence.Test.Repositories
 {
     public class ReadTests
     {
-        private class TestReadRepository : Read<User>
+        private class TestReadRepository : Repository<User>
         {
             public TestReadRepository(DbContext context) : base(context) { }
         }

@@ -1,8 +1,8 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD.Query;
 using Domain.Interfaces.Entity;
-using Infrastructure.Repositories.Abstract.CRUD.Validation;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
 {
@@ -12,42 +12,16 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
         {
             try
             {
-                Operation<T> validationResult = await HasId(id);
-                if (!validationResult.IsSuccessful)
+                var validationResult = await HasId(id);
+                if (validationResult is null)
                 {
-                    return validationResult.ConvertTo<T>();
+                    var strategy = new BusinessStrategy<T>();
+                    return OperationStrategy<T>.Fail("Not found", strategy);
                 }
 
-                T? entity = validationResult.Data;
+                T? entity = validationResult;
                 var readIdSuccess = ReadIdLabels.ReadIdSuccess;
                 return Operation<T>.Success(entity, readIdSuccess);
-            }
-            catch (Exception ex)
-            {
-                return errorStrategyHandler.Fail<T>(ex);
-            }
-        }
-
-        public async Task<Operation<T>> ReadByBearerToken(string bearerToken)
-        {
-            try
-            {
-                var resultbearer = JwtHelper.ExtractJwtPayload(bearerToken);
-                if (!resultbearer.IsSuccessful)
-                {
-                    var strategy = new DatabaseStrategy<T>();
-                    return OperationStrategy<T>.Fail(resultbearer.Message, strategy);
-                }
-
-                Operation<T> validationResult = await HasId(resultbearer.Data);
-                if (!validationResult.IsSuccessful)
-                {
-                    return validationResult.ConvertTo<T>();
-                }
-
-                T? entity = validationResult.Data;
-                var readByBearerSuccess = ReadIdLabels.ReadByBearerSuccess;
-                return Operation<T>.Success(entity, readByBearerSuccess);
             }
             catch (Exception ex)
             {

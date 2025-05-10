@@ -13,7 +13,7 @@ namespace Persistence.Test.Repositories
     {
 
         // Concrete repo for testing
-        private class TestRepository(DbContext context) : Repository<User>(context)
+        private class TestRepository(DbContext context) : Read<User>(context)
         {
         }
 

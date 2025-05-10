@@ -1,24 +1,39 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Interfaces.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Persistence.Repositories
 {
-    /// <summary>
-    /// Base class for read operations on <typeparamref name="T"/> entities.
-    /// </summary>
-    /// <typeparam name="T">Entity type.</typeparam>
-    /// <param name="context">EF Core context.</param>
-    public abstract class Read<T>(DbContext context) where T : class
+    public abstract class Read<T>(DbContext context) : Repository<T>(context) where T : class, IEntity
     {
-        /// <summary>
-        /// Validated EF Core context.
-        /// </summary>
-        protected readonly DbContext _context = RepositoryHelper.ValidateArgument(context);
+        //private new readonly DbContext _context = RepositoryHelper.ValidateArgument(context);
+        //private new readonly DbSet<T> _dbSet = context.Set<T>();
 
-        /// <summary>
-        /// EF Core set for <typeparamref name="T"/>.
-        /// </summary>
-        protected readonly DbSet<T> _dbSet = context.Set<T>();
+        //protected async Task<bool> Create(T? entity)
+        //{
+        //    entity = RepositoryHelper.ValidateArgument(entity);
+        //    _dbSet.Add(entity);
+        //    var result = await SaveChangesAsync();
+        //    return result > 0;
+        //}
+
+        //protected async Task<bool> Update(T entity)
+        //{
+        //    RepositoryHelper.ValidateArgument(entity);
+        //    _context.Entry(entity).State = EntityState.Modified;
+        //    var result = await SaveChangesAsync();
+        //    return result > 0;
+        //}
+
+        //protected async Task<bool> Delete(T entity)
+        //{
+        //    RepositoryHelper.ValidateArgument(entity);
+        //    _dbSet.Remove(entity);
+        //    var result = await SaveChangesAsync();
+        //    return result > 0;
+        //}
+
+
 
         /// <summary>
         /// Get entities matching <paramref name="predicate"/>.

@@ -1,12 +1,12 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
-using Infrastructure.Repositories.Abstract.CRUD.Validation;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Update
 {
-    public abstract class UpdateRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler, IUtilEntity<T> utilEntity) : EntityChecker<T>(context), IUpdate<T> where T : class, IEntity
+    public abstract class UpdateRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler, IUtilEntity<T> utilEntity) : RepositoryUpdate<T>(context), IUpdate<T> where T : class, IEntity
     {
         public new async Task<Operation<bool>> Update(T entity)
         {
@@ -15,12 +15,17 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
                 Operation<T> hasEntity = await utilEntity.HasEntity(entity);
                 if (!hasEntity.IsSuccessful)
                     return hasEntity.ConvertTo<bool>();
-                Operation<T> resultExist = await HasId(entity.Id);
-                if (!resultExist.IsSuccessful)
-                    return resultExist.ConvertTo<bool>();
-                Operation<T> resultModifyEntity = await UpdateEntity(entity, resultExist.Data);
+                var resultExist = await HasId(entity.Id);
+                if (resultExist is null)
+                {
+                    var strategy = new BusinessStrategy<bool>();
+                    return OperationStrategy<bool>.Fail("Not found", strategy);
+                }
+                Operation<T> resultModifyEntity = await UpdateEntity(entity, resultExist);
                 if (!resultModifyEntity.IsSuccessful)
+                {
                     return resultModifyEntity.ConvertTo<bool>();
+                }
                 var updateResult = await base.Update(resultModifyEntity.Data);
                 var updateSuccess = "UpdateSuccess";
                 var messageSuccess = string.Format(updateSuccess, typeof(T).Name);

@@ -37,11 +37,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>UtilEntityLabels.resx</DependentUpon>
     </Compile>
-    <Compile Update="Repositories\Abstract\CRUD\Validation\EntityCheckerLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>EntityCheckerLabels.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -60,10 +55,6 @@
     <EmbeddedResource Update="Repositories\Abstract\CRUD\Util\UtilEntityLabels.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>UtilEntityLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Validation\EntityCheckerLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>EntityCheckerLabels.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
