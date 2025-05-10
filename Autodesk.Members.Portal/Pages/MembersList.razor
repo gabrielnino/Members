@@ -5,34 +5,29 @@
 @inject NavigationManager Navigation
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0">People</h3>
-    <div class="input-group w-25">
-        <input class="form-control" placeholder="Search by name..." @bind="FilterName" @bind:event="oninput" />
-        <button class="btn btn-outline-secondary" @onclick="OnSearch">
+    <h3 class="mb-0 section-title">People</h3>
+    <div class="input-group search-group w-25">
+        <input class="form-control search-input" placeholder="Search by name..." @bind="FilterName" @bind:event="oninput" />
+        <button class="btn search-btn" @onclick="OnSearch">
             <i class="fas fa-search" aria-hidden="true"></i>
         </button>
     </div>
 </div>
 
-@if (Users.Count == 0 && !Loading)
-{
-    <div class="alert alert-info">No records found.</div>
-}
-
-<div class="row g-3">
+<div class="row g-4">
     @foreach (var u in Users)
     {
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-lg">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title text-truncate">@u.Name @u.Lastname</h5>
                     <p class="card-text text-truncate">@u.Email</p>
                     <div class="mt-auto d-flex justify-content-end">
-                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => Edit(u.Id)">
-                            <i class="fas fa-edit" aria-hidden="true"></i>
+                        <button class="btn btn-edit" @onclick="() => Edit(u.Id)">
+                            <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(u.Id)">
-                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                        <button class="btn btn-delete" @onclick="() => Delete(u.Id)">
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 </div>
@@ -41,8 +36,8 @@
     }
 </div>
 
-<div class="text-center mt-4" style="visibility:@(NextCursor != null ? "visible" : "hidden");">
-    <button class="btn btn-primary px-5" @onclick="LoadMore" disabled="@Loading">
+<div class="text-center mt-4">
+    <button class="btn load-more-btn px-5" @onclick="LoadMore" disabled="@Loading">
         @if (Loading)
         {
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
