@@ -1,7 +1,24 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Welcome</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="welcome-page container py-5">
+    <h1 class="display-4 mb-3">Welcome!</h1>
+    <p class="lead">Thank you for considering my application for the Senior Developer Advocate role at Autodesk. I am <strong>Luis Nino</strong>, and here’s why I’m the best candidate:</p>
+    <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item">17+ years of experience building scalable <code>.NET</code> applications and object-oriented systems.</li>
+        <li class="list-group-item">Proven track record automating CI/CD pipelines, reducing deployment time by up to 35%.</li>
+        <li class="list-group-item">Strong mentor and communicator, fluent in English and Spanish, adept at cross-cultural collaboration.</li>
+        <li class="list-group-item">Passionate about advocacy: providing proactive API support, influencing product improvements, and driving developer success.</li>
+    </ul>
+    <p>I look forward to helping Autodesk partners imagine and create a better world through innovative technology.</p>
+</div>
 
-Welcome to your new app.
+<style>
+    .welcome-page {
+        background: #ffffff;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
