@@ -1,3 +1,11 @@
+.navbar-logo {
+    background-color: #fff;
+    /* optional: round the corners to match your navbar */
+    border-radius: 0.25rem;
+    /* ensure it doesn’t overflow */
+    display: block;
+}
+
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
 }
