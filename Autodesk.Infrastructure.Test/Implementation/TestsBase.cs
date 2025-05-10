@@ -1,11 +1,6 @@
-﻿using Application.UseCases.Repository.CRUD.Query;
-using Autodesk.Domain;
+﻿using Autodesk.Domain;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
-using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter;
-using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilterCount;
-using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilterPage;
-using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadId;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
@@ -37,10 +32,6 @@ namespace Autodesk.Infrastructure.Test.Implementation
         protected UserCreate RepoCreate;
         protected UserDelete RepoDelete;
         protected UserUpdate RepoUpdate;
-        protected UserReadById RepoReadById;
-        protected UserReadFilterPage ReadFilterPage;
-        protected UserReadFilter ReadFilter;
-        protected UserReadFilterCount ReadFilterCount;
         public TestsBase()
         {
             Errors.LoadErrorMappings(JsonFile);
@@ -48,10 +39,6 @@ namespace Autodesk.Infrastructure.Test.Implementation
             RepoCreate = new UserCreate(Ctx, Util, Errors);
             RepoDelete = new UserDelete(Ctx, Errors);
             RepoUpdate = new UserUpdate(Ctx, Errors,Util);
-            RepoReadById = new UserReadById(Ctx, Errors);
-            ReadFilterPage = new UserReadFilterPage(Ctx, Errors);
-            ReadFilter = new UserReadFilter(Ctx, Errors);
-            ReadFilterCount = new UserReadFilterCount(Ctx, Errors);
         }
     }
 }
