@@ -1,5 +1,6 @@
 ﻿@page "/UserForm"
 @page "/UserForm/{Id}"
+@using Application.Common.Pagination
 @using Autodesk.Domain
 @using System.Net.Http.Json
 @inject IHttpClientFactory HttpClientFactory
@@ -55,10 +56,11 @@
         {
             // Load existing user
             var client = HttpClientFactory.CreateClient("AutodeskApi");
-            var op = await client.GetFromJsonAsync<User>($"api/v1/users/{Uri.EscapeDataString(Id!)}");
+            var requestUri = $"api/v1/users/cursor?id={Uri.EscapeDataString(Id!)}&pageSize=20";
+            var op = await client.GetFromJsonAsync<PagedResult<User>>(requestUri);
             if (op is not null)
             {
-                user = op;
+                user = op.Items.FirstOrDefault();
             }
             else
             {
