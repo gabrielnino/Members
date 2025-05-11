@@ -27,7 +27,7 @@ public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler err
             }
             var query = context.Users
                 .AsNoTracking()
-                .Where(BuildIdOrNameFilter(id, name))
+                .Where(BuildUserFilter(id, name))
                 .OrderBy(u => u.Name!)
                 .ThenBy(u => u.Id);
 
@@ -75,18 +75,28 @@ public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler err
         }
     }
 
-    private static Expression<Func<User, bool>> BuildIdOrNameFilter(string? id, string? name)
+    private static Expression<Func<User, bool>> BuildUserFilter(string? id, string? name)
     {
-        if (!string.IsNullOrWhiteSpace(id))
+        if (ShouldFilterById(id))
         {
-            return u => u.Id == id;
+            return BuildIdFilter(id!);
         }
 
-        if (!string.IsNullOrWhiteSpace(name))
+        if (ShouldFilterByName(name))
         {
-            return u => EF.Functions.Like(u.Name!, $"%{name}%");
+            return BuildNameFilter(name!);
         }
 
-        return u => true;
+        return ReturnDefaultFilter();
     }
+
+    private static bool ShouldFilterById(string? id) => !string.IsNullOrWhiteSpace(id);
+
+    private static bool ShouldFilterByName(string? name) => !string.IsNullOrWhiteSpace(name);
+
+    private static Expression<Func<User, bool>> BuildIdFilter(string id) => u => u.Id == id;
+
+    private static Expression<Func<User, bool>> BuildNameFilter(string name) => u => EF.Functions.Like(u.Name!, $"%{name}%");
+
+    private static Expression<Func<User, bool>> ReturnDefaultFilter() => u => true;
 }
