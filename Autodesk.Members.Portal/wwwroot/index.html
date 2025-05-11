@@ -26,7 +26,23 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <div id="app">Loading...</div>
+
     <script src="_framework/blazor.webassembly.js"></script>
+
+    <script>
+        // registerScrollHandler must live on window for JSInterop to find it
+        window.registerScrollHandler = (dotnetHelper) => {
+            window.addEventListener('scroll', () => {
+                // when you're within 100px of the bottom...
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                    dotnetHelper
+                        .invokeMethodAsync('OnScrollHandler')
+                        .catch(err => console.error(err));
+                }
+            });
+        };
+    </script>
 </body>
 
 </html>

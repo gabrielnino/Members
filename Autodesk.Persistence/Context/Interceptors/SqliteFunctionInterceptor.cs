@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
-using System.Data;
 
 namespace Autodesk.Persistence.Context.Interceptors
 {
@@ -28,9 +27,8 @@ namespace Autodesk.Persistence.Context.Interceptors
             await base.ConnectionOpenedAsync(connection, eventData, cancellationToken);
         }
 
-        private void RegisterFunction(SqliteConnection sqlite)
+        private static void RegisterFunction(SqliteConnection sqlite)
         {
-            // Registra siempre, esté abierta o no
             sqlite.CreateFunction<string, string, int>(
               "StringCompareOrdinal",
               (a, b) => a == b ? 0
