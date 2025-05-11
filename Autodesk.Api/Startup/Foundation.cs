@@ -5,6 +5,7 @@ using Autodesk.Persistence.Context;
 using System.Text;
 using Domain.Settings;
 using Application.Result;
+using Autodesk.Persistence.Context.Interceptors;
 
 namespace Autodesk.Api.Startup
 {
@@ -42,7 +43,8 @@ namespace Autodesk.Api.Startup
             connectionString = ValidateArgument(connectionString);
             builder.Services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"));
+                options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"))
+                .AddInterceptors(new SqliteFunctionInterceptor());
             });
         }
 

@@ -5,7 +5,6 @@ using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
-using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
