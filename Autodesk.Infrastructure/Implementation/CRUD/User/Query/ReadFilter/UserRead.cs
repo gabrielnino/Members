@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
 
-public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler errorStrategyHandler, IMemoryCache cache) : IUserReadFilterCursor
+public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHandler, IMemoryCache cache) : IUserRead
 {
     private readonly DataContext context = context;
     private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
 
-    public async Task<Operation<PagedResult<User>>> ReadFilterCursor(
+    public async Task<Operation<PagedResult<User>>> GetUsersPage(
         string? id,
         string? name,
         string? cursor,

@@ -5,8 +5,8 @@ using System.Linq.Expressions;
 namespace Autodesk.Application.UseCases.CRUD.User.Query
 {
     using User = Domain.User;
-    public interface IUserReadFilterCursor
+    public interface IUserRead
     {
-        Task<Operation<PagedResult<User>>> ReadFilterCursor(string? id, string? name, string? cursor, int pageSize);
+        Task<Operation<PagedResult<User>>> GetUsersPage(string? id, string? name, string? cursor, int pageSize);
     }
 }

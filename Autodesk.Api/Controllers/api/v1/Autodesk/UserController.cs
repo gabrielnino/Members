@@ -11,12 +11,12 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
     [Route("api/v1/users")]
     public class UserController(
         IUserCreate userCreate,
-        IUserReadFilterCursor readFilterCursor,
+        IUserRead readFilterCursor,
         IUserUpdate userUpdate,
         IUserDelete userDelete) : ControllerBase
     {
         private readonly IUserCreate _create = userCreate;
-        private readonly IUserReadFilterCursor _readFilterCursor = readFilterCursor;
+        private readonly IUserRead _readFilterCursor = readFilterCursor;
         private readonly IUserUpdate _update = userUpdate;
         private readonly IUserDelete _delete = userDelete;
 
@@ -44,7 +44,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
                 return BadRequest(ModelState);
             }
                 
-            var op = await readFilterCursor.ReadFilterCursor(qp.Id, qp.Name, qp.Cursor, qp.PageSize);
+            var op = await readFilterCursor.GetUsersPage(qp.Id, qp.Name, qp.Cursor, qp.PageSize);
             if (!op.IsSuccessful) return BadRequest(op.Message);
             return Ok(op.Data);
         }

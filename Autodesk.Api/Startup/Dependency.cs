@@ -25,7 +25,7 @@ namespace Autodesk.Api.Startup
 
         protected static void User(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IUserReadFilterCursor, UserReadFilterCursor>();
+            builder.Services.AddScoped<IUserRead, UserRead>();
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();
             builder.Services.AddScoped<IUserDelete, UserDelete>();
