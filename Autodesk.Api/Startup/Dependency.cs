@@ -13,6 +13,11 @@ namespace Autodesk.Api.Startup
 {
     public class Dependency
     {
+        protected static void Cache(WebApplicationBuilder builder)
+        {
+            builder.Services.AddMemoryCache();
+        }
+
         protected static void Util(WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<IUtilEntity<User>, UtilEntity<User>>();

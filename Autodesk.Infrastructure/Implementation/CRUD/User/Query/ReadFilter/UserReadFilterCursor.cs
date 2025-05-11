@@ -4,9 +4,10 @@ using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Linq.Expressions;
 
-public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler errorStrategyHandler) : IUserReadFilterCursor
+public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler errorStrategyHandler, IMemoryCache cache) : IUserReadFilterCursor
 {
     private readonly DataContext context = context;
     private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
@@ -19,7 +20,11 @@ public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler err
     {
         try
         {
-
+            var cacheKey = $"users:{id}:{name}:{cursor}:{pageSize}";
+            if (cache.TryGetValue(cacheKey, out PagedResult<User> cached))
+            {
+                return Operation<PagedResult<User>>.Success(cached);
+            }
             var query = context.Users
                 .AsNoTracking()
                 .Where(BuildIdOrNameFilter(id, name))
@@ -61,6 +66,7 @@ public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler err
                 Items      = items,
                 NextCursor = nextCursor
             };
+            cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
             return Operation<PagedResult<User>>.Success(result);
         }
         catch (Exception ex)
