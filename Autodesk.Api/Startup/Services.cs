@@ -1,6 +1,6 @@
-﻿namespace Autodesk.Api.Program
+﻿namespace Autodesk.Api.Startup
 {
-    internal class Services : Database
+    public class Services : Database
     {
         protected static void ConfigureServices(WebApplicationBuilder builder)
         {

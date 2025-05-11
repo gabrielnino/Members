@@ -7,9 +7,9 @@ using System.Text;
 using Domain.Settings;
 using Application.Result;
 
-namespace Autodesk.Api.Program
+namespace Autodesk.Api.Startup
 {
-    internal class Foundation : Injection
+    public class Foundation : Injection
     {
         protected static void RunErrorStrategy(WebApplicationBuilder builder)
         {

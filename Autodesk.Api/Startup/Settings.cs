@@ -1,4 +1,4 @@
-﻿namespace Autodesk.Api.Program
+﻿namespace Autodesk.Api.Startup
 {
     internal static class Settings
     {

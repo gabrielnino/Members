@@ -1,10 +1,9 @@
-namespace Api.Program
+namespace Autodesk.Api.Startup
 {
-    using Autodesk.Api.Program;
     using Autodesk.Persistence.Context;
     using System.Text.RegularExpressions;
 
-    internal class Program : Services
+    public class Program : Services
     {
         private static void Main(string[] args)
         {

@@ -13,7 +13,7 @@ using Infrastructure.Result;
 using System.Data;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace Autodesk.Api.Program
+namespace Autodesk.Api.Startup
 {
     public class Dependency
     {

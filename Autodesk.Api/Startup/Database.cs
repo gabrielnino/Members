@@ -2,9 +2,9 @@
 using Persistence.CreateStruture.Constants.ColumnType;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
 
-namespace Autodesk.Api.Program
+namespace Autodesk.Api.Startup
 {
-    internal class Database : Middleware
+    public class Database : Middleware
     {
         protected static void SetDatabase(WebApplicationBuilder builder)
         {

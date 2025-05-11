@@ -1,6 +1,6 @@
-﻿namespace Autodesk.Api.Program
+﻿namespace Autodesk.Api.Startup
 {
-    internal class Injection : Dependency
+    public class Injection : Dependency
     {
         protected static void AddScoped(WebApplicationBuilder builder)
         {

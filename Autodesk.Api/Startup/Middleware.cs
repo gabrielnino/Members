@@ -1,6 +1,6 @@
-﻿namespace Autodesk.Api.Program
+﻿namespace Autodesk.Api.Startup
 {
-    internal class Middleware : Foundation
+    public class Middleware : Foundation
     {
         protected static void ConfigureMiddleware(WebApplication app)
         {
