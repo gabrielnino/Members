@@ -97,7 +97,7 @@
     {
         Loading = true;
         var client = HttpClientFactory.CreateClient("AutodeskApi");
-        var url = $"api/v1/users/cursor?name={Uri.EscapeDataString(FilterName)}&cursor={NextCursor}&pageSize=20";
+        var url = $"api/v1/users/cursor?name={Uri.EscapeDataString(FilterName)}&cursor={NextCursor}&pageSize=8";
         var page = await client.GetFromJsonAsync<PagedResult<User>>(url);
         if (page != null)
         {
