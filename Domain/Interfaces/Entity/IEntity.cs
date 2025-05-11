@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Interfaces.Entity
+﻿namespace Domain.Interfaces.Entity
 {
     /// <summary>
     /// Defines a contract for be an entity.

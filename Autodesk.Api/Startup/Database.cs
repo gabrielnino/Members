@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Persistence.CreateStruture.Constants.ColumnType;
+﻿using Persistence.CreateStruture.Constants.ColumnType;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
 
 namespace Autodesk.Api.Startup

@@ -1,6 +1,5 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
-using Application.UseCases.Repository.CRUD.Query;
 using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
@@ -10,8 +9,6 @@ using Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
-using System.Data;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Autodesk.Api.Startup
 {

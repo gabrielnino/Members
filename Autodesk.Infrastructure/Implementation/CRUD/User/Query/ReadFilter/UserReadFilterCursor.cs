@@ -30,7 +30,11 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter
                     var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
                     var lastName = parts[0];
                     var lastId = parts[1];
-                    query = (IOrderedQueryable<User>)query.Where(BuildCursorFilter(lastName, lastId));
+                    var predicate = BuildCursorFilter(lastName, lastId);
+                    query = query
+                        .Where(predicate)
+                        .OrderBy(u => u.Name!)
+                        .ThenBy(u => u.Id);
                 }
 
                 var items = await query.Take(pageSize + 1).ToListAsync();
@@ -70,10 +74,19 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter
 
             return u => true;
         }
-
+        /*
+         var page = context.Users
+    .OrderBy(u => u.Name)
+    .ThenBy(u => u.Id)
+    .Where(u =>
+        u.Name  > lastName
+     || (u.Name == lastName && u.Id > lastId)
+    )
+    .Take(pageSize)
+    .ToList();
+         */
         private static Expression<Func<User, bool>> BuildCursorFilter(string lastName, string lastId) =>
-            u => u.Name!.CompareTo(lastName) > 0
-              || (u.Name == lastName && string.Compare(u.Id, lastId, StringComparison.Ordinal) > 0);
+            u => u.Name == lastName && u.Id == lastId;
     }
 }
 

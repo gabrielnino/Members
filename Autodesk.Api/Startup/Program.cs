@@ -17,7 +17,6 @@ namespace Autodesk.Api.Startup
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 if (!db.Initialize())
                 {
-                    // initialization failed — you could log and/or stop the app
                     throw new Exception("Database initialization failed");
                 }
             }

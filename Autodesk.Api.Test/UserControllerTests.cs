@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
+﻿using System.Text;
 using System.Text.Json;
 using Autodesk.Api.Startup;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -18,24 +12,21 @@ namespace Autodesk.Api.Test
         private readonly HttpClient _client;
 
         // Expanded pools of realistic names:
-        private readonly string[] _firstNames = new[]
-        {
+        private readonly string[] _firstNames =
+        [
         "Olivia","Liam","Emma","Noah","Ava","Oliver","Sophia","Elijah","Isabella","Lucas",
         "Mia","Mason","Amelia","Logan","Harper","Ethan","Evelyn","James","Abigail","Benjamin",
         "Ella","Jacob","Avery","Michael","Scarlett","Alexander","Grace","William","Chloe","Daniel"
-    };
+        ];
 
-        private readonly string[] _lastNames = new[]
-        {
+        private readonly string[] _lastNames =
+        [
         "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
         "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
         "Lee","Perez","Thompson","White","Harris","Sanchez","Clark","Ramirez","Lewis","Robinson"
-    };
+        ];
 
-        public UserControllerTests(WebApplicationFactory<Program> factory)
-        {
-            _client = factory.CreateClient();
-        }
+        public UserControllerTests(WebApplicationFactory<Program> factory) => _client = factory.CreateClient();
 
         [Fact]
         public async Task Insert_1000_Users_ShouldReturn_Created()

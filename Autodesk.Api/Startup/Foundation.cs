@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Autodesk.Persistence.Context;
-using System.Data;
 using System.Text;
 using Domain.Settings;
 using Application.Result;
