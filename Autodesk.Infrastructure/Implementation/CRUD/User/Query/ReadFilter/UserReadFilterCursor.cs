@@ -74,17 +74,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Query.ReadFilter
 
             return u => true;
         }
-        /*
-         var page = context.Users
-    .OrderBy(u => u.Name)
-    .ThenBy(u => u.Id)
-    .Where(u =>
-        u.Name  > lastName
-     || (u.Name == lastName && u.Id > lastId)
-    )
-    .Take(pageSize)
-    .ToList();
-         */
+
         private static Expression<Func<User, bool>> BuildCursorFilter(string lastName, string lastId) =>
             u => u.Name == lastName && u.Id == lastId;
     }

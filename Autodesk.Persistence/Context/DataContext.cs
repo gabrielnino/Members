@@ -47,6 +47,12 @@ namespace Autodesk.Persistence.Context
         {
             base.OnModelCreating(modelBuilder);
             DataHelper.SetTableUsers(modelBuilder, _columnTypes);
+
+            modelBuilder.HasDbFunction(typeof(DataContext)
+                .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)
+            .HasName("StringCompareOrdinal");
         }
+
+        public static int StringCompareOrdinal(string a, string b) => throw new NotSupportedException();
     }
 }
