@@ -2,8 +2,8 @@
 using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
+using Autodesk.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Autodesk.Api.Controllers.api.v1.Autodesk
 {
@@ -20,9 +20,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         private readonly IUserUpdate _update = userUpdate;
         private readonly IUserDelete _delete = userDelete;
 
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
+
         [HttpPost]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -37,26 +35,21 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             return CreatedAtAction(nameof(ReadFilterCursor), new { id = user.Id }, user);
         }
 
-        /// <summary>
-        /// GET /api/v1/users/cursor?name=&amp;cursor=&amp;pageSize=
-        /// </summary>
         [HttpGet("cursor")]
         [ProducesResponseType(typeof(PagedResult<User>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ReadFilterCursor(
-            [FromQuery] string? id,
-            [FromQuery] string? name,
-            [FromQuery] string? cursor,
-            [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> ReadFilterCursor([FromQuery] UserQueryParams qp)
         {
-            var op = await readFilterCursor.ReadFilterCursor(id, name, cursor, pageSize);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+                
+            var op = await readFilterCursor.ReadFilterCursor(qp.Id, qp.Name, qp.Cursor, qp.PageSize);
             if (!op.IsSuccessful) return BadRequest(op.Message);
             return Ok(op.Data);
         }
 
 
-        /// <summary>
-        /// Update an existing user.
-        /// </summary>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,9 +69,6 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             return Ok(user);
         }
 
-        /// <summary>
-        /// Delete a user by its identifier.
-        /// </summary>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

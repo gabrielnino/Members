@@ -1,6 +1,9 @@
 ﻿@page "/MembersList"
 @using Application.Common.Pagination
 @using Autodesk.Domain
+@using Autodesk.Shared.Models
+@using Autodesk.Shared.Pagination
+@using Microsoft.AspNetCore.WebUtilities
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -131,7 +134,30 @@
     {
         Loading = true;
         var client = HttpClientFactory.CreateClient("AutodeskApi");
-        var url = $"api/v1/users/cursor?name={Uri.EscapeDataString(FilterName)}&cursor={NextCursor}&pageSize=8";
+        var qp = new UserQueryParams
+        {
+            Name = FilterName,
+            Cursor = NextCursor,
+            PageSize = PaginationDefaults.DefaultPageSize
+        };
+
+        var queryParams = new Dictionary<string, string?>();
+
+        if (!string.IsNullOrWhiteSpace(qp.Id))
+        {
+            queryParams["id"] = qp.Id;
+        }
+        if (!string.IsNullOrWhiteSpace(qp.Name))
+        {
+            queryParams["name"] = qp.Name;
+        }
+        if (!string.IsNullOrWhiteSpace(qp.Cursor))
+        {
+            queryParams["cursor"] = qp.Cursor;
+        }
+        queryParams["PageSize"] = qp.PageSize.ToString();
+
+        var url = QueryHelpers.AddQueryString("api/v1/users/cursor", queryParams);
         var page = await client.GetFromJsonAsync<PagedResult<User>>(url);
         if (page != null)
         {

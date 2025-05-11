@@ -6,7 +6,16 @@ namespace Infrastructure.Result
 {
     public class ErrorStrategyHandler : IErrorStrategyHandler
     {
-        private static readonly Lazy<ConcurrentDictionary<string, string>> ErrorMappings = new(() => new ConcurrentDictionary<string, string>());
+        private static readonly Lazy<ConcurrentDictionary<string, string>> ErrorMappings 
+            = new(() => new ConcurrentDictionary<string, string>());
+
+        private static readonly IDictionary<string, string> DefaultMappings = new Dictionary<string, string>
+        {
+            { "SqliteException",           nameof(DatabaseStrategy<object>)       },
+            { "HttpRequestException",      nameof(NetworkErrorStrategy<object>)  },
+            { "JsonException",             nameof(InvalidDataStrategy<object>)   },
+            { "Exception",                 nameof(UnexpectedErrorStrategy<object>) }
+        };
 
         public Operation<T> Fail<T>(Exception? ex, string errorMessage)
         {
@@ -65,6 +74,11 @@ namespace Infrastructure.Result
 
         public void LoadErrorMappings(string filePath)
         {
+            foreach (var kv in DefaultMappings)
+            {
+                ErrorMappings.Value[kv.Key] = kv.Value;
+            }
+
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException($"Error mappings file not found: {filePath}");
