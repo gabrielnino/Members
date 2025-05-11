@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Autodesk.Persistence.Context;
 using System.Text;
-using Domain.Settings;
 using Application.Result;
 using Autodesk.Persistence.Context.Interceptors;
 
@@ -46,12 +45,6 @@ namespace Autodesk.Api.Startup
                 options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"))
                 .AddInterceptors(new SqliteFunctionInterceptor());
             });
-        }
-
-        protected static void AddConfigureSettings(WebApplicationBuilder builder)
-        {
-            IConfigurationSection jwtConfiguration = builder.Configuration.GetSection(Settings.JWTConfiguration);
-            builder.Services.Configure<LoginSettings>(jwtConfiguration);
         }
 
         private static string ValidateArgument(string? argument)

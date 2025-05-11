@@ -18,7 +18,6 @@
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDistributedMemoryCache();
-            AddConfigureSettings(builder);
             AddJwtBearer(builder);
             RunErrorStrategy(builder);
         }

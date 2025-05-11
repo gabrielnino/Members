@@ -6,17 +6,10 @@ using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-public class UserReadFilterCursor : IUserReadFilterCursor
+public class UserReadFilterCursor(DataContext context, IErrorStrategyHandler errorStrategyHandler) : IUserReadFilterCursor
 {
-    private readonly DataContext context;
-    private readonly IErrorStrategyHandler errorStrategyHandler;
-
-    public UserReadFilterCursor(DataContext context,
-                                IErrorStrategyHandler errorStrategyHandler)
-    {
-        this.context              = context;
-        this.errorStrategyHandler = errorStrategyHandler;
-    }
+    private readonly DataContext context = context;
+    private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
 
     public async Task<Operation<PagedResult<User>>> ReadFilterCursor(
         string? id,
@@ -79,9 +72,15 @@ public class UserReadFilterCursor : IUserReadFilterCursor
     private static Expression<Func<User, bool>> BuildIdOrNameFilter(string? id, string? name)
     {
         if (!string.IsNullOrWhiteSpace(id))
+        {
             return u => u.Id == id;
+        }
+
         if (!string.IsNullOrWhiteSpace(name))
+        {
             return u => EF.Functions.Like(u.Name!, $"%{name}%");
+        }
+
         return u => true;
     }
 }

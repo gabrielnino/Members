@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.Common.Pagination
+﻿namespace Application.Common.Pagination
 {
     /// <summary>
     /// A page of items of type T plus the cursor to fetch the next page.
