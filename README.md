@@ -92,15 +92,6 @@ cd <test-project-folder>
 dotnet test
 ```
 
-## Docker
-
-Build and run the API container:
-
-```bash
-docker build -t autodesk-members-api .
-docker run -p 7134:7134 autodesk-members-api
-```
-
 ## Architecture
 
 - **Domain** (`Autodesk.Domain`): Core entities (e.g., `User`).
