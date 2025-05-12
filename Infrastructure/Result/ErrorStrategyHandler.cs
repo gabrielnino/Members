@@ -114,7 +114,7 @@ namespace Infrastructure.Result
             return new BusinessStrategy<T>().CreateFailure(errorMessage);
         }
 
-        public bool Any() => ErrorMappings.IsValueCreated && ErrorMappings.Value.Count > 0;
+        public bool Any() => ErrorMappings.IsValueCreated && !ErrorMappings.Value.IsEmpty;
 
     }
 }
