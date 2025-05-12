@@ -68,13 +68,16 @@
     </div>
 
     <div class="text-center mt-4">
-        <button class="btn load-more-btn px-5" @onclick="LoadMore" disabled="@Loading">
-            @if (Loading)
-            {
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            }
-            Load More
-        </button>
+        @if (hasMore)
+        {
+            <button class="btn load-more-btn px-5" @onclick="LoadMore" disabled="@Loading">
+                @if (Loading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                }
+                Load More
+            </button>
+        }
     </div>
 </div>
 @code {
@@ -83,12 +86,12 @@
     private bool Loading;
     private string FilterName = string.Empty;
     private DotNetObjectReference<MembersList>? _dotNetRef;
+    private bool hasMore => NextCursor is not null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // pass a reference to this instance into JS
             _dotNetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("registerScrollHandler", _dotNetRef);
         }
@@ -97,7 +100,6 @@
     [JSInvokable]
     public async Task OnScrollHandler()
     {
-        // only if we're not already loading, and there's more to fetch
         if (!Loading && NextCursor is not null)
         {
             await LoadMore();
@@ -135,11 +137,11 @@
         Loading = true;
         var client = HttpClientFactory.CreateClient("AutodeskApi");
         var qp = new UserQueryParams
-        {
-            Name = FilterName,
-            Cursor = NextCursor,
-            PageSize = PaginationDefaults.DefaultPageSize
-        };
+            {
+                Name = FilterName,
+                Cursor = NextCursor,
+                PageSize = PaginationDefaults.DefaultPageSize
+            };
 
         var queryParams = new Dictionary<string, string?>();
 
