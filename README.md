@@ -1,6 +1,6 @@
 # Autodesk Members Platform
 
-[![.NET](https://img.shields.io/badge/.NET-8%2F9-blue)](https://dotnet.microsoft.com/) [![License](https://img.shields.io/badge/license-MIT-green)]
+[![.NET](https://img.shields.io/badge/.NET-8%2F9-blue)](https://dotnet.microsoft.com/)
 
 A sample application to manage members, built with .NET 8/9, Entity Framework Core, SQLite, and Blazor WebAssembly.
 
