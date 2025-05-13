@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 .env
+/Autodesk.Api/AutodeskMembers.db
+/Autodesk.Api/AutodeskMembers-shm
+/Autodesk.Api/AutodeskMembers-wal

@@ -275,6 +275,29 @@ code {
         background-color: #17a589; /* same hover as .load-more-btn */
     }
 
+
+
+.btn-contact {
+    height: 3rem;
+    border: none;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem; /* larger icon font-size */
+    transition: background 0.2s ease-in-out;
+}
+
+
+.btn-contact {
+    background-color: #1abc9c; /* same as .load-more-btn */
+    color: #fff;
+}
+
+    .btn-contact:hover {
+        background-color: #17a589; /* same hover as .load-more-btn */
+    }
+
 /* Delete button – red scale */
 .btn-delete {
     background-color: #e74c3c; /* lighter red */

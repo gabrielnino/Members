@@ -1,0 +1,44 @@
+﻿@page "/documents"
+@* Documents Index Component *@
+<h3>Documents Index</h3>
+<p>Below is the list of materials to include in your submission:</p>
+<ul class="list-group">
+    <li class="list-group-item">
+        <strong>1. Programming Test Submission</strong>
+        <ul>
+            <li><strong>Full Source-Code Archive:</strong> Complete solution ZIP or GitHub link</li>
+            <li>
+                <strong>README.md:</strong>
+                <ul>
+                    <li>Prerequisites (.NET 8/9 SDK, SQLite)</li>
+                    <li>Build &amp; run instructions (migrations, API, Blazor app)</li>
+                    <li>Feature walkthrough (CRUD, pagination, caching)</li>
+                </ul>
+            </li>
+            <li><strong>Database Migration Scripts:</strong> EF Core migrations or SQL scripts</li>
+            <li><strong>Unit Tests &amp; Coverage Report:</strong> Test projects and coverage summary</li>
+            <li>
+                <strong>API Documentation:</strong>
+                <ul>
+                    <li>Swagger/OpenAPI JSON or live Swagger UI link</li>
+                    <li>Postman collection export</li>
+                </ul>
+            </li>
+            <li><strong>Dockerfile / Docker-Compose:</strong> Containerization setup</li>
+        </ul>
+    </li>
+    <li class="list-group-item">
+        <strong>2. Technical &amp; Advocacy Extras</strong>
+        <ul>
+            <li><strong>Architecture Diagram / Design Doc:</strong> UML or flowchart of layers</li>
+            <li><strong>Performance / Caching Rationale:</strong> IMemoryCache choices and TTL</li>
+            <li>
+                <strong>Developer Outreach Sample (optional):</strong>
+                <ul>
+                    <li>Blog-post draft or outline (e.g., pagination deep dive)</li>
+                    <li>Slide deck or outline for a 10-minute tech talk</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
