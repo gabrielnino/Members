@@ -1,6 +1,6 @@
 # Autodesk Members Platform
 
-[![.NET](https://img.shields.io/badge/.NET-8%2F9-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-8%2F9-blue)](https://dotnet.microsoft.com/) [![License](https://img.shields.io/badge/license-MIT-green)]
 
 A sample application to manage members, built with .NET 8/9, Entity Framework Core, SQLite, and Blazor WebAssembly.
 
@@ -40,7 +40,7 @@ A sample application to manage members, built with .NET 8/9, Entity Framework Co
 ### Clone Repository
 
 ```bash
-git clone https://github.com/gabrielnino/Autodesk.MembersPlatform.git
+git clone https://github.com/your-username/Autodesk.MembersPlatform.git
 cd Autodesk.MembersPlatform
 ```
 
@@ -90,6 +90,15 @@ If unit tests exist, run:
 ```bash
 cd <test-project-folder>
 dotnet test
+```
+
+## Docker
+
+Build and run the API container:
+
+```bash
+docker build -t autodesk-members-api .
+docker run -p 7134:7134 autodesk-members-api
 ```
 
 ## Architecture
