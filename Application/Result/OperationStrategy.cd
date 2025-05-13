@@ -113,12 +113,19 @@
       <FileName>Result\OperationStrategy.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Interface Name="Application.Result.IErrorCreationStrategy&lt;T&gt;" Collapsed="true">
+  <Interface Name="Application.Result.IErrorCreationStrategy&lt;T&gt;">
     <Position X="34.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Result\OperationStrategy.cs</FileName>
     </TypeIdentifier>
   </Interface>
+  <Enum Name="Application.Result.Error.ErrorTypes">
+    <Position X="16.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAEAAIEAgAAAAIAAAAIAAABAAEAIAAAAAAQUAAAA=</HashCode>
+      <FileName>Result\Error\ErrorTypes.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>
