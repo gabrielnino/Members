@@ -1,0 +1,22 @@
+﻿@page "/PdfViewr"
+<h3>Architecture</h3>
+<div class="pdf-viewer-container" style="width:100%; height:@Height;">
+    <object data="@PdfUrl" type="application/pdf" width="100%" height="100%">
+        <p>No se pudo mostrar el PDF. <a href="@PdfUrl" target="_blank">Descargar PDF</a>.</p>
+    </object>
+</div>
+
+@code {
+    /// <summary>
+    /// La URL o ruta relativa al PDF dentro de wwwroot.
+    /// Por ejemplo: "files/mydoc.pdf"
+    /// </summary>
+    [Parameter]
+    public string PdfUrl { get; set; } = "files/MembersPlatform-Advocate-position.pdf";
+
+    /// <summary>
+    /// Altura del visor (por ejemplo, "800px" o "100vh").
+    /// </summary>
+    [Parameter]
+    public string Height { get; set; } = "800px";
+}

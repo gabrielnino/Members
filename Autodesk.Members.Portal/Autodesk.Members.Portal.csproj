@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\image\" />
+    <None Include="wwwroot\files\MembersPlatform-Advocate-position.pdf" />
   </ItemGroup>
 
 </Project>
