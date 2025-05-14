@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Test
+﻿namespace Domain.Test
 {
     /// <summary>
     /// Unit tests for the <see cref="Entity"/> entity.

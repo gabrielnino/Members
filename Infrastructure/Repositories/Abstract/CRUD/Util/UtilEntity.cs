@@ -4,18 +4,30 @@ using Domain.Interfaces.Entity;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Util
 {
-    public class UtilEntity<T> : IUtilEntity<T> where T : class, IEntity
+    /// <summary>
+    /// Validates that an entity instance is provided.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    public class UtilEntity<T> : IUtilEntity<T>
+        where T : class, IEntity
     {
+        /// <summary>
+        /// Returns a failure if the entity is null; otherwise returns success.
+        /// </summary>
+        /// <param name="entity">The entity to check.</param>
+        /// <returns>
+        /// Operation with the entity or a business error.
+        /// </returns>
         public async Task<Operation<T>> HasEntity(T entity)
         {
-            var utilEntityFailedNecesaryData = UtilEntityLabels.UtilEntityFailedNecesaryData;
+            var failMsg = UtilEntityLabels.UtilEntityFailedNecesaryData;
             if (entity is null)
             {
-                return OperationStrategy<T>.Fail(utilEntityFailedNecesaryData, new BusinessStrategy<T>());
+                return OperationStrategy<T>.Fail(failMsg, new BusinessStrategy<T>());
             }
 
-            var utilEntitySuccess = UtilEntityLabels.UtilEntitySuccess;
-            return Operation<T>.Success(entity, utilEntitySuccess);
+            var successMsg = UtilEntityLabels.UtilEntitySuccess;
+            return Operation<T>.Success(entity, successMsg);
         }
     }
 }

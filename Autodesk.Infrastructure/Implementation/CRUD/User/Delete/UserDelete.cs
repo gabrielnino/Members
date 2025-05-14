@@ -6,8 +6,17 @@ using Infrastructure.Repositories.Abstract.CRUD.Delete;
 namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
 {
     using User = Domain.User;
-    public class UserDelete(DataContext context, IErrorStrategyHandler errorStrategyHandler) : DeleteRepository<User>(context, errorStrategyHandler), IUserDelete
+
+    /// <summary>
+    /// Deletes a user and returns the result.
+    /// </summary>
+    /// <param name="context">Database context for user data.</param>
+    /// <param name="errorStrategyHandler">Service to handle errors.</param>
+    public class UserDelete(
+        DataContext context,
+        IErrorStrategyHandler errorStrategyHandler
+    ) : DeleteRepository<User>(context, errorStrategyHandler), IUserDelete
     {
-       
+        // Inherits deletion logic from DeleteRepository.
     }
 }

@@ -6,12 +6,25 @@ using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Delete
 {
-    public abstract class DeleteRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler) : RepositoryDelete<T>(context), IDelete<T> where T : class, IEntity
+    /// <summary>
+    /// Provides deletion of entities with validation and error handling.
+    /// </summary>
+    public abstract class DeleteRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler)
+        : RepositoryDelete<T>(context), IDelete<T>
+        where T : class, IEntity
     {
+        /// <summary>
+        /// Deletes the entity with the given ID if it exists.
+        /// </summary>
+        /// <param name="id">ID of the entity to delete.</param>
+        /// <returns>
+        /// An operation result: true if deleted, false or error otherwise.
+        /// </returns>
         public async Task<Operation<bool>> Delete(string id)
         {
             try
             {
+                // Verify the ID and entity exist
                 var validationResult = await HasId(id);
                 if (validationResult is null)
                 {
@@ -19,14 +32,18 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
                     return OperationStrategy<bool>.Fail("Not found", strategy);
                 }
 
+                // Remove the entity
                 var entity = RepositoryHelper.ValidateArgument(validationResult);
                 var result = await base.Delete(entity);
-                var deletionSuccess = DeleteLabels.DeletionSuccess;
-                var messageSuccess = string.Format(deletionSuccess, typeof(T).Name);
-                return Operation<bool>.Success(result, messageSuccess);
+
+                // Build and return success message
+                var template = DeleteLabels.DeletionSuccess;
+                var message = string.Format(template, typeof(T).Name);
+                return Operation<bool>.Success(result, message);
             }
             catch (Exception ex)
             {
+                // Handle any errors
                 return errorStrategyHandler.Fail<bool>(ex);
             }
         }

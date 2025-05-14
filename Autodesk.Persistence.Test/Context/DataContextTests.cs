@@ -1,6 +1,5 @@
 ﻿using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Context.Interface;
 using Persistence.CreateStruture.Constants.ColumnType;
 
 namespace Autodesk.Persistence.Test.Context

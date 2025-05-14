@@ -3,11 +3,6 @@ using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.CreateStruture.Constants.ColumnType;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Persistence.CreateStruture.Constants;
 
 namespace Autodesk.Persistence.Test.Context

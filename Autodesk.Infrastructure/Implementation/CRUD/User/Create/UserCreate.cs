@@ -7,8 +7,23 @@ using Infrastructure.Repositories.Abstract.CRUD.Create;
 namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
 {
     using User = Domain.User;
-    public class UserCreate(DataContext context, IUtilEntity<User> utilEntity, IErrorStrategyHandler errorStrategyHandler) : CreateRepository<User>(context, utilEntity, errorStrategyHandler), IUserCreate
+
+    /// <summary>
+    /// Creates a user, ensuring no duplicate email exists.
+    /// </summary>
+    public class UserCreate(
+        DataContext context,
+        IUtilEntity<User> utilEntity,
+        IErrorStrategyHandler errorStrategyHandler
+    ) : CreateRepository<User>(context, utilEntity, errorStrategyHandler), IUserCreate
     {
+        /// <summary>
+        /// Validates that the email is unique then returns success or a business error.
+        /// </summary>
+        /// <param name="entity">The user to create.</param>
+        /// <returns>
+        /// A failure if the email is already registered; otherwise a success with the user.
+        /// </returns>
         protected override async Task<Operation<User>> CreateEntity(User entity)
         {
             var email = entity?.Email ?? string.Empty;
@@ -16,8 +31,8 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
             var userExistByEmail = userByEmail.FirstOrDefault();
             if (userExistByEmail != null)
             {
-                var createFailedAlreadyRegisteredEmail = UserCreateLabels.CreateAlreadyRegisteredErrorEmail;
-                return OperationStrategy<User>.Fail(createFailedAlreadyRegisteredEmail, new BusinessStrategy<User>());
+                var error = UserCreateLabels.CreateAlreadyRegisteredErrorEmail;
+                return OperationStrategy<User>.Fail(error, new BusinessStrategy<User>());
             }
 
             return Operation<User>.Success(entity);

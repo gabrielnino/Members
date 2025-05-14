@@ -1,11 +1,8 @@
 ﻿using Autodesk.Domain;
 using Autodesk.Persistence.Context;
-using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
 using Persistence.Repositories;
-using System.Xml.Linq;
 
 namespace Persistence.Test.Repositories
 {
