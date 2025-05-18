@@ -5,6 +5,8 @@ using Autodesk.Domain;
 using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 /// <summary>
@@ -15,6 +17,10 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     private readonly DataContext context = context;
     private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
     private readonly IMemoryCache cache = cache;
+
+    private readonly Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id);
+    private readonly Func<User, (string Primary, string Secondary)> cursorSelector = u => (u.Name!, u.Id);
+
 
     /// <summary>
     /// Fetch a page of users filtered by id or name, with cursor-based paging and caching.
@@ -32,53 +38,21 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     {
         try
         {
-            var cacheKey = $"users:{id}:{name}:{cursor}:{pageSize}";
-            if (cache.TryGetValue(cacheKey, out PagedResult<User> cached))
-            {
-                return Operation<PagedResult<User>>.Success(cached);
-            }
-
-            var query = context.Users
-                .AsNoTracking()
-                .Where(BuildUserFilter(id, name))
-                .OrderBy(u => u.Name!)
-                .ThenBy(u => u.Id);
+            var filter = BuildFilter(id, name);
+            var query = BuildBaseQuery(filter);
 
             if (!string.IsNullOrEmpty(cursor))
             {
-                var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
-                var lastName = parts[0];
-                var lastId = parts[1];
-
-                query = query
-                    .Where(u =>
-                        DataContext.StringCompareOrdinal(u.Name!, lastName) > 0
-                        || (u.Name == lastName
-                            && DataContext.StringCompareOrdinal(u.Id, lastId) > 0)
-                    )
-                    .OrderBy(u => u.Name!)
-                    .ThenBy(u => u.Id);
+                query = ApplyCursorFilter(query, cursor);
             }
+               
 
-            var items = await query
-                .Take(pageSize + 1)
-                .ToListAsync();
+            var items = await query.Take(pageSize + 1).ToListAsync();
 
-            string? nextCursor = null;
-            if (items.Count == pageSize + 1)
-            {
-                var extra = items[pageSize];
-                nextCursor     = Uri.EscapeDataString($"{extra.Name}|{extra.Id}");
-                items.RemoveAt(pageSize);
-            }
+            var next = BuildNextCursor(items, pageSize);
+            if (next != null) items.RemoveAt(pageSize);
 
-            var result = new PagedResult<User>
-            {
-                Items      = items,
-                NextCursor = nextCursor
-            };
-
-            cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
+            var result = new PagedResult<User> { Items = items, NextCursor = next };
             return Operation<PagedResult<User>>.Success(result);
         }
         catch (Exception ex)
@@ -87,15 +61,50 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
         }
     }
 
+
+    private IQueryable<User> BuildBaseQuery(Expression<Func<User, bool>>? filter)
+    {
+        var q = context.Set<User>().AsNoTracking();
+        if (filter != null) q = q.Where(filter);
+        return orderBy(q);
+    }
+
+    private static IQueryable<User> ApplyCursorFilter(IQueryable<User> query, string cursor)
+    {
+        var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
+        var name = parts[0];
+        var lastS = parts.Length > 1 ? parts[1] : string.Empty;
+
+        return query.Where(u =>
+                        DataContext.StringCompareOrdinal(u.Name!, name) > 0
+                        || (u.Name == name
+                            && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
+                    );
+    }
+
+    private string? BuildNextCursor(List<User> items, int size)
+    {
+        if (items.Count <= size) return null;
+        var extra = items[size];
+        var (p, s) = cursorSelector(extra);
+        return Uri.EscapeDataString($"{p}|{s}");
+    }
+
     /// <summary>
     /// Choose filter by id or name, or none.
     /// </summary>
-    private static Expression<Func<User, bool>> BuildUserFilter(string? id, string? name)
+    private static Expression<Func<User, bool>> BuildFilter(string? id, string? name)
     {
         if (ShouldFilterById(id))
+        {
             return BuildIdFilter(id!);
+        }
+           
         if (ShouldFilterByName(name))
+        {
             return BuildNameFilter(name!);
+        }
+            
         return ReturnDefaultFilter();
     }
 
