@@ -3,22 +3,18 @@ using Application.Result;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Persistence.Context;
+using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHandler, IMemoryCache cache) : IUserRead
+public class UserRead(DataContext context, IErrorStrategyHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(context, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
-    private readonly DataContext context = context;
-    private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
+    private readonly IErrorStrategyHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
-
-    private readonly Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id);
     private readonly Func<User, (string Primary, string Secondary)> cursorSelector = u => (u.Name!, u.Id);
 
 
@@ -38,56 +34,20 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     {
         try
         {
-            var filter = BuildFilter(id, name);
-            var query = BuildBaseQuery(filter);
-
-            if (!string.IsNullOrEmpty(cursor))
+            var cacheKey = $"users:{id}:{name}:{cursor}:{pageSize}";
+            if (cache.TryGetValue(cacheKey, out PagedResult<User> cached))
             {
-                query = ApplyCursorFilter(query, cursor);
+                return Operation<PagedResult<User>>.Success(cached);
             }
-               
-
-            var items = await query.Take(pageSize + 1).ToListAsync();
-
-            var next = BuildNextCursor(items, pageSize);
-            if (next != null) items.RemoveAt(pageSize);
-
-            var result = new PagedResult<User> { Items = items, NextCursor = next };
-            return Operation<PagedResult<User>>.Success(result);
+            var result = await GetPageAsync(BuildFilter(id, name), cursor, pageSize);
+            var pagedResult = result.Data;
+            cache.Set(cacheKey, pagedResult, TimeSpan.FromMinutes(5));
+            return Operation<PagedResult<User>>.Success(pagedResult);
         }
         catch (Exception ex)
         {
-            return errorStrategyHandler.Fail<PagedResult<User>>(ex);
+            return errorHandler.Fail<PagedResult<User>>(ex);
         }
-    }
-
-
-    private IQueryable<User> BuildBaseQuery(Expression<Func<User, bool>>? filter)
-    {
-        var q = context.Set<User>().AsNoTracking();
-        if (filter != null) q = q.Where(filter);
-        return orderBy(q);
-    }
-
-    private static IQueryable<User> ApplyCursorFilter(IQueryable<User> query, string cursor)
-    {
-        var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
-        var name = parts[0];
-        var lastS = parts.Length > 1 ? parts[1] : string.Empty;
-
-        return query.Where(u =>
-                        DataContext.StringCompareOrdinal(u.Name!, name) > 0
-                        || (u.Name == name
-                            && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
-                    );
-    }
-
-    private string? BuildNextCursor(List<User> items, int size)
-    {
-        if (items.Count <= size) return null;
-        var extra = items[size];
-        var (p, s) = cursorSelector(extra);
-        return Uri.EscapeDataString($"{p}|{s}");
     }
 
     /// <summary>
@@ -132,4 +92,25 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     /// No filter: return all users.
     /// </summary>
     private static Expression<Func<User, bool>> ReturnDefaultFilter() => u => true;
+
+    protected override IQueryable<User> ApplyCursorFilter(IQueryable<User> query, string cursor)
+    {
+        var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
+        var name = parts[0];
+        var lastS = parts.Length > 1 ? parts[1] : string.Empty;
+
+        return query.Where(u =>
+                        DataContext.StringCompareOrdinal(u.Name!, name) > 0
+                        || (u.Name == name
+                            && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
+                    );
+    }
+
+    protected override string? BuildNextCursor(List<User> items, int size)
+    {
+        if (items.Count <= size) return null;
+        var extra = items[size];
+        var (p, s) = cursorSelector(extra);
+        return Uri.EscapeDataString($"{p}|{s}");
+    }
 }

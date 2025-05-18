@@ -15,20 +15,17 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
         {
             try
             {
-
                 var query = BuildBaseQuery(filter);
-
                 if (!string.IsNullOrEmpty(cursor))
                 {
                     query = ApplyCursorFilter(query, cursor);
                 }
-
-
                 var items = await query.Take(pageSize + 1).ToListAsync();
-
                 var next = BuildNextCursor(items, pageSize);
-                if (next != null) items.RemoveAt(pageSize);
-
+                if (next != null)
+                {
+                    items.RemoveAt(pageSize);
+                }
                 var result = new PagedResult<T> { Items = items, NextCursor = next };
                 return Operation<PagedResult<T>>.Success(result);
             }
@@ -37,14 +34,12 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
                 return errorHandler.Fail<PagedResult<T>>(ex);
             }
         }
-
         private IQueryable<T> BuildBaseQuery(Expression<Func<T, bool>>? filter)
         {
             var q = context.Set<T>().AsNoTracking();
             if (filter != null) q = q.Where(filter);
             return orderBy(q);
         }
-
         protected abstract IQueryable<T> ApplyCursorFilter(IQueryable<T> query, string cursor);
         protected abstract string? BuildNextCursor(List<T> items, int size);
     }
