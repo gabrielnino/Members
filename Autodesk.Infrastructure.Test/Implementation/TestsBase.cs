@@ -26,7 +26,7 @@ namespace Autodesk.Infrastructure.Test.Implementation
         protected static DbContextOptions<DataContext> Opts => CreateOption();
 
         protected static UserUtilEntity Util => new();
-        protected static ErrorStrategyHandler Errors => new();
+        protected static ErrorHandler Errors => new();
         protected DataContext Ctx;
 
         protected UserCreate RepoCreate;

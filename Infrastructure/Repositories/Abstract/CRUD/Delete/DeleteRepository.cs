@@ -9,7 +9,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
     /// <summary>
     /// Provides deletion of entities with validation and error handling.
     /// </summary>
-    public abstract class DeleteRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler)
+    public abstract class DeleteRepository<T>(DbContext context, IErrorHandler errorStrategyHandler)
         : RepositoryDelete<T>(context), IDelete<T>
         where T : class, IEntity
     {

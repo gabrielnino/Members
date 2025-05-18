@@ -9,7 +9,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
     /// <summary>
     /// Retrieves an entity by its ID or returns a not-found error.
     /// </summary>
-    public abstract class ReadByIdRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler)
+    public abstract class ReadByIdRepository<T>(DbContext context, IErrorHandler errorStrategyHandler)
         : EntityChecker<T>(context), IReadById<T>
         where T : class, IEntity
     {

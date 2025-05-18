@@ -14,5 +14,7 @@
         /// The opaque cursor to send back in the next request, or null if there is no more data.
         /// </summary>
         public string? NextCursor { get; init; }
+
+        public int TotalCount { get; init; }
     }
 }

@@ -14,7 +14,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
     public class UserCreate(
         DataContext context,
         IUtilEntity<User> utilEntity,
-        IErrorStrategyHandler errorStrategyHandler
+        IErrorHandler errorStrategyHandler
     ) : CreateRepository<User>(context, utilEntity, errorStrategyHandler), IUserCreate
     {
         /// <summary>

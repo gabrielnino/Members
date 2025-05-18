@@ -11,7 +11,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
     /// </summary>
     public abstract class UpdateRepository<T>(
         DbContext context,
-        IErrorStrategyHandler errorStrategyHandler,
+        IErrorHandler errorStrategyHandler,
         IUtilEntity<T> utilEntity
     ) : RepositoryUpdate<T>(context), IUpdate<T>
         where T : class, IEntity

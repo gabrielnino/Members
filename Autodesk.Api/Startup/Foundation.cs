@@ -13,10 +13,10 @@ namespace Autodesk.Api.Startup
         protected static void RunErrorStrategy(WebApplicationBuilder builder)
         {
             using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IErrorStrategyHandler>();
+            var context = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
             if (!context.Any())
             {
-                var errorStrategyHandler = scope.ServiceProvider.GetRequiredService<IErrorStrategyHandler>();
+                var errorStrategyHandler = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
                 errorStrategyHandler.LoadErrorMappings("ErrorMappings.json");
             }
         }

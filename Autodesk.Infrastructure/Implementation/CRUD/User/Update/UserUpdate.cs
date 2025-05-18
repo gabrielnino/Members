@@ -13,7 +13,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     /// </summary>
     public class UserUpdate(
         DataContext context,
-        IErrorStrategyHandler errorStrategyHandler,
+        IErrorHandler errorStrategyHandler,
         IUtilEntity<User> utilEntity
     ) : UpdateRepository<User>(context, errorStrategyHandler, utilEntity), IUserUpdate
     {

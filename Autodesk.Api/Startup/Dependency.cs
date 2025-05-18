@@ -34,7 +34,7 @@ namespace Autodesk.Api.Startup
 
         protected static void DataSeeder(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IErrorStrategyHandler, ErrorStrategyHandler>();
+            builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
         }
     }
 }

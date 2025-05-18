@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Infrastructure.Result
 {
-    public class ErrorStrategyHandler : IErrorStrategyHandler
+    public class ErrorHandler : IErrorHandler
     {
         private static readonly Lazy<ConcurrentDictionary<string, string>> ErrorMappings 
             = new(() => new ConcurrentDictionary<string, string>());

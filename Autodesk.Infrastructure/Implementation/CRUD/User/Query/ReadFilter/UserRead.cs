@@ -11,9 +11,9 @@ using System.Linq.Expressions;
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(DataContext context, IErrorStrategyHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(context, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
+public class UserRead(DataContext context, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(context, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
-    private readonly IErrorStrategyHandler errorHandler = errorHandler;
+    private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
     private readonly Func<User, (string Primary, string Secondary)> cursorSelector = u => (u.Name!, u.Id);
 

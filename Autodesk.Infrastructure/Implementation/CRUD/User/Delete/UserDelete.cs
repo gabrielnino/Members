@@ -14,7 +14,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
     /// <param name="errorStrategyHandler">Service to handle errors.</param>
     public class UserDelete(
         DataContext context,
-        IErrorStrategyHandler errorStrategyHandler
+        IErrorHandler errorStrategyHandler
     ) : DeleteRepository<User>(context, errorStrategyHandler), IUserDelete
     {
         // Inherits deletion logic from DeleteRepository.

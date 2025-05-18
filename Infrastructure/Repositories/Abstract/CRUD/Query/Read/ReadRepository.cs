@@ -8,7 +8,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
 {
     public abstract class ReadRepository<T>(
         DbContext context,
-        IErrorStrategyHandler errorHandler,
+        IErrorHandler errorHandler,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy) where T : class, IEntity
     {
         public async Task<Operation<PagedResult<T>>> GetPageAsync(Expression<Func<T, bool>>? filter, string? cursor, int pageSize)
@@ -16,6 +16,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
             try
             {
                 var query = BuildBaseQuery(filter);
+                var count = query.Count();
                 if (!string.IsNullOrEmpty(cursor))
                 {
                     query = ApplyCursorFilter(query, cursor);
@@ -26,7 +27,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
                 {
                     items.RemoveAt(pageSize);
                 }
-                var result = new PagedResult<T> { Items = items, NextCursor = next };
+                var result = new PagedResult<T> { Items = items, NextCursor = next, TotalCount = count };
                 return Operation<PagedResult<T>>.Success(result);
             }
             catch (Exception ex)

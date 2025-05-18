@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines methods to load error mappings and create failed operations.
     /// </summary>
-    public interface IErrorStrategyHandler
+    public interface IErrorHandler
     {
         /// <summary>
         /// Load error codes and messages from a configuration file.

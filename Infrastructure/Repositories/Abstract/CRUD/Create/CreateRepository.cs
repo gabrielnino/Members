@@ -12,7 +12,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Create
     public abstract class CreateRepository<T>(
         DbContext context,
         IUtilEntity<T> utilEntity,
-        IErrorStrategyHandler errorStrategyHandler
+        IErrorHandler errorStrategyHandler
     ) : RepositoryCreate<T>(context), ICreate<T>
         where T : class, IEntity
     {
