@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.CreateStruture.Constants;
 using Persistence.CreateStruture.Constants.ColumnType;
 
-namespace Autodesk.Persistence.Context
+namespace Persistence.Context.Implementation
 {
     /// <summary>
     /// Represents a Data helper.

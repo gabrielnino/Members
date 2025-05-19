@@ -1,5 +1,4 @@
 ﻿using Domain.Interfaces.Entity;
-using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Interface;
 using System.Linq.Expressions;
 

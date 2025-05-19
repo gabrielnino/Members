@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Autodesk.Persistence.Context;
 using System.Text;
 using Application.Result;
-using Autodesk.Persistence.Context.Interceptors;
+using Persistence.Context.Interceptors;
+using Persistence.Context.Implementation;
 
 namespace Autodesk.Api.Startup
 {
@@ -16,8 +16,8 @@ namespace Autodesk.Api.Startup
             var context = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
             if (!context.Any())
             {
-                var errorStrategyHandler = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
-                errorStrategyHandler.LoadErrorMappings("ErrorMappings.json");
+                var errorHandler = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
+                errorHandler.LoadErrorMappings("ErrorMappings.json");
             }
         }
 

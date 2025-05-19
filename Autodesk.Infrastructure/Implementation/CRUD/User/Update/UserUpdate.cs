@@ -1,7 +1,6 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
-using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Update;
 using Persistence.Context.Interface;
 
@@ -14,9 +13,9 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     /// </summary>
     public class UserUpdate(
         IUnitOfWork unitOfWork,
-        IErrorHandler errorStrategyHandler,
+        IErrorHandler errorHandler,
         IUtilEntity<User> utilEntity
-    ) : UpdateRepository<User>(unitOfWork, errorStrategyHandler, utilEntity), IUserUpdate
+    ) : UpdateRepository<User>(unitOfWork, errorHandler, utilEntity), IUserUpdate
     {
         /// <summary>
         /// Copies new values into the existing user and returns success.

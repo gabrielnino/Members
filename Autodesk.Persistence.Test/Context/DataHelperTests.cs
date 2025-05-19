@@ -1,9 +1,9 @@
 ﻿using Autodesk.Domain;
-using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.CreateStruture.Constants.ColumnType;
 using Persistence.CreateStruture.Constants;
+using Persistence.Context.Implementation;
 
 namespace Autodesk.Persistence.Test.Context
 {

@@ -1,7 +1,5 @@
 ﻿using Application.Result;
-using Application.UseCases.Repository.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
-using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Create;
 using Persistence.Context.Interface;
 

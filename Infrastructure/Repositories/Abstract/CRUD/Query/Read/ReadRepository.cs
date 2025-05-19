@@ -3,11 +3,12 @@ using Application.Result;
 using Microsoft.EntityFrameworkCore;
 using Application.Common.Pagination;
 using System.Linq.Expressions;
+using Persistence.Context.Interface;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
 {
     public abstract class ReadRepository<T>(
-        DbContext context,
+        IUnitOfWork unitOfWork,
         IErrorHandler errorHandler,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy) where T : class, IEntity
     {
@@ -37,7 +38,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
         }
         private IQueryable<T> BuildBaseQuery(Expression<Func<T, bool>>? filter)
         {
-            var q = context.Set<T>().AsNoTracking();
+            var q = unitOfWork.Context.Set<T>().AsNoTracking();
             if (filter != null) q = q.Where(filter);
             return orderBy(q);
         }

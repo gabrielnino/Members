@@ -1,10 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Persistence.Context.Implementation;
 
 namespace Persistence.Context.Interface
 {
@@ -14,6 +9,6 @@ namespace Persistence.Context.Interface
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task CommitTransactionAsync(IDbContextTransaction tx);
         Task RollbackAsync(IDbContextTransaction tx);
-        DbContext Context { get; }
+        DataContext Context { get; }
     }
 }

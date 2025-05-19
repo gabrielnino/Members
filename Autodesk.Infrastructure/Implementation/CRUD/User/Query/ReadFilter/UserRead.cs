@@ -2,16 +2,17 @@
 using Application.Result;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
-using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Persistence.Context.Implementation;
+using Persistence.Context.Interface;
 using System.Linq.Expressions;
 
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(DataContext context, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(context, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
+public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(unitOfWork, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
     private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
@@ -99,11 +100,10 @@ public class UserRead(DataContext context, IErrorHandler errorHandler, IMemoryCa
         var name = parts[0];
         var lastS = parts.Length > 1 ? parts[1] : string.Empty;
 
-        return query.Where(u =>
-                        DataContext.StringCompareOrdinal(u.Name!, name) > 0
-                        || (u.Name == name
-                            && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
-                    );
+        return query.Where
+        (
+            u => DataContext.StringCompareOrdinal(u.Name!, name) > 0 || (u.Name == name && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
+        );
     }
 
     protected override string? BuildNextCursor(List<User> items, int size)

@@ -10,7 +10,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
     /// <summary>
     /// Provides deletion of entities with validation and error handling.
     /// </summary>
-    public abstract class DeleteRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorStrategyHandler)
+    public abstract class DeleteRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorHandler)
         : RepositoryDelete<T>(unitOfWork), IDelete<T>
         where T : class, IEntity
     {
@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
             catch (Exception ex)
             {
                 // Handle any errors
-                return errorStrategyHandler.Fail<bool>(ex);
+                return errorHandler.Fail<bool>(ex);
             }
         }
     }

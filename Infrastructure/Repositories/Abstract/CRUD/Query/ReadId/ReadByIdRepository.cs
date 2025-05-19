@@ -10,7 +10,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
     /// <summary>
     /// Retrieves an entity by its ID or returns a not-found error.
     /// </summary>
-    public abstract class ReadByIdRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorStrategyHandler)
+    public abstract class ReadByIdRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorHandler)
         : EntityChecker<T>(unitOfWork), IReadById<T>
         where T : class, IEntity
     {
@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
             }
             catch (Exception ex)
             {
-                return errorStrategyHandler.Fail<T>(ex);
+                return errorHandler.Fail<T>(ex);
             }
         }
     }

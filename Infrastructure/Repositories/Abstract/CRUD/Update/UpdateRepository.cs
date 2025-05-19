@@ -11,7 +11,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
     /// </summary>
     public abstract class UpdateRepository<T>(
         IUnitOfWork unitOfWork,
-        IErrorHandler errorStrategyHandler,
+        IErrorHandler errorHandler,
         IUtilEntity<T> utilEntity
     ) : RepositoryUpdate<T>(unitOfWork), IUpdate<T>
         where T : class, IEntity
@@ -38,13 +38,8 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
                     return OperationStrategy<bool>.Fail("Not found", strategy);
                 }
 
-                // Apply update-specific logic
-                var modifiedResult = await UpdateEntity(entity, existing);
-                if (!modifiedResult.IsSuccessful)
-                    return modifiedResult.ConvertTo<bool>();
-
                 // Save changes to database
-                base.Update(modifiedResult.Data);
+                base.Update(entity);
                 // Build success message
                 var template = "UpdateSuccess";
                 var message = string.Format(template, typeof(T).Name);
@@ -53,24 +48,11 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
             catch (Exception ex)
             {
                 // Handle errors
-                return errorStrategyHandler.Fail<bool>(ex);
+                return errorHandler.Fail<bool>(ex);
             }
         }
 
-        /// <summary>
-        /// Customize how fields are applied to the original entity.
-        /// </summary>
-        /// <param name="entityModified">New data values.</param>
-        /// <param name="entityUnmodified">Original entity instance.</param>
-        /// <returns>Operation with updated entity or error.</returns>
-        public virtual async Task<Operation<T>> UpdateEntity(
-            T entityModified,
-            T entityUnmodified
-        )
-        {
-            var template = "UpdateEntitySearchSuccess";
-            var message = string.Format(template, typeof(T).Name);
-            return Operation<T>.Success(entityModified, message);
-        }
+
+        public abstract Task<Operation<T>> UpdateEntity(T modified, T unmodified);
     }
 }

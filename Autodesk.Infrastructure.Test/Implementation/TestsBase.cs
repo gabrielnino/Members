@@ -2,13 +2,11 @@
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
-using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Context.Interface;
+using Persistence.Context.Implementation;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
-using Persistence.Repositories;
 
 namespace Autodesk.Infrastructure.Test.Implementation
 {
@@ -34,14 +32,15 @@ namespace Autodesk.Infrastructure.Test.Implementation
         protected UserCreate RepoCreate;
         protected UserDelete RepoDelete;
         protected UserUpdate RepoUpdate;
+        protected UnitOfWork UnitOfWork;
         public TestsBase()
         {
             Errors.LoadErrorMappings(JsonFile);
             Ctx = new DataContext(Opts, new SQLite());
-            var unitOfWork = new UnitOfWork(Ctx);  
-            RepoCreate = new UserCreate(unitOfWork);
-            RepoDelete = new UserDelete(unitOfWork, Errors);
-            RepoUpdate = new UserUpdate(unitOfWork, Errors,Util);
+            UnitOfWork = new UnitOfWork(Ctx);  
+            RepoCreate = new UserCreate(UnitOfWork);
+            RepoDelete = new UserDelete(UnitOfWork, Errors);
+            RepoUpdate = new UserUpdate(UnitOfWork, Errors,Util);
         }
     }
 }

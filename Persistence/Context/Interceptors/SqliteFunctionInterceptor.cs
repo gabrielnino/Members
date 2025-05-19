@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
 
-namespace Autodesk.Persistence.Context.Interceptors
+namespace Persistence.Context.Interceptors
 {
     /// <summary>
     /// Adds a custom SQL function when a SQLite connection opens.
