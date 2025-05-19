@@ -35,7 +35,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         public async Task<IActionResult> Create([FromBody] User user)
         {
             // Invoke create use-case
-            var op = await _create.Create(user);
+            var op = await _create.CreateEntity(user);
             if (!op.IsSuccessful)
             {
                 // Return 400 with error message if creation fails

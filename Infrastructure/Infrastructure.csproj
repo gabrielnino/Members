@@ -17,11 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Repositories\Abstract\CRUD\Create\CreateLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreateLabels.resx</DependentUpon>
-    </Compile>
     <Compile Update="Repositories\Abstract\CRUD\Delete\DeleteLabels.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -40,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Create\CreateLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CreateLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Update="Repositories\Abstract\CRUD\Delete\DeleteLabels.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DeleteLabels.Designer.cs</LastGenOutput>

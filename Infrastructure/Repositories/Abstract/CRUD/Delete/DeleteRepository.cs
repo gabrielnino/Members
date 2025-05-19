@@ -2,6 +2,7 @@
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Delete
@@ -9,8 +10,8 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
     /// <summary>
     /// Provides deletion of entities with validation and error handling.
     /// </summary>
-    public abstract class DeleteRepository<T>(DbContext context, IErrorHandler errorStrategyHandler)
-        : RepositoryDelete<T>(context), IDelete<T>
+    public abstract class DeleteRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorStrategyHandler)
+        : RepositoryDelete<T>(unitOfWork), IDelete<T>
         where T : class, IEntity
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
         /// <returns>
         /// An operation result: true if deleted, false or error otherwise.
         /// </returns>
-        public async Task<Operation<bool>> Delete(string id)
+        public virtual async Task<Operation<bool>> Delete(string id)
         {
             try
             {
@@ -29,17 +30,16 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete
                 if (validationResult is null)
                 {
                     var strategy = new BusinessStrategy<bool>();
-                    return OperationStrategy<bool>.Fail("Not found", strategy);
+                    return OperationStrategy<bool>.Fail(DeleteLabels.EntityNotFound, strategy);
                 }
 
                 // Remove the entity
                 var entity = RepositoryHelper.ValidateArgument(validationResult);
-                var result = await base.Delete(entity);
-
+                Delete(entity);
                 // Build and return success message
                 var template = DeleteLabels.DeletionSuccess;
                 var message = string.Format(template, typeof(T).Name);
-                return Operation<bool>.Success(result, message);
+                return Operation<bool>.Success(true, message);
             }
             catch (Exception ex)
             {

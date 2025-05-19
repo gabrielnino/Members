@@ -120,7 +120,7 @@
   <data name="DeletionSuccess" xml:space="preserve">
     <value>{0} was deleted successfully.</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity not found.</value>
   </data>
 </root>

@@ -2,6 +2,7 @@
 using Application.UseCases.Repository.CRUD.Query;
 using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
@@ -9,8 +10,8 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
     /// <summary>
     /// Retrieves an entity by its ID or returns a not-found error.
     /// </summary>
-    public abstract class ReadByIdRepository<T>(DbContext context, IErrorHandler errorStrategyHandler)
-        : EntityChecker<T>(context), IReadById<T>
+    public abstract class ReadByIdRepository<T>(IUnitOfWork unitOfWork, IErrorHandler errorStrategyHandler)
+        : EntityChecker<T>(unitOfWork), IReadById<T>
         where T : class, IEntity
     {
         /// <summary>
@@ -28,7 +29,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
                 if (found is null)
                 {
                     var strategy = new BusinessStrategy<T>();
-                    return OperationStrategy<T>.Fail("Not found", strategy);
+                    return OperationStrategy<T>.Fail(ReadIdLabels.EntityNotFound, strategy);
                 }
 
                 var successMsg = ReadIdLabels.ReadIdSuccess;

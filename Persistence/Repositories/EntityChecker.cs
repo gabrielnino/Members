@@ -1,12 +1,13 @@
 ﻿using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 
 namespace Persistence.Repositories
 {
     /// <summary>
     /// Provides methods to check if an entity exists in the database.
     /// </summary>
-    public abstract class EntityChecker<T>(DbContext context) : Read<T>(context)
+    public abstract class EntityChecker<T>(IUnitOfWork unitOfWork) : Read<T>(unitOfWork)
         where T : class, IEntity
     {
         /// <summary>

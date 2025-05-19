@@ -6,7 +6,9 @@ using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.Repositories;
 
 namespace Autodesk.Infrastructure.Test.Implementation
 {
@@ -36,9 +38,10 @@ namespace Autodesk.Infrastructure.Test.Implementation
         {
             Errors.LoadErrorMappings(JsonFile);
             Ctx = new DataContext(Opts, new SQLite());
-            RepoCreate = new UserCreate(Ctx, Util, Errors);
-            RepoDelete = new UserDelete(Ctx, Errors);
-            RepoUpdate = new UserUpdate(Ctx, Errors,Util);
+            var unitOfWork = new UnitOfWork(Ctx);  
+            RepoCreate = new UserCreate(unitOfWork);
+            RepoDelete = new UserDelete(unitOfWork, Errors);
+            RepoUpdate = new UserUpdate(unitOfWork, Errors,Util);
         }
     }
 }

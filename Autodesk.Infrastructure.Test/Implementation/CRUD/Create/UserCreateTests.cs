@@ -16,11 +16,10 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Create
             };
 
             //Act
-            var result = await RepoCreate.Create(newUser);
+            var result = await RepoCreate.CreateEntity(newUser);
 
             //Assert Operation result
             Assert.True(result.IsSuccessful);
-            Assert.True(result.Data);
             Assert.Equal(1, Ctx.Users.Count());
         }
 
@@ -49,11 +48,10 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Create
             };
 
             // Act
-            var result = await RepoCreate.Create(newUser);
+            var result = await RepoCreate.CreateEntity(newUser);
 
             // Assert
             Assert.False(result.IsSuccessful);
-            Assert.False(result.Data);
             Assert.False(string.IsNullOrWhiteSpace(result.Message));
 
             // Ensure only the original user remains

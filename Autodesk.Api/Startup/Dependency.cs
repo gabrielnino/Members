@@ -8,6 +8,8 @@ using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
+using Persistence.Context.Interface;
+using Persistence.Repositories;
 
 namespace Autodesk.Api.Startup
 {
@@ -25,6 +27,7 @@ namespace Autodesk.Api.Startup
 
         protected static void User(WebApplicationBuilder builder)
         {
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRead, UserRead>();
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();

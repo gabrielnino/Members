@@ -3,6 +3,7 @@ using Application.UseCases.Repository.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
 using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Update;
+using Persistence.Context.Interface;
 
 namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
 {
@@ -12,10 +13,10 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     /// Handles updating a user record.
     /// </summary>
     public class UserUpdate(
-        DataContext context,
+        IUnitOfWork unitOfWork,
         IErrorHandler errorStrategyHandler,
         IUtilEntity<User> utilEntity
-    ) : UpdateRepository<User>(context, errorStrategyHandler, utilEntity), IUserUpdate
+    ) : UpdateRepository<User>(unitOfWork, errorStrategyHandler, utilEntity), IUserUpdate
     {
         /// <summary>
         /// Copies new values into the existing user and returns success.
@@ -38,7 +39,6 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
             // Prepare success message
             var template = UserUpdateLabels.UpdateSuccessfullySearchGeneric;
             var message = string.Format(template, nameof(User));
-
             return Operation<User>.Success(entityUnmodified, message);
         }
     }

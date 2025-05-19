@@ -1,7 +1,7 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
-using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Update
@@ -10,10 +10,10 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
     /// Base class to update entities with validation and error handling.
     /// </summary>
     public abstract class UpdateRepository<T>(
-        DbContext context,
+        IUnitOfWork unitOfWork,
         IErrorHandler errorStrategyHandler,
         IUtilEntity<T> utilEntity
-    ) : RepositoryUpdate<T>(context), IUpdate<T>
+    ) : RepositoryUpdate<T>(unitOfWork), IUpdate<T>
         where T : class, IEntity
     {
         /// <summary>
@@ -44,12 +44,11 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Update
                     return modifiedResult.ConvertTo<bool>();
 
                 // Save changes to database
-                var updated = await base.Update(modifiedResult.Data);
-
+                base.Update(modifiedResult.Data);
                 // Build success message
                 var template = "UpdateSuccess";
                 var message = string.Format(template, typeof(T).Name);
-                return Operation<bool>.Success(updated, message);
+                return Operation<bool>.Success(true, message);
             }
             catch (Exception ex)
             {

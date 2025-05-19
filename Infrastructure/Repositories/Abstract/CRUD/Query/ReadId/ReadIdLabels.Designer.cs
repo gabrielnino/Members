@@ -61,6 +61,15 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity not found..
+        /// </summary>
+        internal static string EntityNotFound {
+            get {
+                return ResourceManager.GetString("EntityNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The search in the {0} entity completed successfully..
         /// </summary>
         internal static string ReadByBearerSuccess {

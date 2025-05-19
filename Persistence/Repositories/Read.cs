@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using System.Linq.Expressions;
 
 namespace Persistence.Repositories
@@ -8,7 +9,7 @@ namespace Persistence.Repositories
     /// Base class for read-only queries with filtering.
     /// </summary>
     /// <typeparam name="T">Entity type.</typeparam>
-    public abstract class Read<T>(DbContext context) : Repository<T>(context)
+    public abstract class Read<T>(IUnitOfWork unitOfWork) : Repository<T>(unitOfWork)
         where T : class, IEntity
     {
         /// <summary>
