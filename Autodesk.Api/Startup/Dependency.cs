@@ -7,7 +7,6 @@ using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Result;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
-using Persistence.Repositories;
 
 namespace Autodesk.Api.Startup
 {

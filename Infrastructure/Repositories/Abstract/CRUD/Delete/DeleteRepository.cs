@@ -6,9 +6,15 @@ using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Delete
 {
+    /// <summary>
+    /// Base repository that implements deletion logic for entities of type T.
+    /// </summary>
     public abstract class DeleteRepository<T>(IUnitOfWork unitOfWork)
         : RepositoryDelete<T>(unitOfWork), IDelete<T> where T : class, IEntity
     {
+        /// <summary>
+        /// Attempts to delete the entity with the given ID, returning a success result or a business failure if not found.
+        /// </summary>
         public async Task<Operation<bool>> DeleteEntity(string id)
         {
             var entity = await HasId(id);

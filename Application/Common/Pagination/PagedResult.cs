@@ -15,6 +15,9 @@
         /// </summary>
         public string? NextCursor { get; init; }
 
+        /// <summary>
+        /// Gets the total number of items across all pages.
+        /// </summary>
         public int TotalCount { get; init; }
     }
 }
