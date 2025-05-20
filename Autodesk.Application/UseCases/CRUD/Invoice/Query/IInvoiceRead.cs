@@ -10,6 +10,7 @@ namespace Autodesk.Application.UseCases.CRUD.Invoice.Query
             string? invoiceNumber,
             string? customerName,
             string? cursor,
-            int pageSize);
+            int pageSize,
+            bool includeProducts = false);
     }
 }

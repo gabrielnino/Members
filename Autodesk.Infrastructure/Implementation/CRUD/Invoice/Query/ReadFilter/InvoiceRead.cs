@@ -5,48 +5,49 @@ using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Persistence.Context.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
 {
     using Invoice = Domain.Invoice;
 
-    /// <summary>
-    /// Reads invoices with optional filtering, cursor-based paging, and caching.
-    /// </summary>
     public class InvoiceRead(
         IUnitOfWork unitOfWork,
         IErrorHandler errorHandler,
         IMemoryCache cache
     ) : ReadRepository<Invoice>(
             unitOfWork,
-            // Order first by InvoiceDate, then by Id to disambiguate
-            q => q.Include(i => i.Products).OrderBy(i => i.InvoiceDate).ThenBy(i => i.Id)
+            // no Include here—just ordering
+            q => q.OrderBy(i => i.InvoiceDate).ThenBy(i => i.Id)
         ), IInvoiceRead
     {
         private readonly IErrorHandler _errorHandler = errorHandler;
         private readonly IMemoryCache _cache = cache;
-        // Use ISO-8601 date strings so lexical compare matches chronological
+        private bool _includeProducts;  // ← toggled per call
+
+        // Use ISO-8601 strings so lexical compare follows date order
         private readonly Func<Invoice, (string Primary, string Secondary)> _cursorSelector
             = i => (i.InvoiceDate.ToString("o"), i.Id);
 
-        /// <summary>
-        /// Get a page of invoices, optionally filtered by invoiceNumber or customerName.
-        /// </summary>
         public async Task<Operation<PagedResult<Invoice>>> GetInvoicesPageAsync(
             string? invoiceNumber,
             string? customerName,
             string? cursor,
-            int pageSize)
+            int pageSize,
+            bool includeProducts = false)      // ← new parameter
         {
             try
             {
-                var cacheKey = $"invoices:{invoiceNumber}:{customerName}:{cursor}:{pageSize}";
+                _includeProducts = includeProducts;
+
+                var cacheKey = $"invoices:{invoiceNumber}:{customerName}:{cursor}:{pageSize}:{includeProducts}";
                 if (_cache.TryGetValue(cacheKey, out PagedResult<Invoice> cached))
                 {
                     return Operation<PagedResult<Invoice>>.Success(cached);
                 }
-                    
 
                 var filter = BuildFilter(invoiceNumber, customerName);
                 var result = await GetPageAsync(filter, cursor, pageSize);
@@ -66,14 +67,10 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             string? customerName)
         {
             if (!string.IsNullOrWhiteSpace(invoiceNumber))
-            {
                 return i => i.InvoiceNumber == invoiceNumber!;
-            }
 
             if (!string.IsNullOrWhiteSpace(customerName))
-            {
                 return i => EF.Functions.Like(i.CustomerName!, $"%{customerName}%");
-            }
 
             return i => true;
         }
@@ -87,10 +84,8 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             var lastId = parts.Length > 1 ? parts[1] : string.Empty;
 
             return query.Where(i =>
-                // Primary compare on date string
                 Persistence.Context.Implementation.DataContext
                     .StringCompareOrdinal(i.InvoiceDate.ToString("o"), dateString) > 0
-                // If equal date, compare by Id
                 || (i.InvoiceDate.ToString("o") == dateString
                     && Persistence.Context.Implementation.DataContext
                         .StringCompareOrdinal(i.Id, lastId) > 0)
@@ -107,10 +102,18 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             return Uri.EscapeDataString($"{p}|{s}");
         }
 
-        protected override IQueryable<Invoice> BuildBaseQuery(Expression<Func<Invoice, bool>>? filter)
+        /// <summary>
+        /// Conditionally eager‐loads Products only if the flag was set.
+        /// </summary>
+        protected override IQueryable<Invoice> BuildBaseQuery(
+            Expression<Func<Invoice, bool>>? filter)
         {
             var q = base.BuildBaseQuery(filter);
-            return q.Include(i => i.Products);
+
+            if (_includeProducts)
+                q = q.Include(i => i.Products);
+
+            return q;
         }
     }
 }

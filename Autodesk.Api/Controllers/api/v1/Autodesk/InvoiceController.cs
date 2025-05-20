@@ -35,7 +35,8 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
                 qp.InvoiceNumber,
                 qp.CustomerName,
                 qp.Cursor,
-                qp.PageSize
+                qp.PageSize,
+                qp.IncludeProducts
             );
 
             if (!op.IsSuccessful)

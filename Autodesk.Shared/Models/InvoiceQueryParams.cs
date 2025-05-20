@@ -28,5 +28,7 @@ namespace Autodesk.Shared.Models
         [Range(1, PaginationDefaults.MaxPageSize,
             ErrorMessage = "PageSize must be between 1 and " + nameof(PaginationDefaults.MaxPageSize))]
         public int PageSize { get; set; } = PaginationDefaults.DefaultPageSize;
+
+        public bool IncludeProducts { get; set; }
     }
 }
