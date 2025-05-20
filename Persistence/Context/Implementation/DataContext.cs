@@ -46,7 +46,9 @@ namespace Persistence.Context.Implementation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            DataHelper.SetTableUsers(modelBuilder, _columnTypes);
+            TableUsers.SetTableUsers(modelBuilder, _columnTypes);
+            TableProducts.SetTableProducts(modelBuilder, _columnTypes);
+            TableInvoices.SetTableInvoices(modelBuilder, _columnTypes);
 
             modelBuilder.HasDbFunction(typeof(DataContext)
                 .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)

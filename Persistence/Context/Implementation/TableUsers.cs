@@ -8,7 +8,7 @@ namespace Persistence.Context.Implementation
     /// <summary>
     /// Represents a Data helper.
     /// </summary>
-    public static class DataHelper
+    public static class TableUsers
     {
         /// <summary>
         /// Help to create the Tables.

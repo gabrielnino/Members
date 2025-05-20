@@ -14,6 +14,8 @@
             /// Name of the Users table.
             /// </summary>
             public const string Users = "Users";
+            public const string Invoices = "Invoices";
+            public const string Products = "Products";
         }
 
         /// <summary>

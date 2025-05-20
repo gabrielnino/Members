@@ -49,7 +49,7 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
         /// <summary>
         /// Builds the base query, applying the optional filter and ordering.
         /// </summary>
-        private IQueryable<T> BuildBaseQuery(Expression<Func<T, bool>>? filter)
+        protected virtual IQueryable<T> BuildBaseQuery(Expression<Func<T, bool>>? filter)
         {
             var q = unitOfWork.Context.Set<T>().AsNoTracking();
             if (filter != null)
