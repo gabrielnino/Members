@@ -13,7 +13,7 @@ namespace Persistence.Context.Implementation
     public class DataContext(DbContextOptions options, IColumnTypes columnTypes) : DbContext(options), IDataContext
     {
         protected readonly IColumnTypes _columnTypes = columnTypes;
-        public virtual DbSet<User> Users { get; set; }
+
         /// <summary>
         ///  Initializes the data context. This typically includes opening connections, applying migrations, creating
         ///  the database if it does not exist, and seeding any required initial data.
@@ -46,9 +46,10 @@ namespace Persistence.Context.Implementation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            TableUsers.SetTableUsers(modelBuilder, _columnTypes);
-            TableProducts.SetTableProducts(modelBuilder, _columnTypes);
-            TableInvoices.SetTableInvoices(modelBuilder, _columnTypes);
+            UserTable.Users(modelBuilder, _columnTypes);
+            ProductTable.Products(modelBuilder, _columnTypes);
+            InvoiceTable.Invoices(modelBuilder, _columnTypes);
+            ErrorLogTable.ErrorLog(modelBuilder, _columnTypes);
 
             modelBuilder.HasDbFunction(typeof(DataContext)
                 .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)

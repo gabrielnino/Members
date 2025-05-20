@@ -23,25 +23,5 @@ namespace Autodesk.Persistence.Test.Context
             public string Name => string.Empty;
             public object? Value => null;
         }
-
-        private static DbContextOptions<DataContext> CreateInMemoryOptions() =>
-            new DbContextOptionsBuilder<DataContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-
-        [Fact]
-        public void GivenInitializedDataContext_WhenQueryUsers_ThenUsersIsEmpty()
-        {
-            // Arrange
-            var options = CreateInMemoryOptions();
-            var ctx = new DataContext(options, new FakeColumnTypes());
-            ctx.Initialize();
-
-            // Act
-            var count = ctx.Users.CountAsync().Result;
-
-            // Assert
-            Assert.Equal(0, count);
-        }
     }
 }

@@ -5,9 +5,9 @@ using Persistence.CreateStruture.Constants;
 
 namespace Persistence.Context.Implementation
 {
-    public static class TableProducts
+    public static class ProductTable
     {
-        public static void SetTableProducts(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Products(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             // Map Product → Products table
             modelBuilder.Entity<Product>().ToTable(Database.Tables.Products);

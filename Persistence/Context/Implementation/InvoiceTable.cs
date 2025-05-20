@@ -4,9 +4,9 @@ using Persistence.CreateStruture.Constants.ColumnType;
 using Persistence.CreateStruture.Constants;
 namespace Persistence.Context.Implementation
 {
-    public static class TableInvoices
+    public static class InvoiceTable
     {
-        public static void SetTableInvoices(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Invoices(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             modelBuilder.Entity<Invoice>().ToTable(Database.Tables.Invoices);
             modelBuilder.Entity<Invoice>(entity =>
@@ -31,7 +31,7 @@ namespace Persistence.Context.Implementation
                 // CustomerName: varchar(150), required
                 entity.Property(i => i.CustomerName)
                       .HasColumnType(columnTypes.TypeVar150)
-                      .HasMaxLength(200)
+                      .HasMaxLength(150)
                       .IsRequired();
 
                 // TotalAmount: stored as TEXT (or REAL), required
