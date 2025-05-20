@@ -8,7 +8,10 @@ namespace Persistence.Context.Implementation
     {
         private readonly DataContext _context;
 
-        public UnitOfWork(DataContext context) => _context = context;
+        public UnitOfWork(DataContext context)
+        {
+            _context = context;
+        }
 
         public DataContext Context => _context;
 

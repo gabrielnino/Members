@@ -9,8 +9,8 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
 {
     public abstract class ReadRepository<T>(
         IUnitOfWork unitOfWork,
-        IErrorHandler errorHandler,
-        Func<IQueryable<T>, IOrderedQueryable<T>> orderBy) where T : class, IEntity
+        Func<IQueryable<T>,
+            IOrderedQueryable<T>> orderBy) where T : class, IEntity
     {
         public async Task<Operation<PagedResult<T>>> GetPageAsync(Expression<Func<T, bool>>? filter, string? cursor, int pageSize)
         {

@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(unitOfWork, errorHandler, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
+public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(unitOfWork, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
     private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;

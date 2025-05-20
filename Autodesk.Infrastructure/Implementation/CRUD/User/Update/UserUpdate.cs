@@ -27,10 +27,11 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
 
         public async Task<Operation<bool>> UpdateUserAsync(User entity)
         {
-            try { 
-            var result = await UpdateEntity(entity);
-            await unitOfWork.CommitAsync();
-            return result;
+            try
+            {
+                var result = await UpdateEntity(entity);
+                await unitOfWork.CommitAsync();
+                return result;
             }
             catch (Exception ex)
             {

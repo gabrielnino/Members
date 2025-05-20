@@ -1,7 +1,6 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
-using Infrastructure.Repositories.Abstract.CRUD.Delete;
 using Persistence.Context.Interface;
 using Persistence.Repositories;
 

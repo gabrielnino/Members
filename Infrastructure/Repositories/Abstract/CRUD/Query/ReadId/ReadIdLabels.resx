@@ -120,9 +120,6 @@
   <data name="EntityNotFound" xml:space="preserve">
     <value>Entity not found.</value>
   </data>
-  <data name="ReadByBearerSuccess" xml:space="preserve">
-    <value>The search in the {0} entity completed successfully.</value>
-  </data>
   <data name="ReadIdSuccess" xml:space="preserve">
     <value>The entity was found by id successfully.</value>
   </data>

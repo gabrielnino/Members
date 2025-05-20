@@ -30,6 +30,7 @@
   "DataException": "DatabaseStrategy",
   "TransactionException": "DatabaseStrategy",
   "ConstraintException": "DatabaseStrategy",
+  "DbUpdateException": "DatabaseStrategy",
 
   "UnauthorizedAccessException": "AuthenticationStrategy",
   "SecurityException": "AuthorizationStrategy",

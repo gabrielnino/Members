@@ -18,8 +18,8 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.ReadId
                 return OperationStrategy<T>.Fail(ReadIdLabels.EntityNotFound, strategy);
             }
 
-            var successMsg = ReadIdLabels.ReadIdSuccess;
-            return Operation<T>.Success(found, successMsg);
+            var sucess = ReadIdLabels.ReadIdSuccess;
+            return Operation<T>.Success(found, sucess);
         }
     }
 }
