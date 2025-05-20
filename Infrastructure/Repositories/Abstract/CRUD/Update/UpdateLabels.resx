@@ -117,13 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UtilEntityFailedNecesaryData" xml:space="preserve">
-    <value>Necessary data was not provided.</value>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity not found.</value>
   </data>
-  <data name="UtilEntityFailedUnique" xml:space="preserve">
-    <value>The ID of the entity already exists.</value>
-  </data>
-  <data name="UtilEntitySuccess" xml:space="preserve">
-    <value>Ok</value>
+  <data name="UpdationSuccess" xml:space="preserve">
+    <value>{0} was updated successfully.</value>
   </data>
 </root>

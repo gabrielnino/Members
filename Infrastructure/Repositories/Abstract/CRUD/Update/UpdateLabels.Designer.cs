@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create {
+namespace Infrastructure.Repositories.Abstract.CRUD.Update {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class UserCreateLabels {
+    internal class UpdateLabels {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal UserCreateLabels() {
+        internal UpdateLabels() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Autodesk.Infrastructure.Implementation.CRUD.User.Create.UserCreateLabels", typeof(UserCreateLabels).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Infrastructure.Repositories.Abstract.CRUD.Update.UpdateLabels", typeof(UpdateLabels).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,20 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The given email is already registered. Please use a different email or sign in..
+        ///   Looks up a localized string similar to Entity not found..
         /// </summary>
-        internal static string CreateAlreadyRegisteredErrorEmail {
+        internal static string EntityNotFound {
             get {
-                return ResourceManager.GetString("CreateAlreadyRegisteredErrorEmail", resourceCulture);
+                return ResourceManager.GetString("EntityNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} was updated successfully..
+        /// </summary>
+        internal static string UpdationSuccess {
+            get {
+                return ResourceManager.GetString("UpdationSuccess", resourceCulture);
             }
         }
     }

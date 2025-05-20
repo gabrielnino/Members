@@ -14,27 +14,20 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
     {
         public async Task<Operation<PagedResult<T>>> GetPageAsync(Expression<Func<T, bool>>? filter, string? cursor, int pageSize)
         {
-            try
+            var query = BuildBaseQuery(filter);
+            var count = query.Count();
+            if (!string.IsNullOrEmpty(cursor))
             {
-                var query = BuildBaseQuery(filter);
-                var count = query.Count();
-                if (!string.IsNullOrEmpty(cursor))
-                {
-                    query = ApplyCursorFilter(query, cursor);
-                }
-                var items = await query.Take(pageSize + 1).ToListAsync();
-                var next = BuildNextCursor(items, pageSize);
-                if (next != null)
-                {
-                    items.RemoveAt(pageSize);
-                }
-                var result = new PagedResult<T> { Items = items, NextCursor = next, TotalCount = count };
-                return Operation<PagedResult<T>>.Success(result);
+                query = ApplyCursorFilter(query, cursor);
             }
-            catch (Exception ex)
+            var items = await query.Take(pageSize + 1).ToListAsync();
+            var next = BuildNextCursor(items, pageSize);
+            if (next != null)
             {
-                return errorHandler.Fail<PagedResult<T>>(ex);
+                items.RemoveAt(pageSize);
             }
+            var result = new PagedResult<T> { Items = items, NextCursor = next, TotalCount = count };
+            return Operation<PagedResult<T>>.Success(result);
         }
         private IQueryable<T> BuildBaseQuery(Expression<Func<T, bool>>? filter)
         {

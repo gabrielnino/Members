@@ -20,7 +20,7 @@ namespace Autodesk.Application.UseCases.CRUD.User.Query
         /// <returns>
         /// An operation result with a paged list of users or error details.
         /// </returns>
-        Task<Operation<PagedResult<User>>> GetUsersPage(
+        Task<Operation<PagedResult<User>>> GetUsersPageAsync(
             string? id,
             string? name,
             string? cursor,

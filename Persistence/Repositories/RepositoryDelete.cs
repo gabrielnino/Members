@@ -8,8 +8,8 @@ namespace Persistence.Repositories
     /// Base class to delete entities from the database.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
-    public abstract class RepositoryDelete<T>(IUnitOfWork unitOfWork) : EntityChecker<T>(unitOfWork)
-        where T : class, IEntity
+    public abstract class RepositoryDelete<T>(IUnitOfWork unitOfWork) 
+        : EntityChecker<T>(unitOfWork) where T : class, IEntity
     {
         /// <summary>
         /// Remove the given entity and save changes.
@@ -20,7 +20,6 @@ namespace Persistence.Repositories
         /// </returns>
         protected void Delete(T entity)
         {
-            RepositoryHelper.ValidateArgument(entity);
             _dbSet.Remove(entity);
         }
     }

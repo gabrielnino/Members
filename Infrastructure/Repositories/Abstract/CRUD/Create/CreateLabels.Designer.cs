@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update {
+namespace Infrastructure.Repositories.Abstract.CRUD.Create {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class UserUpdateLabels {
+    internal class CreateLabels {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal UserUpdateLabels() {
+        internal CreateLabels() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Autodesk.Infrastructure.Implementation.CRUD.User.Update.UserUpdateLabels", typeof(UserUpdateLabels).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Infrastructure.Repositories.Abstract.CRUD.Create.CreateLabels", typeof(CreateLabels).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,11 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The search in the {0} entity completed successfully..
+        ///   Looks up a localized string similar to {0} was created successfully..
         /// </summary>
-        internal static string UpdateSuccessfullySearchGeneric {
+        internal static string CreationSuccess {
             get {
-                return ResourceManager.GetString("UpdateSuccessfullySearchGeneric", resourceCulture);
+                return ResourceManager.GetString("CreationSuccess", resourceCulture);
             }
         }
     }

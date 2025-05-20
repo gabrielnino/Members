@@ -12,16 +12,20 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
     /// </summary>
     /// <param name="context">Database context for user data.</param>
     /// <param name="errorHandler">Service to handle errors.</param>
-    public class UserDelete(
-        IUnitOfWork unitOfWork,
-        IErrorHandler errorHandler
-    ) : DeleteRepository<User>(unitOfWork, errorHandler), IUserDelete
+    public class UserDelete(IUnitOfWork unitOfWork, IErrorHandler errorHandler) : DeleteRepository<User>(unitOfWork), IUserDelete
     {
-        public override async Task<Operation<bool>> Delete(string id)
+        public async Task<Operation<bool>> DeleteUserAsync(string id)
         {
-            var result = await base.Delete(id);
-            await unitOfWork.CommitAsync();
-            return result;
+            try
+            {
+                var result = await DeleteEntity(id);
+                await unitOfWork.CommitAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return errorHandler.Fail<bool>(ex);
+            }
         }
     }
 }

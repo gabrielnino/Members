@@ -16,6 +16,6 @@ namespace Application.UseCases.Repository.CRUD
         /// <returns>
         /// An operation result indicating success (true) or failure (false).
         /// </returns>
-        Task<Operation<bool>> Update(T entity);
+        Task<Operation<bool>> UpdateEntity(T entity);
     }
 }

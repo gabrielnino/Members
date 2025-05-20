@@ -17,28 +17,4 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Implementation\CRUD\User\Create\UserCreateLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UserCreateLabels.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Implementation\CRUD\User\Update\UserUpdateLabels.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UserUpdateLabels.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Implementation\CRUD\User\Create\UserCreateLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>UserCreateLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Implementation\CRUD\User\Update\UserUpdateLabels.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>UserUpdateLabels.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
 </Project>

@@ -11,6 +11,6 @@ namespace Autodesk.Application.UseCases.CRUD.User
         /// Deletes the user with the given ID.
         /// Returns an operation indicating success.
         /// </summary>
-        Task<Operation<bool>> Delete(string id);
+        Task<Operation<bool>> DeleteUserAsync(string id);
     }
 }

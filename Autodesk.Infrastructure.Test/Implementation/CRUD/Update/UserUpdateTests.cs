@@ -14,10 +14,10 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Update
                 Email = "alice@email.com",
                 Lastname = "Robert"
             };
-            await RepoCreate.Create(newUser);
+            await RepoCreate.CreateEntity(newUser);
             //Act
             newUser.Name = "Eve";
-            var result = await RepoUpdate.Update(newUser);
+            var result = await RepoUpdate.UpdateEntity(newUser);
 
             //Assert Operation result
             //Assert.True(result.IsSuccessful);
@@ -35,11 +35,11 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Update
                 Email = "alice@email.com",
                 Lastname = "Robert"
             };
-            await RepoCreate.Create(newUser);
+            await RepoCreate.CreateEntity(newUser);
             //Act
             newUser.Name = "Eve";
             newUser.Id = Guid.NewGuid().ToString();
-            var result = await RepoUpdate.Update(newUser);
+            var result = await RepoUpdate.UpdateEntity(newUser);
 
             //Assert Operation result
             Assert.False(result.IsSuccessful);

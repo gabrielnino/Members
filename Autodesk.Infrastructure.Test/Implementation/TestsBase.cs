@@ -2,7 +2,6 @@
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
-using Infrastructure.Repositories.Abstract.CRUD.Util;
 using Infrastructure.Result;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Implementation;
@@ -16,7 +15,6 @@ namespace Autodesk.Infrastructure.Test.Implementation
         private const string File = "ErrorMappings.json";
         private static string BaseDirectory => AppContext.BaseDirectory;
         protected static string JsonFile => Path.Combine(BaseDirectory, Folder, File);
-        protected class UserUtilEntity : UtilEntity<User> { }
 
         private static DbContextOptions<DataContext> CreateOption() =>
             new DbContextOptionsBuilder<DataContext>()
@@ -25,7 +23,6 @@ namespace Autodesk.Infrastructure.Test.Implementation
 
         protected static DbContextOptions<DataContext> Opts => CreateOption();
 
-        protected static UserUtilEntity Util => new();
         protected static ErrorHandler Errors => new();
         protected DataContext Ctx;
 
@@ -38,9 +35,10 @@ namespace Autodesk.Infrastructure.Test.Implementation
             Errors.LoadErrorMappings(JsonFile);
             Ctx = new DataContext(Opts, new SQLite());
             UnitOfWork = new UnitOfWork(Ctx);  
-            RepoCreate = new UserCreate(UnitOfWork);
+
+            RepoCreate = new UserCreate(UnitOfWork, Errors);
             RepoDelete = new UserDelete(UnitOfWork, Errors);
-            RepoUpdate = new UserUpdate(UnitOfWork, Errors,Util);
+            RepoUpdate = new UserUpdate(UnitOfWork, Errors);
         }
     }
 }

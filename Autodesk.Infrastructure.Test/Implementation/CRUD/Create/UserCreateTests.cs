@@ -17,7 +17,7 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Create
             };
 
             //Act
-            var result = await RepoCreate.CreateEntity(newUser);
+            var result = await RepoCreate.CreateUserAsync(newUser);
 
             //Assert Operation result
             Assert.True(result.IsSuccessful);
@@ -49,7 +49,7 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Create
             };
 
             // Act
-            var result = await RepoCreate.CreateEntity(newUser);
+            var result = await RepoCreate.CreateUserAsync(newUser);
             await UnitOfWork.CommitAsync();
             // Assert
             //Assert.False(result.IsSuccessful);

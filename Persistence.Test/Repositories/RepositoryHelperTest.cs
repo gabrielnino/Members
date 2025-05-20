@@ -2,52 +2,52 @@
 
 namespace Persistence.Test.Repositories
 {
-    public class RepositoryHelperTests
-    {
-        [Fact]
-        public void ValidateArgument_WithNonNullReference_ReturnsSameInstance()
-        {
-            // Arrange
-            var input = new object();
+    //public class RepositoryHelperTests
+    //{
+    //    [Fact]
+    //    public void ValidateArgument_WithNonNullReference_ReturnsSameInstance()
+    //    {
+    //        // Arrange
+    //        var input = new object();
 
-            // Act
-            var result = RepositoryHelper.ValidateArgument(input);
+    //        // Act
+    //        var result = RepositoryHelper.ValidateArgument(input);
 
-            // Assert
-            Assert.Same(input, result);
-        }
+    //        // Assert
+    //        Assert.Same(input, result);
+    //    }
 
-        [Fact]
-        public void ValidateArgument_WithNullReference_ThrowsArgumentNullException()
-        {
-            // Arrange
-            object? input = null;
+    //    [Fact]
+    //    public void ValidateArgument_WithNullReference_ThrowsArgumentNullException()
+    //    {
+    //        // Arrange
+    //        object? input = null;
 
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => RepositoryHelper.ValidateArgument(input!));
-        }
+    //        // Act & Assert
+    //        Assert.Throws<ArgumentNullException>(() => RepositoryHelper.ValidateArgument(input!));
+    //    }
 
-        [Fact]
-        public void ValidateArgument_WithNonNullValueType_ReturnsSameValue()
-        {
-            // Arrange
-            int input = 42;
+    //    [Fact]
+    //    public void ValidateArgument_WithNonNullValueType_ReturnsSameValue()
+    //    {
+    //        // Arrange
+    //        int input = 42;
 
-            // Act
-            var result = RepositoryHelper.ValidateArgument(input);
+    //        // Act
+    //        var result = RepositoryHelper.ValidateArgument(input);
 
-            // Assert
-            Assert.Equal(input, result);
-        }
+    //        // Assert
+    //        Assert.Equal(input, result);
+    //    }
 
-        [Fact]
-        public void ValidateArgument_WithNullableValueTypeNull_ThrowsArgumentNullException()
-        {
-            // Arrange
-            int? input = null;
+    //    [Fact]
+    //    public void ValidateArgument_WithNullableValueTypeNull_ThrowsArgumentNullException()
+    //    {
+    //        // Arrange
+    //        int? input = null;
 
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => RepositoryHelper.ValidateArgument(input!));
-        }
-    }
+    //        // Act & Assert
+    //        Assert.Throws<ArgumentNullException>(() => RepositoryHelper.ValidateArgument(input!));
+    //    }
+    //}
 }

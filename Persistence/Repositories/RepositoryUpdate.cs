@@ -7,8 +7,8 @@ namespace Persistence.Repositories
     /// <summary>
     /// Handles updating entities in the database.
     /// </summary>
-    public abstract class RepositoryUpdate<T>(IUnitOfWork unitOfWork) : EntityChecker<T>(unitOfWork)
-        where T : class, IEntity
+    public abstract class RepositoryUpdate<T>(IUnitOfWork unitOfWork) 
+        : EntityChecker<T>(unitOfWork) where T : class, IEntity
     {
         /// <summary>
         /// Marks an entity as modified and saves changes.
@@ -17,7 +17,6 @@ namespace Persistence.Repositories
         /// <returns>True if the save succeeded; otherwise false.</returns>
         protected void Update(T entity)
         {
-            RepositoryHelper.ValidateArgument(entity);
             unitOfWork.Context.Entry(entity).State = EntityState.Modified;
         }
     }

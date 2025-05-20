@@ -7,7 +7,6 @@
             DataSeeder(builder);
             User(builder);
             Cache(builder);
-            Util(builder);
         }
     }
 }

@@ -16,6 +16,6 @@ namespace Autodesk.Application.UseCases.CRUD.User
         /// <returns>
         /// Operation result: true if created, false otherwise.
         /// </returns>
-        Task<Operation<User>> CreateEntity(User entity);
+        Task<Operation<User>> CreateUserAsync(User entity);
     }
 }

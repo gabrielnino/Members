@@ -10,13 +10,20 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
     /// <summary>
     /// Creates a user, ensuring no duplicate email exists.
     /// </summary>
-    public class UserCreate(IUnitOfWork unitOfWork) : CreateRepository<User>(unitOfWork), IUserCreate
+    public class UserCreate(IUnitOfWork unitOfWork, IErrorHandler errorHandler) : CreateRepository<User>(unitOfWork), IUserCreate
     {
-        public async Task<Operation<User>> CreateEntity(User entity)
+        public async Task<Operation<User>> CreateUserAsync(User entity)
         {
-            await Create(entity);
-            await unitOfWork.CommitAsync();
-            return Operation<User>.Success(entity);
+            try
+            {
+                await CreateEntity(entity);
+                await unitOfWork.CommitAsync();
+                return Operation<User>.Success(entity);
+            }
+            catch (Exception ex)
+            {
+                return errorHandler.Fail<User>(ex);
+            }
         }
     }
 }

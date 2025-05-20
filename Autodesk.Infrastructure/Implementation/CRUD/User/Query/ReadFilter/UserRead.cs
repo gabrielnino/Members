@@ -27,7 +27,7 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
     /// <param name="cursor">Cursor for the next page.</param>
     /// <param name="pageSize">Number of items per page.</param>
     /// <returns>Operation result with paged users or error.</returns>
-    public async Task<Operation<PagedResult<User>>> GetUsersPage(
+    public async Task<Operation<PagedResult<User>>> GetUsersPageAsync(
         string? id,
         string? name,
         string? cursor,

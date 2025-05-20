@@ -16,6 +16,6 @@ namespace Application.UseCases.Repository.CRUD
         /// <returns>
         /// An <see cref="Operation{bool}"/> indicating if the delete succeeded.
         /// </returns>
-        Task<Operation<bool>> Delete(string id);
+        Task<Operation<bool>> DeleteEntity(string id);
     }
 }
