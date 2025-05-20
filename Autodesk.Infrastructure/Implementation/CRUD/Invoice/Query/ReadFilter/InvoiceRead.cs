@@ -43,7 +43,10 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             {
                 var cacheKey = $"invoices:{invoiceNumber}:{customerName}:{cursor}:{pageSize}";
                 if (_cache.TryGetValue(cacheKey, out PagedResult<Invoice> cached))
+                {
                     return Operation<PagedResult<Invoice>>.Success(cached);
+                }
+                    
 
                 var filter = BuildFilter(invoiceNumber, customerName);
                 var result = await GetPageAsync(filter, cursor, pageSize);
@@ -63,10 +66,14 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             string? customerName)
         {
             if (!string.IsNullOrWhiteSpace(invoiceNumber))
+            {
                 return i => i.InvoiceNumber == invoiceNumber!;
+            }
 
             if (!string.IsNullOrWhiteSpace(customerName))
+            {
                 return i => EF.Functions.Like(i.CustomerName!, $"%{customerName}%");
+            }
 
             return i => true;
         }
