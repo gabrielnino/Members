@@ -8,7 +8,7 @@ namespace Persistence.Context.Implementation
 {
     public static class ErrorLogTable
     {
-        public static void ErrorLog(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Create(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             modelBuilder.Entity<Invoice>().ToTable(Database.Tables.ErrorLogs);
             modelBuilder.Entity<ErrorLog>(entity =>

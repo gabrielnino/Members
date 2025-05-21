@@ -6,7 +6,7 @@ namespace Persistence.Context.Implementation
 {
     public static class InvoiceTable
     {
-        public static void Invoices(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Create(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             modelBuilder.Entity<Invoice>().ToTable(Database.Tables.Invoices);
             modelBuilder.Entity<Invoice>(entity =>

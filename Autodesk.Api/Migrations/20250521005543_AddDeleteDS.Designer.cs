@@ -11,14 +11,14 @@ using Persistence.Context.Implementation;
 namespace Autodesk.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250520205719_AddErrorLogTable")]
-    partial class AddErrorLogTable
+    [Migration("20250521005543_AddDeleteDS")]
+    partial class AddDeleteDS
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
             modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
                 {
@@ -113,9 +113,11 @@ namespace Autodesk.Api.Migrations
 
             modelBuilder.Entity("Domain.ErrorLog", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Context")
                         .IsRequired()

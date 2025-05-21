@@ -36,7 +36,7 @@ namespace Autodesk.Persistence.Test.Context
             var columnTypes = new FakeColumnTypes();
 
             // Act
-            UserTable.Users(modelBuilder, columnTypes);
+            UserTable.Create(modelBuilder, columnTypes);
             var entityType = modelBuilder.Model.FindEntityType(typeof(User));
             Assert.NotNull(entityType);
 

@@ -7,7 +7,7 @@ namespace Persistence.Context.Implementation
 {
     public static class ProductTable
     {
-        public static void Products(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Create(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             // Map Product → Products table
             modelBuilder.Entity<Product>().ToTable(Database.Tables.Products);

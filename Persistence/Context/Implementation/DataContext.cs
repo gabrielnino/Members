@@ -46,10 +46,10 @@ namespace Persistence.Context.Implementation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            UserTable.Users(modelBuilder, _columnTypes);
-            ProductTable.Products(modelBuilder, _columnTypes);
-            InvoiceTable.Invoices(modelBuilder, _columnTypes);
-            ErrorLogTable.ErrorLog(modelBuilder, _columnTypes);
+            UserTable.Create(modelBuilder, _columnTypes);
+            ProductTable.Create(modelBuilder, _columnTypes);
+            InvoiceTable.Create(modelBuilder, _columnTypes);
+            ErrorLogTable.Create(modelBuilder, _columnTypes);
 
             modelBuilder.HasDbFunction(typeof(DataContext)
                 .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)
