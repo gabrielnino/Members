@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ReadByBearerSuccess" xml:space="preserve">
-    <value>The search in the {0} entity completed successfully.</value>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity not found.</value>
   </data>
   <data name="ReadIdSuccess" xml:space="preserve">
     <value>The entity was found by id successfully.</value>

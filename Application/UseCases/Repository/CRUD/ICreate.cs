@@ -4,18 +4,20 @@ using Domain.Interfaces.Entity;
 namespace Application.UseCases.Repository.CRUD
 {
     /// <summary>
-    /// Adds a new entity and returns whether it succeeded.
+    /// Defines a contract for creating entities of type <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="T">Entity type.</typeparam>
     public interface ICreate<T> where T : class, IEntity
     {
-        /// <summary>
-        /// Create the given entity.
+        // <summary>
+        /// Attempts to create the specified <paramref name="entity"/> in the underlying data store.
         /// </summary>
-        /// <param name="entity">The item to add.</param>
+        /// <param name="entity">The entity instance to persist.</param>
         /// <returns>
-        /// An operation result with true if created, false otherwise.
+        /// A <see cref="Task{TResult}"/> that, when completed, yields an <see cref="Operation{Boolean}"/>
+        /// indicating success or failure. The <see cref="Operation{Boolean}.Data"/> property will be
+        /// <c>true</c> on success, and <see cref="Operation{Boolean}.Message"/> may contain
+        /// additional context or error information.
         /// </returns>
-        Task<Operation<bool>> Create(T entity);
+        Task<Operation<bool>> CreateEntity(T entity);
     }
 }

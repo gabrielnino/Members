@@ -32,10 +32,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ReadIdLabels.resx</DependentUpon>
     </Compile>
-    <Compile Update="Repositories\Abstract\CRUD\Util\UtilEntityLabels.Designer.cs">
+    <Compile Update="Repositories\Abstract\CRUD\Update\UpdateLabels.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>UtilEntityLabels.resx</DependentUpon>
+      <DependentUpon>UpdateLabels.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -52,9 +52,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ReadIdLabels.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Repositories\Abstract\CRUD\Util\UtilEntityLabels.resx">
+    <EmbeddedResource Update="Repositories\Abstract\CRUD\Update\UpdateLabels.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>UtilEntityLabels.Designer.cs</LastGenOutput>
+      <LastGenOutput>UpdateLabels.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

@@ -35,7 +35,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         public async Task<IActionResult> Create([FromBody] User user)
         {
             // Invoke create use-case
-            var op = await _create.Create(user);
+            var op = await _create.CreateUserAsync(user);
             if (!op.IsSuccessful)
             {
                 // Return 400 with error message if creation fails
@@ -62,7 +62,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             }
 
             // Invoke read use-case
-            var op = await _read.GetUsersPage(qp.Id, qp.Name, qp.Cursor, qp.PageSize);
+            var op = await _read.GetUsersPageAsync(qp.Id, qp.Name, qp.Cursor, qp.PageSize);
             if (!op.IsSuccessful)
             {
                 // Return 400 with error message if read fails
@@ -91,7 +91,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             }
 
             // Invoke update use-case
-            var op = await _update.Update(user);
+            var op = await _update.UpdateUserAsync(user);
             if (!op.IsSuccessful)
             {
                 // Return 400 with error message if update fails
@@ -113,7 +113,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         public async Task<IActionResult> Delete(string id)
         {
             // Invoke delete use-case
-            var op = await _delete.Delete(id);
+            var op = await _delete.DeleteUserAsync(id);
             if (!op.IsSuccessful)
             {
                 // Return 400 for general failure

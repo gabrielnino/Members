@@ -1,20 +1,24 @@
 ﻿using Application.Common.Pagination;
 using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
-using Autodesk.Persistence.Context;
+using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Persistence.Context.Implementation;
+using Persistence.Context.Interface;
 using System.Linq.Expressions;
 
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHandler, IMemoryCache cache) : IUserRead
+public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache, IErrorLogCreate errorLogCreate) : ReadRepository<User>(unitOfWork, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
-    private readonly DataContext context = context;
-    private readonly IErrorStrategyHandler errorStrategyHandler = errorStrategyHandler;
+    private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
+    private readonly Func<User, (string Primary, string Secondary)> cursorSelector = u => (u.Name!, u.Id);
+
 
     /// <summary>
     /// Fetch a page of users filtered by id or name, with cursor-based paging and caching.
@@ -24,7 +28,7 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     /// <param name="cursor">Cursor for the next page.</param>
     /// <param name="pageSize">Number of items per page.</param>
     /// <returns>Operation result with paged users or error.</returns>
-    public async Task<Operation<PagedResult<User>>> GetUsersPage(
+    public async Task<Operation<PagedResult<User>>> GetUsersPageAsync(
         string? id,
         string? name,
         string? cursor,
@@ -37,65 +41,32 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
             {
                 return Operation<PagedResult<User>>.Success(cached);
             }
-
-            var query = context.Users
-                .AsNoTracking()
-                .Where(BuildUserFilter(id, name))
-                .OrderBy(u => u.Name!)
-                .ThenBy(u => u.Id);
-
-            if (!string.IsNullOrEmpty(cursor))
-            {
-                var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
-                var lastName = parts[0];
-                var lastId = parts[1];
-
-                query = query
-                    .Where(u =>
-                        DataContext.StringCompareOrdinal(u.Name!, lastName) > 0
-                        || (u.Name == lastName
-                            && DataContext.StringCompareOrdinal(u.Id, lastId) > 0)
-                    )
-                    .OrderBy(u => u.Name!)
-                    .ThenBy(u => u.Id);
-            }
-
-            var items = await query
-                .Take(pageSize + 1)
-                .ToListAsync();
-
-            string? nextCursor = null;
-            if (items.Count == pageSize + 1)
-            {
-                var extra = items[pageSize];
-                nextCursor     = Uri.EscapeDataString($"{extra.Name}|{extra.Id}");
-                items.RemoveAt(pageSize);
-            }
-
-            var result = new PagedResult<User>
-            {
-                Items      = items,
-                NextCursor = nextCursor
-            };
-
-            cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
-            return Operation<PagedResult<User>>.Success(result);
+            var result = await GetPageAsync(BuildFilter(id, name), cursor, pageSize);
+            var pagedResult = result.Data;
+            cache.Set(cacheKey, pagedResult, TimeSpan.FromMinutes(5));
+            return Operation<PagedResult<User>>.Success(pagedResult);
         }
         catch (Exception ex)
         {
-            return errorStrategyHandler.Fail<PagedResult<User>>(ex);
+            return errorHandler.Fail<PagedResult<User>>(ex, errorLogCreate);
         }
     }
 
     /// <summary>
     /// Choose filter by id or name, or none.
     /// </summary>
-    private static Expression<Func<User, bool>> BuildUserFilter(string? id, string? name)
+    private static Expression<Func<User, bool>> BuildFilter(string? id, string? name)
     {
         if (ShouldFilterById(id))
+        {
             return BuildIdFilter(id!);
+        }
+           
         if (ShouldFilterByName(name))
+        {
             return BuildNameFilter(name!);
+        }
+            
         return ReturnDefaultFilter();
     }
 
@@ -123,4 +94,24 @@ public class UserRead(DataContext context, IErrorStrategyHandler errorStrategyHa
     /// No filter: return all users.
     /// </summary>
     private static Expression<Func<User, bool>> ReturnDefaultFilter() => u => true;
+
+    protected override IQueryable<User> ApplyCursorFilter(IQueryable<User> query, string cursor)
+    {
+        var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
+        var name = parts[0];
+        var lastS = parts.Length > 1 ? parts[1] : string.Empty;
+
+        return query.Where
+        (
+            u => DataContext.StringCompareOrdinal(u.Name!, name) > 0 || (u.Name == name && DataContext.StringCompareOrdinal(u.Id, lastS) > 0)
+        );
+    }
+
+    protected override string? BuildNextCursor(List<User> items, int size)
+    {
+        if (items.Count <= size) return null;
+        var extra = items[size];
+        var (p, s) = cursorSelector(extra);
+        return Uri.EscapeDataString($"{p}|{s}");
+    }
 }

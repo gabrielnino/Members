@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Entity;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 
 namespace Persistence.Repositories
 {
@@ -7,8 +8,8 @@ namespace Persistence.Repositories
     /// Base class to delete entities from the database.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
-    public abstract class RepositoryDelete<T>(DbContext context) : EntityChecker<T>(context)
-        where T : class, IEntity
+    public abstract class RepositoryDelete<T>(IUnitOfWork unitOfWork) 
+        : EntityChecker<T>(unitOfWork) where T : class, IEntity
     {
         /// <summary>
         /// Remove the given entity and save changes.
@@ -17,12 +18,9 @@ namespace Persistence.Repositories
         /// <returns>
         /// True if the delete was successful; otherwise false.
         /// </returns>
-        protected async Task<bool> Delete(T entity)
+        protected void Delete(T entity)
         {
-            RepositoryHelper.ValidateArgument(entity);
             _dbSet.Remove(entity);
-            var result = await SaveChangesAsync();
-            return result > 0;
         }
     }
 }

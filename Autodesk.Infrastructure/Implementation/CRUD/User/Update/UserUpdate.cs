@@ -1,8 +1,10 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
-using Autodesk.Persistence.Context;
 using Infrastructure.Repositories.Abstract.CRUD.Update;
+using Infrastructure.Result;
+using Persistence.Context.Interface;
 
 namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
 {
@@ -12,34 +14,31 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     /// Handles updating a user record.
     /// </summary>
     public class UserUpdate(
-        DataContext context,
-        IErrorStrategyHandler errorStrategyHandler,
-        IUtilEntity<User> utilEntity
-    ) : UpdateRepository<User>(context, errorStrategyHandler, utilEntity), IUserUpdate
+        IUnitOfWork unitOfWork,
+        IErrorHandler errorHandler,
+        IErrorLogCreate errorLogCreate
+    ) : UpdateRepository<User>(unitOfWork), IUserUpdate
     {
-        /// <summary>
-        /// Copies new values into the existing user and returns success.
-        /// </summary>
-        /// <param name="entityModified">User object with updated fields.</param>
-        /// <param name="entityUnmodified">Original user from the database.</param>
-        /// <returns>
-        /// Operation result containing the updated user and a success message.
-        /// </returns>
-        public override async Task<Operation<User>> UpdateEntity(
-            User entityModified,
-            User entityUnmodified
-        )
+        public override User ApplyUpdates(User modified, User unmodified)
         {
-            // Apply changes
-            entityUnmodified.Name     = entityModified.Name;
-            entityUnmodified.Lastname = entityModified.Lastname;
-            entityUnmodified.Email    = entityModified.Email;
+            unmodified.Name = modified.Name;
+            unmodified.Lastname = modified.Lastname;
+            unmodified.Email = modified.Email;
+            return unmodified;
+        }
 
-            // Prepare success message
-            var template = UserUpdateLabels.UpdateSuccessfullySearchGeneric;
-            var message = string.Format(template, nameof(User));
-
-            return Operation<User>.Success(entityUnmodified, message);
+        public async Task<Operation<bool>> UpdateUserAsync(User entity)
+        {
+            try
+            {
+                var result = await UpdateEntity(entity);
+                await unitOfWork.CommitAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return errorHandler.Fail<bool>(ex, errorLogCreate);
+            }
         }
     }
 }

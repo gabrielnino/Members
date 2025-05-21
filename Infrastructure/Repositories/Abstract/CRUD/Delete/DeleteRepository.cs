@@ -1,51 +1,32 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.CRUD;
 using Domain.Interfaces.Entity;
-using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using Persistence.Repositories;
 
 namespace Infrastructure.Repositories.Abstract.CRUD.Delete
 {
     /// <summary>
-    /// Provides deletion of entities with validation and error handling.
+    /// Base repository that implements deletion logic for entities of type T.
     /// </summary>
-    public abstract class DeleteRepository<T>(DbContext context, IErrorStrategyHandler errorStrategyHandler)
-        : RepositoryDelete<T>(context), IDelete<T>
-        where T : class, IEntity
+    public abstract class DeleteRepository<T>(IUnitOfWork unitOfWork)
+        : RepositoryDelete<T>(unitOfWork), IDelete<T> where T : class, IEntity
     {
         /// <summary>
-        /// Deletes the entity with the given ID if it exists.
+        /// Attempts to delete the entity with the given ID, returning a success result or a business failure if not found.
         /// </summary>
-        /// <param name="id">ID of the entity to delete.</param>
-        /// <returns>
-        /// An operation result: true if deleted, false or error otherwise.
-        /// </returns>
-        public async Task<Operation<bool>> Delete(string id)
+        public async Task<Operation<bool>> DeleteEntity(string id)
         {
-            try
+            var entity = await HasId(id);
+            if (entity is null)
             {
-                // Verify the ID and entity exist
-                var validationResult = await HasId(id);
-                if (validationResult is null)
-                {
-                    var strategy = new BusinessStrategy<bool>();
-                    return OperationStrategy<bool>.Fail("Not found", strategy);
-                }
-
-                // Remove the entity
-                var entity = RepositoryHelper.ValidateArgument(validationResult);
-                var result = await base.Delete(entity);
-
-                // Build and return success message
-                var template = DeleteLabels.DeletionSuccess;
-                var message = string.Format(template, typeof(T).Name);
-                return Operation<bool>.Success(result, message);
+                var strategy = new BusinessStrategy<bool>();
+                return OperationStrategy<bool>.Fail(DeleteLabels.EntityNotFound, strategy);
             }
-            catch (Exception ex)
-            {
-                // Handle any errors
-                return errorStrategyHandler.Fail<bool>(ex);
-            }
+            Delete(entity);
+            var success = DeleteLabels.DeletionSuccess;
+            var message = string.Format(success, typeof(T).Name);
+            return Operation<bool>.Success(true, message);
         }
     }
 }

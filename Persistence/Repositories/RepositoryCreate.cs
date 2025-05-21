@@ -1,16 +1,20 @@
 ﻿using Domain.Interfaces.Entity;
-using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 
 namespace Persistence.Repositories
 {
-    public abstract class RepositoryCreate<T>(DbContext context) : Read<T>(context) where T : class, IEntity
+    /// <summary>
+    /// Base repository providing async entity creation.
+    /// </summary>
+    public abstract class RepositoryCreate<T>(IUnitOfWork unitOfWork)
+        : Read<T>(unitOfWork) where T : class, IEntity
     {
-        protected async Task<bool> Create(T? entity)
+        /// <summary>
+        /// Queues the given entity for insertion.
+        /// </summary>
+        protected async Task Create(T entity)
         {
-            entity = RepositoryHelper.ValidateArgument(entity);
-            _dbSet.Add(entity);
-            var result = await SaveChangesAsync();
-            return result > 0;
+            await _dbSet.AddAsync(entity);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Autodesk.Domain;
-using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Implementation;
+using Persistence.Context.Interface;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
 using Persistence.Repositories;
 
@@ -10,8 +11,11 @@ namespace Persistence.Test.Repositories
     {
 
         // Concrete repo for testing
-        private class TestRepository(DbContext context) : Read<User>(context)
+        private class TestRepository : Read<User>
         {
+            public TestRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
+            {
+            }
         }
 
         // Create new in-memory options
@@ -24,12 +28,8 @@ namespace Persistence.Test.Repositories
         {
             var options = CreateOptions();
             var context = new DataContext(options, new SQLite());
-            if (seed?.Any() == true)
-            {
-                context.Set<User>().AddRange(seed);
-                context.SaveChanges();
-            }
-            return new TestRepository(context);
+            var unitOfWork = new UnitOfWork(context);
+            return new TestRepository(unitOfWork);
         }
     }
 }

@@ -3,19 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.CreateStruture.Constants;
 using Persistence.CreateStruture.Constants.ColumnType;
 
-namespace Autodesk.Persistence.Context
+namespace Persistence.Context.Implementation
 {
     /// <summary>
     /// Represents a Data helper.
     /// </summary>
-    public static class DataHelper
+    public static class UserTable
     {
         /// <summary>
         /// Help to create the Tables.
         /// </summary>
         /// <param name="modelBuilder">The model builder used to configure entity mappings.</param>
         /// <param name="columnTypes">The column types used to set the type of columns.</param>
-        public static void SetTableUsers(ModelBuilder modelBuilder, IColumnTypes columnTypes)
+        public static void Create(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
             modelBuilder.Entity<User>().ToTable(Database.Tables.Users);
             modelBuilder.Entity<User>(entity =>

@@ -1,9 +1,9 @@
 ﻿using Autodesk.Domain;
-using Autodesk.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.CreateStruture.Constants.ColumnType;
 using Persistence.CreateStruture.Constants;
+using Persistence.Context.Implementation;
 
 namespace Autodesk.Persistence.Test.Context
 {
@@ -36,7 +36,7 @@ namespace Autodesk.Persistence.Test.Context
             var columnTypes = new FakeColumnTypes();
 
             // Act
-            DataHelper.SetTableUsers(modelBuilder, columnTypes);
+            UserTable.Create(modelBuilder, columnTypes);
             var entityType = modelBuilder.Model.FindEntityType(typeof(User));
             Assert.NotNull(entityType);
 

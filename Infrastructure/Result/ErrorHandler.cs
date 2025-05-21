@@ -1,10 +1,12 @@
 ﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
+using Domain;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace Infrastructure.Result
 {
-    public class ErrorStrategyHandler : IErrorStrategyHandler
+    public class ErrorHandler : IErrorHandler
     {
         private static readonly Lazy<ConcurrentDictionary<string, string>> ErrorMappings 
             = new(() => new ConcurrentDictionary<string, string>());
@@ -17,7 +19,7 @@ namespace Infrastructure.Result
             { "Exception",                 nameof(UnexpectedErrorStrategy<object>) }
         };
 
-        public Operation<T> Fail<T>(Exception? ex, string errorMessage)
+        public Operation<T> Fail<T>(Exception? ex, string errorMessage, IErrorLogCreate errorLogCreate)
         {
             if (ex == null)
             {
@@ -35,11 +37,11 @@ namespace Infrastructure.Result
             }
 
             var strategy = CreateStrategyInstance<T>(strategyName);
-
+            RegisterErorr(ex, errorLogCreate);
             return strategy.CreateFailure(errorMessage);
         }
 
-        public Operation<T> Fail<T>(Exception? ex)
+        public Operation<T> Fail<T>(Exception? ex, IErrorLogCreate errorLogCreate)
         {
             if (ex == null)
             {
@@ -57,8 +59,26 @@ namespace Infrastructure.Result
             }
 
             var strategy = CreateStrategyInstance<T>(strategyName);
-
+            RegisterErorr(ex, errorLogCreate);
             return strategy.CreateFailure();
+        }
+
+        private static void RegisterErorr(Exception ex, IErrorLogCreate errorLogCreate)
+        {
+            var opts = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            var errorLog = new ErrorLog(Guid.NewGuid().ToString())
+            {
+                Level         = "Error",                              // e.g. "Error", "Warning"
+                Message       = ex.Message,                          // the human-readable message
+                ExceptionType = ex.GetType().FullName,               // e.g. "System.NullReferenceException"
+                StackTrace    = ex.StackTrace ?? string.Empty,       // the stack trace
+                Context       = JsonSerializer.Serialize(ex.Data, opts)
+            };
+            errorLogCreate.CreateInvoiceAsync(errorLog).Wait();
         }
 
         private static IErrorCreationStrategy<T> CreateStrategyInstance<T>(string strategyName) =>

@@ -70,11 +70,11 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Delete {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Entity not found..
         /// </summary>
-        internal static string String1 {
+        internal static string EntityNotFound {
             get {
-                return ResourceManager.GetString("String1", resourceCulture);
+                return ResourceManager.GetString("EntityNotFound", resourceCulture);
             }
         }
     }

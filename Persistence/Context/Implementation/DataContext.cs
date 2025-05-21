@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Interface;
 using Persistence.CreateStruture.Constants.ColumnType;
 
-namespace Autodesk.Persistence.Context
+namespace Persistence.Context.Implementation
 {
     /// <summary>
     /// Represents a DataContentext
@@ -13,7 +13,7 @@ namespace Autodesk.Persistence.Context
     public class DataContext(DbContextOptions options, IColumnTypes columnTypes) : DbContext(options), IDataContext
     {
         protected readonly IColumnTypes _columnTypes = columnTypes;
-        public virtual DbSet<User> Users { get; set; }
+
         /// <summary>
         ///  Initializes the data context. This typically includes opening connections, applying migrations, creating
         ///  the database if it does not exist, and seeding any required initial data.
@@ -46,7 +46,10 @@ namespace Autodesk.Persistence.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            DataHelper.SetTableUsers(modelBuilder, _columnTypes);
+            UserTable.Create(modelBuilder, _columnTypes);
+            ProductTable.Create(modelBuilder, _columnTypes);
+            InvoiceTable.Create(modelBuilder, _columnTypes);
+            ErrorLogTable.Create(modelBuilder, _columnTypes);
 
             modelBuilder.HasDbFunction(typeof(DataContext)
                 .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)

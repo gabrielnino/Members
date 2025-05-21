@@ -1,5 +1,5 @@
 ﻿using Domain.Interfaces.Entity;
-using Microsoft.EntityFrameworkCore;
+using Persistence.Context.Interface;
 using System.Linq.Expressions;
 
 namespace Persistence.Repositories
@@ -8,8 +8,7 @@ namespace Persistence.Repositories
     /// Base class for read-only queries with filtering.
     /// </summary>
     /// <typeparam name="T">Entity type.</typeparam>
-    public abstract class Read<T>(DbContext context) : Repository<T>(context)
-        where T : class, IEntity
+    public abstract class Read<T>(IUnitOfWork unitOfWork) : Repository<T>(unitOfWork) where T : class, IEntity
     {
         /// <summary>
         /// Retrieves entities that match the given condition.
@@ -20,7 +19,6 @@ namespace Persistence.Repositories
         /// </returns>
         protected Task<IQueryable<T>> ReadFilter(Expression<Func<T, bool>> predicate)
         {
-            RepositoryHelper.ValidateArgument(predicate);
             return Task.FromResult(_dbSet.Where(predicate));
         }
     }

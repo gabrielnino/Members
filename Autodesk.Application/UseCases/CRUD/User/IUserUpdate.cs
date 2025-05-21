@@ -16,6 +16,6 @@ namespace Autodesk.Application.UseCases.CRUD.User
         /// <returns>
         /// Operation result: true if successful, false otherwise.
         /// </returns>
-        Task<Operation<bool>> Update(User entity);
+        Task<Operation<bool>> UpdateUserAsync(User entity);
     }
 }

@@ -14,6 +14,9 @@
             /// Name of the Users table.
             /// </summary>
             public const string Users = "Users";
+            public const string Invoices = "Invoices";
+            public const string Products = "Products";
+            public const string ErrorLogs = "ErrorLogs";
         }
 
         /// <summary>
