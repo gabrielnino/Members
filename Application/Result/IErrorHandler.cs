@@ -1,4 +1,6 @@
-﻿namespace Application.Result
+﻿using Application.UseCases.Repository.UseCases.CRUD;
+
+namespace Application.Result
 {
     /// <summary>
     /// Defines methods to load error mappings and create failed operations.
@@ -13,12 +15,12 @@
         /// <summary>
         /// Create a failed operation with an exception and a custom message.
         /// </summary>
-        Operation<T> Fail<T>(Exception? ex, string errorMessage);
+        Operation<T> Fail<T>(Exception? ex, string errorMessage, IErrorLogCreate errorLogCreate);
 
         /// <summary>
         /// Create a failed operation from an exception using default message.
         /// </summary>
-        Operation<T> Fail<T>(Exception? ex);
+        Operation<T> Fail<T>(Exception? ex, IErrorLogCreate errorLogCreate);
 
         /// <summary>
         /// Create a business error operation with a message.

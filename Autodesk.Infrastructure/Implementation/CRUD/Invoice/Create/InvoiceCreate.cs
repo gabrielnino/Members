@@ -1,4 +1,5 @@
 ﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.Invoice;
 using Infrastructure.Repositories.Abstract.CRUD.Create;
 using Persistence.Context.Interface;
@@ -9,7 +10,8 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Create
 
     public class InvoiceCreate(
             IUnitOfWork unitOfWork,
-            IErrorHandler errorHandler
+            IErrorHandler errorHandler, 
+            IErrorLogCreate errorLogCreate
         ) : CreateRepository<Invoice>(unitOfWork), IInvoiceCreate
     {
         private readonly IErrorHandler _errorHandler = errorHandler;
@@ -28,7 +30,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Create
             catch (Exception ex)
             {
                 // Delegate to the error handler
-                return _errorHandler.Fail<Invoice>(ex);
+                return _errorHandler.Fail<Invoice>(ex, errorLogCreate);
             }
         }
     }

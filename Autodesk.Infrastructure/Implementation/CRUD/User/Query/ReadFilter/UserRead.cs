@@ -1,5 +1,6 @@
 ﻿using Application.Common.Pagination;
 using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
@@ -12,7 +13,7 @@ using System.Linq.Expressions;
 /// <summary>
 /// Reads users with filters, paging, and caching.
 /// </summary>
-public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache) : ReadRepository<User>(unitOfWork, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
+public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache, IErrorLogCreate errorLogCreate) : ReadRepository<User>(unitOfWork, q => q.OrderBy(u => u.Name!).ThenBy(u => u.Id)), IUserRead
 {
     private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
@@ -47,7 +48,7 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
         }
         catch (Exception ex)
         {
-            return errorHandler.Fail<PagedResult<User>>(ex);
+            return errorHandler.Fail<PagedResult<User>>(ex, errorLogCreate);
         }
     }
 

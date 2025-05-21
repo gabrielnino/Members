@@ -1,4 +1,5 @@
 ﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
 using Infrastructure.Repositories.Abstract.CRUD.Delete;
 using Persistence.Context.Interface;
@@ -12,7 +13,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
     /// </summary>
     /// <param name="context">Database context for user data.</param>
     /// <param name="errorHandler">Service to handle errors.</param>
-    public class UserDelete(IUnitOfWork unitOfWork, IErrorHandler errorHandler) : DeleteRepository<User>(unitOfWork), IUserDelete
+    public class UserDelete(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IErrorLogCreate errorLogCreate) : DeleteRepository<User>(unitOfWork), IUserDelete
     {
         public async Task<Operation<bool>> DeleteUserAsync(string id)
         {
@@ -24,7 +25,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
             }
             catch (Exception ex)
             {
-                return errorHandler.Fail<bool>(ex);
+                return errorHandler.Fail<bool>(ex, errorLogCreate);
             }
         }
     }

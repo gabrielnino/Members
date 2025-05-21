@@ -1,4 +1,5 @@
 ﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
 using Infrastructure.Repositories.Abstract.CRUD.Create;
 using Persistence.Context.Interface;
@@ -10,7 +11,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
     /// <summary>
     /// Creates a user, ensuring no duplicate email exists.
     /// </summary>
-    public class UserCreate(IUnitOfWork unitOfWork, IErrorHandler errorHandler) : CreateRepository<User>(unitOfWork), IUserCreate
+    public class UserCreate(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IErrorLogCreate errorLogCreate) : CreateRepository<User>(unitOfWork), IUserCreate
     {
         public async Task<Operation<User>> CreateUserAsync(User entity)
         {
@@ -22,7 +23,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Create
             }
             catch (Exception ex)
             {
-                return errorHandler.Fail<User>(ex);
+                return errorHandler.Fail<User>(ex, errorLogCreate);
             }
         }
     }

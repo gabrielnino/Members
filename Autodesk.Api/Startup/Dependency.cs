@@ -1,4 +1,5 @@
 ﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.Invoice;
 using Autodesk.Application.UseCases.CRUD.Invoice.Query;
 using Autodesk.Application.UseCases.CRUD.User;
@@ -8,6 +9,7 @@ using Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
+using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
@@ -34,6 +36,11 @@ namespace Autodesk.Api.Startup
         {
             builder.Services.AddScoped<IInvoiceCreate, InvoiceCreate>();
             builder.Services.AddScoped<IInvoiceRead, InvoiceRead>();
+        }
+
+        protected static void ErrorLog(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IErrorLogCreate, ErrorLogCreate>();
         }
 
         //

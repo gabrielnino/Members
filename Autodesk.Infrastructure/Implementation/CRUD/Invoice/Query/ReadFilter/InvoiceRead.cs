@@ -1,5 +1,6 @@
 ﻿using Application.Common.Pagination;
 using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.Invoice.Query;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,8 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
     public class InvoiceRead(
         IUnitOfWork unitOfWork,
         IErrorHandler errorHandler,
-        IMemoryCache cache
+        IMemoryCache cache,
+        IErrorLogCreate errorLogCreate
     ) : ReadRepository<Invoice>(
             unitOfWork,
             // no Include here—just ordering
@@ -58,7 +60,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter
             }
             catch (Exception ex)
             {
-                return _errorHandler.Fail<PagedResult<Invoice>>(ex);
+                return _errorHandler.Fail<PagedResult<Invoice>>(ex, errorLogCreate);
             }
         }
 

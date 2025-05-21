@@ -10,6 +10,7 @@ namespace Autodesk.Api.Startup
             User(builder);
             Invoice(builder);
             Cache(builder);
+            ErrorLog(builder);
         }
     }
 }
