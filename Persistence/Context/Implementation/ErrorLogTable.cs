@@ -10,7 +10,7 @@ namespace Persistence.Context.Implementation
     {
         public static void Create(ModelBuilder modelBuilder, IColumnTypes columnTypes)
         {
-            modelBuilder.Entity<Invoice>().ToTable(Database.Tables.ErrorLogs);
+            modelBuilder.Entity<ErrorLog>().ToTable(Database.Tables.ErrorLogs);
             modelBuilder.Entity<ErrorLog>(entity =>
             {
                 // Primary key
