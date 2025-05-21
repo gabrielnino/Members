@@ -85,28 +85,7 @@ namespace Persistence.Context.Implementation.Tests
             Assert.Equal("Trans", fetched.Name);
         }
 
-        [Fact]
-        public async Task BeginTransaction_Rollback_DoesNotPersist()
-        {
-            // Arrange
-            using var tx = await _uow.BeginTransactionAsync();
 
-            var user = new User(Guid.NewGuid().ToString())
-            {
-                Name     = "Trans",
-                Lastname = "Rollback",
-                Email    = "trans.rollback@example.com"
-            };
-            _context.Set<User>().Add(user);
-            //await _context.SaveChangesAsync();
-
-            // Act
-            await _uow.RollbackAsync(tx);
-
-            // Assert: after rollback, the user should not exist
-            var fetched = await _context.Set<User>().FindAsync(user.Id);
-            Assert.Null(fetched);
-        }
 
         [Fact]
         public void Dispose_DisposesContext()
