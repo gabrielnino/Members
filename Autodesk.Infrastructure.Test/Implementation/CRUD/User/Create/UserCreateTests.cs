@@ -1,8 +1,9 @@
 ﻿using Autodesk.Domain;
 using Persistence.Repositories;
 
-namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Create
+namespace Autodesk.Infrastructure.Test.Implementation.CRUD.User.Create
 {
+    using User = Domain.User;
     public class UserCreateTests: TestsBase
     {
         [Fact]

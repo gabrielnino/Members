@@ -1,14 +1,17 @@
 ﻿using Autodesk.Domain;
 
-namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Update
+namespace Autodesk.Infrastructure.Test.Implementation.CRUD.User.Delete
 {
-    public class UserUpdateTests : TestsBase
+    using User = Domain.User;
+
+    public class UserDeleteTests : TestsBase
     {
         [Fact]
-        public async Task GivenExistingUser_WhenUpdatingName_ThenReturnsSuccess()
+        public async Task GivenExistingUserId_WhenDeleting_ThenReturnsSuccess()
         {
             //Arrange
-            var newUser = new User(Guid.NewGuid().ToString())
+            var id = Guid.NewGuid().ToString();
+            var newUser = new User(id)
             {
                 Name = "Alice",
                 Email = "alice@email.com",
@@ -16,20 +19,19 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Update
             };
             await RepoCreate.CreateEntity(newUser);
             //Act
-            newUser.Name = "Eve";
-            var result = await RepoUpdate.UpdateEntity(newUser);
 
+            var result = await RepoDelete.DeleteEntity(id);
             //Assert Operation result
             //Assert.True(result.IsSuccessful);
             //Assert.True(result.Data);
-            //Assert.Equal(1, Ctx.Users.Count());
         }
 
         [Fact]
-        public async Task GivenNonexistentUser_WhenUpdating_ThenReturnsFailure()
+        public async Task GivenNonexistentUserId_WhenDeleting_ThenReturnsFailure()
         {
             //Arrange
-            var newUser = new User(Guid.NewGuid().ToString())
+            var id = Guid.NewGuid().ToString();
+            var newUser = new User(id)
             {
                 Name = "Alice",
                 Email = "alice@email.com",
@@ -37,10 +39,8 @@ namespace Autodesk.Infrastructure.Test.Implementation.CRUD.Update
             };
             await RepoCreate.CreateEntity(newUser);
             //Act
-            newUser.Name = "Eve";
-            newUser.Id = Guid.NewGuid().ToString();
-            var result = await RepoUpdate.UpdateEntity(newUser);
 
+            var result = await RepoDelete.DeleteEntity("NOT_ID");
             //Assert Operation result
             Assert.False(result.IsSuccessful);
             Assert.False(result.Data);
