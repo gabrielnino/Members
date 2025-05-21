@@ -53,7 +53,7 @@ namespace Persistence.Context.Implementation
 
             modelBuilder.HasDbFunction(typeof(DataContext)
                 .GetMethod(nameof(StringCompareOrdinal), [typeof(string), typeof(string)])!)
-            .HasName("StringCompareOrdinal");
+                .HasName("StringCompareOrdinal");
         }
 
         public static int StringCompareOrdinal(string a, string b) => throw new NotSupportedException();

@@ -43,7 +43,7 @@ namespace Autodesk.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ErrorLogs", (string)null);
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("Autodesk.Domain.Product", b =>
@@ -146,7 +146,7 @@ namespace Autodesk.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ErrorLog");
+                    b.ToTable("ErrorLogs", (string)null);
                 });
 
             modelBuilder.Entity("Autodesk.Domain.Product", b =>

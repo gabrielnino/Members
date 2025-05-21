@@ -11,14 +11,14 @@ using Persistence.Context.Implementation;
 namespace Autodesk.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250520191042_AddWhateverYouChanged")]
-    partial class AddWhateverYouChanged
+    [Migration("20250521141451_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
             modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
                 {
@@ -30,7 +30,7 @@ namespace Autodesk.Api.Migrations
 
                     b.Property<string>("CustomerName")
                         .IsRequired()
-                        .HasMaxLength(200)
+                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("InvoiceDate")
@@ -109,6 +109,47 @@ namespace Autodesk.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ErrorLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Context")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExceptionType")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StackTrace")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ErrorLogs", (string)null);
                 });
 
             modelBuilder.Entity("Autodesk.Domain.Product", b =>
