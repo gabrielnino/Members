@@ -6,6 +6,8 @@ using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Moq;
 using Persistence.Context.Implementation;
 using Persistence.CreateStruture.Constants.ColumnType.Database;
 
@@ -33,15 +35,17 @@ namespace Autodesk.Infrastructure.Test.Implementation
         protected UserUpdate RepoUpdate;
         protected UnitOfWork UnitOfWork;
         protected ErrorLogCreate ErrorLogCreate;
+        protected Mock<IMemoryCache> Cache;
         public TestsBase()
         {
             Errors.LoadErrorMappings(JsonFile);
             Ctx = new DataContext(Opts, new SQLite());
             UnitOfWork = new UnitOfWork(Ctx);
             ErrorLogCreate = new ErrorLogCreate(UnitOfWork);
-            RepoCreate = new UserCreate(UnitOfWork, Errors, ErrorLogCreate);
-            RepoDelete = new UserDelete(UnitOfWork, Errors, ErrorLogCreate);
-            RepoUpdate = new UserUpdate(UnitOfWork, Errors, ErrorLogCreate);
+            Cache = new Mock<IMemoryCache>();
+            RepoCreate = new UserCreate(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
+            RepoDelete = new UserDelete(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
+            RepoUpdate = new UserUpdate(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
         }
     }
 }

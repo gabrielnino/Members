@@ -4,6 +4,7 @@ using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
 using Infrastructure.Repositories.Abstract.CRUD.Update;
 using Infrastructure.Result;
+using Microsoft.Extensions.Caching.Memory;
 using Persistence.Context.Interface;
 
 namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
@@ -16,14 +17,17 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
     public class UserUpdate(
         IUnitOfWork unitOfWork,
         IErrorHandler errorHandler,
-        IErrorLogCreate errorLogCreate
+        IErrorLogCreate errorLogCreate,
+        IMemoryCache cache
     ) : UpdateRepository<User>(unitOfWork), IUserUpdate
     {
         public override User ApplyUpdates(User modified, User unmodified)
         {
+            cache.Remove(unmodified);
             unmodified.Name = modified.Name;
             unmodified.Lastname = modified.Lastname;
             unmodified.Email = modified.Email;
+            cache.CreateEntry( unmodified );
             return unmodified;
         }
 
