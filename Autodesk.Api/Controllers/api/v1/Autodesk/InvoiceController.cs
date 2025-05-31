@@ -23,7 +23,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
             return CreatedAtAction(nameof(Create), new { id = invoice.Id }, invoice);
         }
 
-        [HttpGet("cursor")]
+        [HttpGet]
         [ProducesResponseType(typeof(PagedResult<Invoice>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get([FromQuery] InvoiceQueryParams qp)
