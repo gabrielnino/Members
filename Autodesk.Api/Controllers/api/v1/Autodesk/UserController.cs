@@ -51,7 +51,7 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         /// </summary>
         /// <param name="qp">Query parameters for paging and filtering.</param>
         /// <returns>PagedResult of User or BadRequest.</returns>
-        [HttpGet("cursor")]
+        [HttpGet]
         [ProducesResponseType(typeof(PagedResult<User>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReadFilterCursor([FromQuery] UserQueryParams qp)
         {
