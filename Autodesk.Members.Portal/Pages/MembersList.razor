@@ -171,7 +171,7 @@
         }
         queryParams["PageSize"] = qp.PageSize.ToString();
 
-        var url = QueryHelpers.AddQueryString("api/v1/users/cursor", queryParams);
+        var url = QueryHelpers.AddQueryString("api/v1/users", queryParams);
         var page = await client.GetFromJsonAsync<PagedResult<User>>(url);
         if (page != null)
         {
