@@ -46,6 +46,20 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
             return Operation<PagedResult<T>>.Success(result);
         }
 
+        public async Task<Operation<PagedResult<T>>> GetAllMembers()
+        {
+            var query = unitOfWork.Context.Set<T>().AsNoTracking();
+            var items = await query.ToListAsync();
+            var result = new PagedResult<T>
+            {
+                Items = items,
+                NextCursor = null,
+                TotalCount = items.Count
+            };
+
+            return Operation<PagedResult<T>>.Success(result);
+        }
+
         /// <summary>
         /// Builds the base query, applying the optional filter and ordering.
         /// </summary>

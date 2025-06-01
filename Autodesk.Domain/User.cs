@@ -35,7 +35,7 @@ namespace Autodesk.Domain
         [Required(ErrorMessage = "Email is required.")]
         [MinLength(3, ErrorMessage = "Email must be at least 3 characters long.")]
         [MaxLength(100, ErrorMessage = "Email must be maximun 100 characters long.")]
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Email must be a valid email address.")]
+        [EmailAddress(ErrorMessage = "Email must be a valid email address.")]
         public string? Email { get; set; }
 
     }

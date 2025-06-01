@@ -9,7 +9,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
+using System;
 using System.Linq.Expressions;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 
 /// <summary>
 /// Reads users with filters, paging, and caching.
@@ -130,5 +134,45 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
         _userCacheTokenSource.Cancel();
         // Creamos un nuevo CancellationTokenSource para futuras operaciones
         _userCacheTokenSource = new CancellationTokenSource();
+    }
+
+    public IObservable<User> StreamUsers()
+    {
+        return Observable.Create<User>(async (observer, cancellationToken) =>
+        {
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var result = await GetAllMembers().ConfigureAwait(false);
+
+                    if (!result.IsSuccessful)
+                    {
+                        observer.OnError(new Exception(result.Message));
+                        return;
+                    }
+
+                    foreach (var user in result.Data.Items)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        observer.OnNext(user);
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected during cancellation - no action needed
+            }
+            catch (Exception ex)
+            {
+                observer.OnError(ex);
+            }
+            finally
+            {
+                observer.OnCompleted();
+            }
+        });
     }
 }
