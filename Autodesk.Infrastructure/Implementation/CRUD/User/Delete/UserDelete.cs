@@ -1,6 +1,7 @@
 ﻿using Application.Result;
 using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
+using Autodesk.Application.UseCases.CRUD.User.Query;
 using Domain;
 using Infrastructure.Repositories.Abstract.CRUD.Delete;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,7 +16,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
     /// </summary>
     /// <param name="context">Database context for user data.</param>
     /// <param name="errorHandler">Service to handle errors.</param>
-    public class UserDelete(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IErrorLogCreate errorLogCreate, IMemoryCache cache) : DeleteRepository<User>(unitOfWork), IUserDelete
+    public class UserDelete(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IErrorLogCreate errorLogCreate, IUserRead userRead) : DeleteRepository<User>(unitOfWork), IUserDelete
     {
         public async Task<Operation<bool>> DeleteUserAsync(string id)
         {
@@ -23,7 +24,7 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Delete
             {
                 var result = await DeleteEntity(id);
                 await unitOfWork.CommitAsync();
-                cache.Remove(id);
+                userRead.InvalidateAllUserCache();
                 return result;
             }
             catch (Exception ex)

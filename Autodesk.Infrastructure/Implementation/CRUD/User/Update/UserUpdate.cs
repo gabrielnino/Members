@@ -2,6 +2,7 @@
 using Application.UseCases.Repository.CRUD;
 using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Application.UseCases.CRUD.User;
+using Autodesk.Application.UseCases.CRUD.User.Query;
 using Infrastructure.Repositories.Abstract.CRUD.Update;
 using Infrastructure.Result;
 using Microsoft.Extensions.Caching.Memory;
@@ -18,16 +19,15 @@ namespace Autodesk.Infrastructure.Implementation.CRUD.User.Update
         IUnitOfWork unitOfWork,
         IErrorHandler errorHandler,
         IErrorLogCreate errorLogCreate,
-        IMemoryCache cache
+        IUserRead userRead
     ) : UpdateRepository<User>(unitOfWork), IUserUpdate
     {
         public override User ApplyUpdates(User modified, User unmodified)
         {
-            cache.Remove(unmodified);
             unmodified.Name = modified.Name;
             unmodified.Lastname = modified.Lastname;
             unmodified.Email = modified.Email;
-            cache.CreateEntry( unmodified );
+            userRead.InvalidateAllUserCache();
             return unmodified;
         }
 

@@ -25,5 +25,7 @@ namespace Autodesk.Application.UseCases.CRUD.User.Query
             string? name,
             string? cursor,
             int pageSize);
+
+        void InvalidateAllUserCache();
     }
 }

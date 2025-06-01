@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Repository.UseCases.CRUD;
+﻿using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
 using Autodesk.Domain;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
@@ -36,16 +37,23 @@ namespace Autodesk.Infrastructure.Test.Implementation
         protected UnitOfWork UnitOfWork;
         protected ErrorLogCreate ErrorLogCreate;
         protected Mock<IMemoryCache> Cache;
+        protected UserRead RepoRead;
+        private readonly Mock<IErrorHandler> _mockErrorHandler;
         public TestsBase()
         {
             Errors.LoadErrorMappings(JsonFile);
+            _mockErrorHandler = new Mock<IErrorHandler>();
             Ctx = new DataContext(Opts, new SQLite());
             UnitOfWork = new UnitOfWork(Ctx);
             ErrorLogCreate = new ErrorLogCreate(UnitOfWork);
             Cache = new Mock<IMemoryCache>();
-            RepoCreate = new UserCreate(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
-            RepoDelete = new UserDelete(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
-            RepoUpdate = new UserUpdate(UnitOfWork, Errors, ErrorLogCreate, Cache.Object);
+
+                          
+        RepoRead = new UserRead(UnitOfWork, _mockErrorHandler.Object, Cache.Object, ErrorLogCreate);
+
+        RepoCreate = new UserCreate(UnitOfWork, Errors, ErrorLogCreate, RepoRead);
+            RepoDelete = new UserDelete(UnitOfWork, Errors, ErrorLogCreate, RepoRead);
+            RepoUpdate = new UserUpdate(UnitOfWork, Errors, ErrorLogCreate, RepoRead);
         }
     }
 }

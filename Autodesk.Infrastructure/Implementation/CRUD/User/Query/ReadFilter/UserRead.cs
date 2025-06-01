@@ -6,6 +6,7 @@ using Autodesk.Domain;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
 using System.Linq.Expressions;
@@ -18,6 +19,7 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
     private readonly IErrorHandler errorHandler = errorHandler;
     private readonly IMemoryCache cache = cache;
     private readonly Func<User, (string Primary, string Secondary)> cursorSelector = u => (u.Name!, u.Id);
+    private static CancellationTokenSource _userCacheTokenSource = new();
 
 
     /// <summary>
@@ -43,7 +45,14 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
             }
             var result = await GetPageAsync(BuildFilter(id, name), cursor, pageSize);
             var pagedResult = result.Data;
-            cache.Set(cacheKey, pagedResult, TimeSpan.FromMinutes(5));
+
+
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .AddExpirationToken(new CancellationChangeToken(_userCacheTokenSource.Token))
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+
+            cache.Set(cacheKey, pagedResult, cacheOptions);
+
             return Operation<PagedResult<User>>.Success(pagedResult);
         }
         catch (Exception ex)
@@ -113,5 +122,13 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
         var extra = items[size];
         var (p, s) = cursorSelector(extra);
         return Uri.EscapeDataString($"{p}|{s}");
+    }
+
+    public void InvalidateAllUserCache()
+    {
+        // Disparamos el token actual, invalidando todo lo cacheado con él
+        _userCacheTokenSource.Cancel();
+        // Creamos un nuevo CancellationTokenSource para futuras operaciones
+        _userCacheTokenSource = new CancellationTokenSource();
     }
 }
