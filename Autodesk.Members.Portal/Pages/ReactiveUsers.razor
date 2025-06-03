@@ -126,8 +126,6 @@
                 LogDebug($"Processing user {receivedCount}/{_maxUsers}: ID={user.Id}, Name={user.Name} (Progress: {_progress:F2}%)");
 
                 await InvokeAsync(StateHasChanged);
-
-                // Optional tiny delay so UI can update smoothly
                 await Task.Delay(50, token);
 
                 if (receivedCount >= _maxUsers)

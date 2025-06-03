@@ -77,15 +77,20 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
 
         [HttpGet("reactive")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IObservable<User> Read(int maxUsers, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<User> Read(int maxUsers, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            if (maxUsers <= 0)
-            {
-                // If maxUsers is zero or negative, immediately complete.
-                return Observable.Empty<User>();
-            }
+            var usersBatche = _read.GetStreamUsers(maxUsers);
 
-            return _read.GetStreamUsers(maxUsers);
+            await foreach (var user in usersBatche
+                                         .ToAsyncEnumerable()
+                                         .WithCancellation(cancellationToken))
+            {
+                yield return user;
+
+                // Verificar cancelación antes de continuar (opcional, ToAsyncEnumerable ya lo hace):
+                if (cancellationToken.IsCancellationRequested)
+                    yield break;
+            }
         }
 
         /// <summary>
