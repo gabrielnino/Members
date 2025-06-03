@@ -19,28 +19,12 @@
                 </svg>
                 <span class="visually-hidden">Create</span>
             </button>
-             @if (!Downloading)
-            {
-                <button class="btn create-btn" @onclick="DownloadAllAsync">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24">
-                        <path d="M5 20h14v-2H5v2zm7-18l-7 7h4v4h6v-4h4l-7-7z" />
-                    </svg>
-                </button>
-            }
-            else
-            {
-                <button class="btn btn-warning ms-2" @onclick="CancelDownload">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24">
-                        <path d="M6 6l12 12M6 18L18 6" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-            }
-            @if (Downloading)
-            {
-                <div class="progress ms-3" style="width:200px; height: 1rem;">
-                    <div class="progress-bar" role="progressbar" style="width:@Progress%;">@Progress%</div>
-                </div>
-            }
+            <button class="btn create-btn" @onclick="DownloadAllAsync">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24">
+                    <path d="M5 20h14v-2H5v2zm7-18l-7 7h4v4h6v-4h4l-7-7z" />
+                </svg>
+            </button>
+           
 
             <input class="form-control search-input"
             placeholder="Search by name..."
@@ -209,7 +193,7 @@
 
     private void Create()
     {
-        Navigation.NavigateTo($"/UserForm");
+        Navigation.NavigateTo("/UserForm");
     }
 
     private void Edit(string id)
@@ -249,96 +233,6 @@
 
     private async Task DownloadAllAsync()
     {
-        if (Downloading) return;
-
-        Downloading = true;
-        Progress = 0;
-        _downloadCts = new CancellationTokenSource();
-
-        try
-        {
-            var client = HttpClientFactory.CreateClient("AutodeskApi");
-
-            // Start GET request, but only read headers first
-            using var response = await client.GetAsync(
-                "api/v1/reactive",
-                HttpCompletionOption.ResponseHeadersRead,
-                _downloadCts.Token
-            );
-
-            response.EnsureSuccessStatusCode();
-
-            // Get total size from headers (if available)
-            var contentLength = response.Content.Headers.ContentLength;
-
-            // Open response stream
-            await using var responseStream = await response.Content.ReadAsStreamAsync(_downloadCts.Token);
-
-            // Read stream in chunks
-            var totalBytesRead = 0L;
-            var buffer = new byte[8192];
-            var bytesRead = 0;
-            using var ms = new MemoryStream();
-
-            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, _downloadCts.Token)) > 0)
-            {
-                ms.Write(buffer, 0, bytesRead);
-                totalBytesRead += bytesRead;
-
-                if (contentLength.HasValue)
-                {
-                    Progress = (int)((totalBytesRead * 100L) / contentLength.Value);
-                }
-                else
-                {
-                    // If Content-Length is not provided, use indeterminate style (just show 100 when done)
-                    Progress = 50; // mid‐point visual
-                }
-                StateHasChanged();
-            }
-
-            // If no content length, set to 100 at the end
-            if (!contentLength.HasValue)
-            {
-                Progress = 100;
-                StateHasChanged();
-            }
-
-            // Convert downloaded bytes to string (JSON)
-            ms.Seek(0, SeekOrigin.Begin);
-            string json;
-            using (var reader = new StreamReader(ms, leaveOpen: true))
-            {
-                json = await reader.ReadToEndAsync();
-            }
-
-            // Trigger file download via JS
-            await JS.InvokeVoidAsync("downloadFileFromText", "all-users.json", json);
-        }
-        catch (OperationCanceledException)
-        {
-            // Download was canceled
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Download error: {ex.Message}");
-            await JS.InvokeVoidAsync("alert", "An error occurred while downloading.");
-        }
-        finally
-        {
-            Downloading = false;
-            Progress = 0;
-            _downloadCts?.Dispose();
-            _downloadCts = null;
-            StateHasChanged();
-        }
-    }
-
-    private void CancelDownload()
-    {
-        if (_downloadCts != null && !_downloadCts.IsCancellationRequested)
-        {
-            _downloadCts.Cancel();
-        }
+        Navigation.NavigateTo("/reactive-user");
     }
 }

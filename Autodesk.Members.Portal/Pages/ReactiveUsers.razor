@@ -1,35 +1,43 @@
 ﻿@page "/reactive-user"
 @inject HttpClient Http
 
-<h2>Reactive users download (Blazor Step-by-Step)</h2>
+<h2>Reactive Users Download (Blazor Step-by-Step)</h2>
 
 <div id="controls" style="margin-bottom:1rem;">
-    <label for="totalInput">Total forecasts:</label>
-    <input type="number" id="totalInput" @bind="_total" min="1" step="1" style="width:4rem; margin-right:1rem;" />
-    <button @onclick="StartStreaming" disabled="@_isRunning" style="padding:0.5rem 1rem; font-size:1rem; margin-right:0.5rem;">
+    <label for="maxInput">Max users:</label>
+    <input type="number"
+           id="maxInput"
+           @bind="_maxUsers"
+           min="1" step="1"
+           style="width:4rem; margin-right:1rem;" />
+    <button @onclick="StartStreaming"
+            disabled="@_isRunning"
+            style="padding:0.5rem 1rem; font-size:1rem; margin-right:0.5rem;">
         Start
     </button>
-    <button @onclick="CancelStreaming" disabled="!_isRunning" style="padding:0.5rem 1rem; font-size:1rem;">
+    <button @onclick="CancelStreaming"
+            disabled="!_isRunning"
+            style="padding:0.5rem 1rem; font-size:1rem;">
         Cancel
     </button>
 </div>
 
 <div id="progress-container" style="width:100%; background-color:#e0e0e0; border-radius:4px; overflow:hidden; margin-bottom:1rem; height:24px;">
-    <div id="progress-bar" style="width:@_progress%; height:100%; background-color:#4caf50; text-align:center; color:white; line-height:24px; font-size:0.9rem; transition: width 0.1s ease;">
+    <div id="progress-bar"
+         style="width:@_progress%; height:100%; background-color:#4caf50; text-align:center; color:white; line-height:24px; font-size:0.9rem; transition: width 0.1s ease;">
         @_progress%
     </div>
 </div>
 
 <div id="results" style="max-height:300px; overflow-y:auto; border:1px solid #ccc; padding:1rem; margin-bottom:1rem;">
-    @foreach (var item in _items)
+    @foreach (var user in _users)
     {
-        <div class="forecast-item" style="margin-bottom:0.5rem; padding:0.5rem; background:#f9f9f9; border:1px solid #ddd;">
-            <h4 style="margin:0; font-size:1rem; color:#333;">Forecast @item.Index of @_total</h4>
-            <div class="forecast-details" style="font-size:0.9rem; margin-left:1rem;">
-                Date: @item.Date.ToLocalTime().ToString("d") —
-                TempC: @item.TemperatureC° —
-                TempF: @item.TemperatureF° —
-                Summary: @item.Summary
+        <div class="user-item" style="margin-bottom:0.5rem; padding:0.5rem; background:#f9f9f9; border:1px solid #ddd;">
+            <h4 style="margin:0; font-size:1rem; color:#333;">
+                User @user.Index of @_maxUsers
+            </h4>
+            <div class="user-details" style="font-size:0.9rem; margin-left:1rem;">
+                ID: @user.Id — Name: @user.Name
             </div>
         </div>
     }
@@ -45,12 +53,12 @@
 </div>
 
 @code {
-    private int _total = 20;
+    private int _maxUsers = 20;
     private bool _isRunning = false;
     private double _progress = 0.0;
     private string _debug = string.Empty;
     private string _completionMessage = string.Empty;
-    private List<ForecastItem> _items = new();
+    private List<UserItem> _users = new();
 
     private CancellationTokenSource? _cts;
 
@@ -63,82 +71,79 @@
 
     private async Task StartStreaming()
     {
-        _items.Clear();
+        _users.Clear();
         _debug = string.Empty;
         _completionMessage = string.Empty;
         _progress = 0.0;
         _isRunning = true;
         StateHasChanged();
 
-        LogDebug($"Starting request for total={_total}");
+        LogDebug($"Starting request for maxUsers={_maxUsers}");
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
 
         try
         {
-            LogDebug("Calling API (ruta relativa a mismo origen)");
-            // Llamada a /WeatherForecast/batches?total=… (misma dirección base de la app)
-            var apiUrl = $"http://localhost:5001/WeatherForecast/batches?total={_total}";
+            // Call the Reactive users endpoint (relative to the Blazor app's base address)
+            var apiUrl = $"api/reactive/users?maxUsers={_maxUsers}";
+            LogDebug($"Calling API: GET {apiUrl}");
+
             using var response = await Http.GetAsync(apiUrl, HttpCompletionOption.ResponseHeadersRead, token);
-            LogDebug($"API respondió con status {response.StatusCode}");
+            LogDebug($"API responded with status {response.StatusCode}");
             response.EnsureSuccessStatusCode();
 
-            var textBody = await response.Content.ReadAsStringAsync(token);
-            LogDebug($"Full response text received ({textBody.Length} chars)");
+            // Get the response stream for incremental JSON parsing
+            using var responseStream = await response.Content.ReadAsStreamAsync(token);
 
-            IList<IList<WeatherForecast>> allBatches;
-            try
-            {
-                allBatches = System.Text.Json.JsonSerializer.Deserialize<IList<IList<WeatherForecast>>>(textBody,
-                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                    ?? Array.Empty<IList<WeatherForecast>>();
-                LogDebug($"Parsed JSON into {allBatches.Count} batches");
-            }
-            catch (Exception ex)
-            {
-                LogDebug($"JSON.parse error: {ex.Message}");
-                _isRunning = false;
-                return;
-            }
-
-            var receivedItems = 0;
-            foreach (var batch in allBatches)
-            {
-                foreach (var item in batch)
+            // Deserialize JSON stream into individual User objects as they arrive.
+            // Assumes the endpoint serializes IObservable<User> as a newline-delimited JSON stream.
+            var options = new System.Text.Json.JsonSerializerOptions
                 {
-                    if (token.IsCancellationRequested)
-                        break;
+                    PropertyNameCaseInsensitive = true
+                };
 
-                    receivedItems++;
-                    _items.Add(new ForecastItem
-                        {
-                            Index = receivedItems,
-                            Date = item.Date.ToLocalTime(),
-                            TemperatureC = item.TemperatureC,
-                            TemperatureF = item.TemperatureF,
-                            Summary = item.Summary ?? string.Empty
-                        });
+            var receivedCount = 0;
 
-                    _progress = (receivedItems / (double)_total) * 100.0;
-                    LogDebug($"Updating UI for item {receivedItems}/{_total} with progress {_progress:F2}%");
+            await foreach (var user in System.Text.Json.JsonSerializer
+                .DeserializeAsyncEnumerable<UserDto>(responseStream, options, cancellationToken: token))
+            {
+                if (user is null)
+                    continue;
 
-                    await InvokeAsync(StateHasChanged);
-                    await Task.Yield();
-                }
-                if (token.IsCancellationRequested)
+                receivedCount++;
+                _users.Add(new UserItem
+                    {
+                        Index = receivedCount,
+                        Id = user.Id ?? string.Empty,
+                        Name = user.Name ?? string.Empty
+                    });
+
+                _progress = (receivedCount / (double)_maxUsers) * 100.0;
+                LogDebug($"Received user {receivedCount}/{_maxUsers}: ID={user.Id}, Name={user.Name} (Progress: {_progress:F2}%)");
+
+                await InvokeAsync(StateHasChanged);
+
+                if (receivedCount >= _maxUsers || token.IsCancellationRequested)
+                {
                     break;
+                }
             }
 
-            LogDebug("Streaming complete");
-            _completionMessage = "All forecasts received.";
+            if (!_cts!.Token.IsCancellationRequested)
+            {
+                LogDebug("Streaming complete");
+                _completionMessage = "All users received.";
+            }
         }
         catch (OperationCanceledException)
         {
             LogDebug("Request canceled");
+            _completionMessage = "Streaming canceled.";
         }
         catch (Exception ex)
         {
             LogDebug($"Stream error: {ex.Message}");
+            _completionMessage = $"Error: {ex.Message}";
         }
         finally
         {
@@ -157,20 +162,18 @@
         _isRunning = false;
     }
 
-    private class ForecastItem
+    // DTO matching the shape of User from the API
+    private class UserDto
     {
-        public int Index { get; set; }
-        public DateTime Date { get; set; }
-        public int TemperatureC { get; set; }
-        public int TemperatureF { get; set; }
-        public string Summary { get; set; } = string.Empty;
+        public string? Id { get; set; }
+        public string? Name { get; set; }
     }
 
-    private class WeatherForecast
+    // Local model to display users in the UI
+    private class UserItem
     {
-        public DateTime Date { get; set; }
-        public int TemperatureC { get; set; }
-        public int TemperatureF { get; set; }
-        public string? Summary { get; set; }
+        public int Index { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
     }
 }
