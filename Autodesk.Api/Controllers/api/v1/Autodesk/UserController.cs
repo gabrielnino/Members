@@ -4,6 +4,8 @@ using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Autodesk.Api.Controllers.api.v1.Autodesk
 {
@@ -71,6 +73,19 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
 
             // Return 200 OK with paginated data
             return Ok(op.Data);
+        }
+
+        [HttpGet("reactive")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IObservable<User> Read(int maxUsers, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            if (maxUsers <= 0)
+            {
+                // If maxUsers is zero or negative, immediately complete.
+                return Observable.Empty<User>();
+            }
+
+            return _read.GetStreamUsers(maxUsers);
         }
 
         /// <summary>

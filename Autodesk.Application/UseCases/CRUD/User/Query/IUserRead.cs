@@ -26,7 +26,7 @@ namespace Autodesk.Application.UseCases.CRUD.User.Query
             string? cursor,
             int pageSize);
 
-        IObservable<User> StreamUsers();
+        IObservable<User> GetStreamUsers(int maxUsers, CancellationToken cancellationToken = default);
 
         void InvalidateAllUserCache();
     }

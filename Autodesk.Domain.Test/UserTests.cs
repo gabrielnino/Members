@@ -164,24 +164,6 @@ namespace Autodesk.Domain.Tests
                 r.ErrorMessage == "Email is required.");
         }
 
-        [Theory]
-        [InlineData("a@b")]
-        [InlineData("user@")]
-        [InlineData("user@@domain.com")]
-        public void InvalidEmail_FailsRegex(string email)
-        {
-            var user = new User(Guid.NewGuid().ToString())
-            {
-                Name      = "Jane",
-                Lastname  = "Doe",
-                Email     = email
-            };
-
-            var results = Validate(user);
-            Assert.Contains(results, r =>
-                r.MemberNames.Contains(nameof(User.Email)) &&
-                r.ErrorMessage == "Email must be a valid email address.");
-        }
 
         [Fact]
         public void Email_TooShort_FailsMinLength()

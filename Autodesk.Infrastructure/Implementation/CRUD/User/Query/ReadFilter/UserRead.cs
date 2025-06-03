@@ -136,43 +136,25 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
         _userCacheTokenSource = new CancellationTokenSource();
     }
 
-    public IObservable<User> StreamUsers()
+    public IObservable<User> GetStreamUsers(int maxUsers, CancellationToken cancellationToken = default)
     {
-        return Observable.Create<User>(async (observer, cancellationToken) =>
+        if (maxUsers <= 0)
         {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var result = await GetAllMembers().ConfigureAwait(false);
+            return Observable.Empty<User>();
+        }
 
+        return Observable
+                .Interval(TimeSpan.FromSeconds(1))
+                .SelectMany(_ => Observable.FromAsync(() => GetAllMembers(cancellationToken)))
+                .SelectMany(result =>
+                {
                     if (!result.IsSuccessful)
                     {
-                        observer.OnError(new Exception(result.Message));
-                        return;
+                        return Observable.Throw<User>(new Exception(result.Message));
                     }
 
-                    foreach (var user in result.Data.Items)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        observer.OnNext(user);
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected during cancellation - no action needed
-            }
-            catch (Exception ex)
-            {
-                observer.OnError(ex);
-            }
-            finally
-            {
-                observer.OnCompleted();
-            }
-        });
+                    return result.Data.Items.ToObservable();
+                })
+                .Take(maxUsers);
     }
 }

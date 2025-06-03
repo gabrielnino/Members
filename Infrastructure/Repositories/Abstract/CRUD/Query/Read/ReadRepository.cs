@@ -46,10 +46,10 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Query.Read
             return Operation<PagedResult<T>>.Success(result);
         }
 
-        public async Task<Operation<PagedResult<T>>> GetAllMembers()
+        public async Task<Operation<PagedResult<T>>> GetAllMembers(CancellationToken cancellationToken = default)
         {
             var query = unitOfWork.Context.Set<T>().AsNoTracking();
-            var items = await query.ToListAsync();
+            var items = await query.ToListAsync(cancellationToken);
             var result = new PagedResult<T>
             {
                 Items = items,
