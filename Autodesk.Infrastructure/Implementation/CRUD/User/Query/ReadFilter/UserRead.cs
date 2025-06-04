@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Reads users with filters, paging, and caching.
@@ -136,25 +137,9 @@ public class UserRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemor
         _userCacheTokenSource = new CancellationTokenSource();
     }
 
-    public IObservable<User> GetStreamUsers(int maxUsers, CancellationToken cancellationToken = default)
+    public List<User> GetStreamUsers(CancellationToken cancellationToken = default)
     {
-        if (maxUsers <= 0)
-        {
-            return Observable.Empty<User>();
-        }
-
-        return Observable
-                .Interval(TimeSpan.FromSeconds(1))
-                .SelectMany(_ => Observable.FromAsync(() => GetAllMembers(cancellationToken)))
-                .SelectMany(result =>
-                {
-                    if (!result.IsSuccessful)
-                    {
-                        return Observable.Throw<User>(new Exception(result.Message));
-                    }
-
-                    return result.Data.Items.ToObservable();
-                })
-                .Take(maxUsers);
+        var result = GetAllMembers(cancellationToken).Result;
+        return [.. result.Data.Items];
     }
 }

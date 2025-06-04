@@ -4,8 +4,11 @@ using Autodesk.Application.UseCases.CRUD.User.Query;
 using Autodesk.Domain;
 using Autodesk.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Autodesk.Api.Controllers.api.v1.Autodesk
 {
@@ -77,19 +80,22 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
 
         [HttpGet("reactive")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async IAsyncEnumerable<User> Read(int maxUsers, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async Task Read(int maxUsers, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var usersBatche = _read.GetStreamUsers(maxUsers);
-
-            await foreach (var user in usersBatche
-                                         .ToAsyncEnumerable()
-                                         .WithCancellation(cancellationToken))
+            var usersBatche = _read.GetStreamUsers(cancellationToken);
+            var actualMaxUsers = Math.Min(maxUsers, usersBatche.Count);
+            var period = TimeSpan.FromSeconds(1);
+            var second = Observable.Interval(period);
+            var observable = usersBatche
+                 .Take(actualMaxUsers)
+                .ToObservable()
+                .Zip(second, (user, _) => user);
+            var users = observable.ToAsyncEnumerable().WithCancellation(cancellationToken);
+            await foreach (var user in users)
             {
-                yield return user;
-
-                // Verificar cancelación antes de continuar (opcional, ToAsyncEnumerable ya lo hace):
-                if (cancellationToken.IsCancellationRequested)
-                    yield break;
+                var json = JsonSerializer.Serialize(user);
+                await Response.WriteAsync(json + "\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
             }
         }
 

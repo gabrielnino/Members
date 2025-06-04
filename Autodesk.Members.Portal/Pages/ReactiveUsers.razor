@@ -1,65 +1,61 @@
 ﻿@page "/reactive-user"
 @inject HttpClient Http
 @inject IHttpClientFactory HttpClientFactory
-
-<h2>Reactive Users Download (Blazor Step-by-Step)</h2>
-
-<div id="controls" style="margin-bottom:1rem;">
-    <label for="maxInput">Max users:</label>
-    <input type="number"
-           id="maxInput"
-           @bind="_maxUsers"
-           min="1"
-           step="1"
-           style="width:4rem; margin-right:1rem;" />
-    <button @onclick="StartStreaming"
-            disabled="@_isRunning"
-            style="padding:0.5rem 1rem; font-size:1rem; margin-right:0.5rem;">
-        Start
-    </button>
-    <button @onclick="CancelStreaming"
-            disabled="!_isRunning"
-            style="padding:0.5rem 1rem; font-size:1rem;">
-        Cancel
-    </button>
-</div>
-
-<div id="progress-container"
-     style="width:100%; background-color:#e0e0e0; border-radius:4px; overflow:hidden; margin-bottom:1rem; height:24px;">
-    <div id="progress-bar"
-         style="width:@_progress%; height:100%; background-color:#4caf50; text-align:center; color:white; line-height:24px; font-size:0.9rem; transition: width 0.1s ease;">
-        @_progress%
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Threading
+<div class="members-container">
+    <h2>Reactive Users Download (Blazor Step-by-Step)</h2>
+    <div id="controls" style="margin-bottom:1rem;">
+        <label for="maxInput">Max users:</label>
+        <input type="number"
+               id="maxInput"
+               @bind="_maxUsers"
+               min="1"
+               step="1"
+               style="width:4rem; margin-right:1rem;" />
+        <button @onclick="StartStreaming" disabled="@_isRunning"
+                style="padding:0.5rem 1rem; font-size:1rem; margin-right:0.5rem;">
+            Start
+        </button>
+        <button @onclick="CancelStreaming" disabled="!_isRunning"
+                style="padding:0.5rem 1rem; font-size:1rem;">
+            Cancel
+        </button>
+    </div>
+    <div id="progress-container"
+         style="width:100%; background-color:#e0e0e0; border-radius:4px; overflow:hidden; margin-bottom:1rem; height:24px;">
+        <div id="progress-bar"
+             style="width:@_progress%; height:100%; background-color:#4caf50; text-align:center; color:white; line-height:24px; font-size:0.9rem; transition: width 0.1s ease;">
+            @_progress%
+        </div>
+    </div>
+    <div id="results"
+         style="max-height:300px; overflow-y:auto; border:1px solid #ccc; padding:1rem; margin-bottom:1rem;">
+        @foreach (var user in _users)
+        {
+            <div class="user-item"
+                 style="margin-bottom:0.5rem; padding:0.5rem; background:#f9f9f9; border:1px solid #ddd;">
+                <h4 style="margin:0; font-size:1rem; color:#333;">
+                    User @user.Index of @_maxUsers
+                </h4>
+                <div class="user-details"
+                     style="font-size:0.9rem; margin-left:1rem;">
+                    ID: @user.Id — Name: @user.Name
+                </div>
+            </div>
+        }
+    </div>
+    <div id="completion-message"
+         style="font-size:1rem; color:#006400; margin-top:1rem;">
+        @_completionMessage
+    </div>
+    <h3>Debug Output</h3>
+    <div id="debug"
+         style="max-height:200px; overflow-y:auto; border:1px dashed #666; background:#f0f0f0; padding:0.5rem; font-family:monospace; font-size:0.85rem; white-space:pre-wrap; margin-bottom:1rem;">
+        @_debug
     </div>
 </div>
-
-<div id="results"
-     style="max-height:300px; overflow-y:auto; border:1px solid #ccc; padding:1rem; margin-bottom:1rem;">
-    @foreach (var user in _users)
-    {
-        <div class="user-item"
-             style="margin-bottom:0.5rem; padding:0.5rem; background:#f9f9f9; border:1px solid #ddd;">
-            <h4 style="margin:0; font-size:1rem; color:#333;">
-                User @user.Index of @_maxUsers
-            </h4>
-            <div class="user-details"
-                 style="font-size:0.9rem; margin-left:1rem;">
-                ID: @user.Id — Name: @user.Name
-            </div>
-        </div>
-    }
-</div>
-
-<div id="completion-message"
-     style="font-size:1rem; color:#006400; margin-top:1rem;">
-    @_completionMessage
-</div>
-
-<h3>Debug Output</h3>
-<div id="debug"
-     style="max-height:200px; overflow-y:auto; border:1px dashed #666; background:#f0f0f0; padding:0.5rem; font-family:monospace; font-size:0.85rem; white-space:pre-wrap; margin-bottom:1rem;">
-    @_debug
-</div>
-
 @code {
     private int _maxUsers = 20;
     private bool _isRunning = false;
@@ -67,14 +63,13 @@
     private string _debug = string.Empty;
     private string _completionMessage = string.Empty;
     private List<UserItem> _users = new();
-
     private CancellationTokenSource? _cts;
 
     private void LogDebug(string message)
     {
         var timestamp = DateTime.Now.ToString("HH:mm:ss");
         _debug += $"[{timestamp}] {message}\n";
-        InvokeAsync(StateHasChanged);
+        _ = InvokeAsync(StateHasChanged);
     }
 
     private async Task StartStreaming()
@@ -86,61 +81,53 @@
         _isRunning = true;
         StateHasChanged();
 
-        LogDebug($"Starting request for maxUsers={_maxUsers}");
+        LogDebug($"Starting streaming request for maxUsers={_maxUsers}...");
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
 
         try
         {
-
             var client = HttpClientFactory.CreateClient("AutodeskApi");
-            using var response = await client.GetAsync($"api/v1/users/reactive?maxUsers={_maxUsers}",HttpCompletionOption.ResponseHeadersRead, token);
+            using var response = await client.GetAsync(
+                $"api/v1/users/reactive?maxUsers={_maxUsers}",
+                HttpCompletionOption.ResponseHeadersRead,
+                token);
+
             LogDebug($"API responded with status {response.StatusCode}");
             response.EnsureSuccessStatusCode();
-            var allUsers = await response.Content.ReadFromJsonAsync<List<UserDto>>(cancellationToken: token);
 
-            if (allUsers == null)
+            await using var responseStream = await response.Content.ReadAsStreamAsync(token);
+            using var reader = new StreamReader(responseStream);
+            int lineNumber = 0;
+            int receivedCount = 0;
+            while (!reader.EndOfStream && !token.IsCancellationRequested)
             {
-                LogDebug("API returned null or malformed JSON.");
-                _completionMessage = "No users returned.";
-                return;
-            }
+                var line = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
 
-            LogDebug($"Deserialized {allUsers.Count} users total from JSON.");
-
-            var receivedCount = 0;
-            foreach (var user in allUsers)
-            {
-                if (token.IsCancellationRequested)
-                    break;
-
-                receivedCount++;
-                _users.Add(new UserItem
+                lineNumber++;
+                try
+                {
+                    var user = JsonSerializer.Deserialize<UserItem>(line);
+                    if (user is not null)
                     {
-                        Index = receivedCount,
-                        Id = user.Id ?? string.Empty,
-                        Name = user.Name ?? string.Empty
-                    });
-
-                _progress = (receivedCount / (double)_maxUsers) * 100.0;
-                LogDebug($"Processing user {receivedCount}/{_maxUsers}: ID={user.Id}, Name={user.Name} (Progress: {_progress:F2}%)");
-
-                await InvokeAsync(StateHasChanged);
-                await Task.Delay(50, token);
-
-                if (receivedCount >= _maxUsers)
+                        _users.Add(user);
+                        receivedCount++;
+                        LogDebug($"Received user {receivedCount}/{_maxUsers}: ID={user.Id}, Name={user.Name} (Progress: {_progress:F2}%)");
+                        StateHasChanged();
+                    }
+                }
+                catch (JsonException je)
+                {
+                    StateHasChanged();
                     break;
-            }
-
-            if (!token.IsCancellationRequested)
-            {
-                LogDebug("All users processed.");
-                _completionMessage = "All users received.";
+                }
             }
         }
         catch (OperationCanceledException)
         {
-            LogDebug("Request canceled by user.");
+            LogDebug("Streaming canceled by user.");
             _completionMessage = "Streaming canceled.";
         }
         catch (Exception ex)
@@ -157,23 +144,23 @@
 
     private void CancelStreaming()
     {
-        if (_cts != null)
+        if (_cts != null && !_cts.IsCancellationRequested)
         {
-            LogDebug("Cancel button clicked: canceling.");
+            LogDebug("Cancel button clicked: requesting cancellation...");
             _cts.Cancel();
         }
         _isRunning = false;
     }
 
-    // DTO to match your API’s User shape
     private class UserDto
     {
+        [JsonPropertyName("id")]
         public string? Id { get; set; }
+
+        [JsonPropertyName("name")]
         public string? Name { get; set; }
-        // …any other User properties …
     }
 
-    // Local view model for display
     private class UserItem
     {
         public int Index { get; set; }
