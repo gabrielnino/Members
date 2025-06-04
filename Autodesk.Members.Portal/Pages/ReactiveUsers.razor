@@ -4,6 +4,8 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Threading
+@using System.Text
+@inject IJSRuntime JS
 <div class="members-container">
     <h3 class="mb-0 section-title">Reactive Users Download (Blazor Step-by-Step)</h3>
     <div id="controls" style="margin-bottom:1rem;">
@@ -78,6 +80,14 @@
         @_debug
 
     </div>
+    @if(_users.Count != 0)
+    {
+        <button class="btn create-btn" @onclick="DownloadUsersAsJson">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24">
+                <path d="M5 20h14v-2H5v2zm7-18l-7 7h4v4h6v-4h4l-7-7z" />
+            </svg>
+        </button>
+    }
 </div>
 @code {
     private int _maxUsers = 20;
@@ -135,8 +145,9 @@
                     var user = JsonSerializer.Deserialize<UserItem>(line);
                     if (user is not null)
                     {
-                        _users.Add(user);
                         receivedCount++;
+                        user.Index = receivedCount;
+                        _users.Add(user);
                         _progress = (receivedCount*100)/_maxUsers;
                         LogDebug($"Received user {receivedCount}/{_maxUsers}: ID={user.Id}, Name={user.Name} (Progress: {_progress:F2}%)");
                         StateHasChanged();
@@ -175,7 +186,17 @@
         }
         _isRunning = false;
     }
+    private async Task DownloadUsersAsJson()
+    {
+        if (_users.Count == 0)
+            return;
 
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(_users, options);
+        var bytes = Encoding.UTF8.GetBytes(json);
+        var base64Data = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("BlazorDownloadFile", "users.json", base64Data);
+    }
     private class UserDto
     {
         [JsonPropertyName("id")]
