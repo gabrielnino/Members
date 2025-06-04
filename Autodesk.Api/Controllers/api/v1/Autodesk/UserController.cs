@@ -84,18 +84,20 @@ namespace Autodesk.Api.Controllers.api.v1.Autodesk
         {
             var usersBatche = _read.GetStreamUsers(cancellationToken);
             var actualMaxUsers = Math.Min(maxUsers, usersBatche.Count);
-            var period = TimeSpan.FromSeconds(1);
+            var period = TimeSpan.FromMilliseconds(1);
             var second = Observable.Interval(period);
             var observable = usersBatche
                  .Take(actualMaxUsers)
                 .ToObservable()
                 .Zip(second, (user, _) => user);
             var users = observable.ToAsyncEnumerable().WithCancellation(cancellationToken);
+            int i = 0;
             await foreach (var user in users)
             {
                 var json = JsonSerializer.Serialize(user);
                 await Response.WriteAsync(json + "\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
+                i++;
             }
         }
 
