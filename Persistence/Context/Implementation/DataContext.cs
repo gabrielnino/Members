@@ -1,4 +1,4 @@
-﻿cd musing Autodesk.Domain;
+﻿using Autodesk.Domain;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Interface;
 using Persistence.CreateStructure.Constants.ColumnType;
