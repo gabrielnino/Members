@@ -25,6 +25,10 @@ namespace Autodesk.Persistence.Test.Context
             public object? SqlStrategy => true;
             public string Name => string.Empty;
             public object? Value => null;
+
+            public string TypeDateTime => "TEXT";
+
+            public string TypeDateTimeOffset => "TEXT";
         }
 
         [Fact]

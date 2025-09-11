@@ -46,6 +46,11 @@ namespace Persistence.Context.Implementation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            ProfileTable.Create(modelBuilder, _columnTypes);
+            ExperienceTable.Create(modelBuilder, _columnTypes);
+            ExperienceRoleTable.Create(modelBuilder, _columnTypes);
+            EducationTable.Create(modelBuilder, _columnTypes);
+            CommunicationTable.Create(modelBuilder, _columnTypes);
             UserTable.Create(modelBuilder, _columnTypes);
             ProductTable.Create(modelBuilder, _columnTypes);
             InvoiceTable.Create(modelBuilder, _columnTypes);

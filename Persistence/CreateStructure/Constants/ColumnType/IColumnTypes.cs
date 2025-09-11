@@ -16,6 +16,16 @@
         string TypeTime { get; }
 
         /// <summary>
+        /// Gets the SQL column type used to store datetime values.
+        /// </summary>
+        string TypeDateTime { get; }
+
+        /// <summary>
+        /// Gets the SQL column type used to store datetime values with timezone offset.
+        /// </summary>
+        string TypeDateTimeOffset { get; }
+
+        /// <summary>
         /// Gets the SQL column type used to store variable text (default length).
         /// </summary>
         string TypeVar { get; }

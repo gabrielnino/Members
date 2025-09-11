@@ -18,6 +18,12 @@
         public string TypeTime => "TEXT";     // ISO-8601 strings for dates/times
 
         /// <inheritdoc/>
+        public string TypeDateTime => "TEXT"; // ISO-8601 strings for DateTime values
+
+        /// <inheritdoc/>
+        public string TypeDateTimeOffset => "TEXT"; // ISO-8601 strings with timezone offset
+
+        /// <inheritdoc/>
         public string TypeVar50 => "TEXT";    // SQLite ignores length constraints on TEXT
 
         /// <inheritdoc/>
