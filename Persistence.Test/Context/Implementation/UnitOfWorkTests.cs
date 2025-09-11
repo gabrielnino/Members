@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Persistence.Context.Implementation;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Persistence.Context.Interface;
 using Xunit;
 

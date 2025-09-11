@@ -1,4 +1,4 @@
-﻿namespace Persistence.CreateStruture.Constants.ColumnType.Database
+﻿namespace Persistence.CreateStructure.Constants.ColumnType.Database
 {
     /// <summary>
     /// SQLite-specific column type mappings and value-generation settings.

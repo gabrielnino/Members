@@ -1,4 +1,4 @@
-﻿namespace Persistence.CreateStruture.Constants.ColumnType
+﻿namespace Persistence.CreateStructure.Constants.ColumnType
 {
     /// <summary>
     /// Defines a contract for be an ColoumnTypes.

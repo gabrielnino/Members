@@ -1,6 +1,6 @@
-﻿using Persistence.CreateStruture.Constants.ColumnType.Database;
+﻿using Persistence.CreateStructure.Constants.ColumnType.Database;
 
-namespace Persistence.Test.CreateStruture.Constants.ColumnType.Database
+namespace Persistence.Test.CreateStructure.Constants.ColumnType.Database
 {
     public class SQLiteColumnTypesTests
     {

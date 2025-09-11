@@ -1,4 +1,4 @@
-﻿namespace Persistence.CreateStruture.Constants
+﻿namespace Persistence.CreateStructure.Constants
 {
     /// <summary>
     /// Represents a Database.

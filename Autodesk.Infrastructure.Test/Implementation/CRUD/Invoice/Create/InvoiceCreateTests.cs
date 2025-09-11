@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 using Persistence.Context.Implementation;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Persistence.Context.Interface;
 using Application.Result;
 using Application.Result.Error;

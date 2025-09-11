@@ -1,5 +1,5 @@
-﻿using Database = Persistence.CreateStruture.Constants.Database;
-namespace Persistence.Test.CreateStruture.Constants
+﻿using Database = Persistence.CreateStructure.Constants.Database;
+namespace Persistence.Test.CreateStructure.Constants
 {
     public class DatabaseConstantsTests
     {

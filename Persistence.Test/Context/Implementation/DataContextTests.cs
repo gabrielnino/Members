@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Persistence.Context.Implementation;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Persistence.Context.Interface;
 using Autodesk.Domain;
 using Xunit;

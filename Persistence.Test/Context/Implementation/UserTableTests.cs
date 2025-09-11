@@ -3,8 +3,8 @@ using Autodesk.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Persistence.Context.Implementation;
-using Persistence.CreateStruture.Constants;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Xunit;
 
 namespace Persistence.Context.Implementation.Tests

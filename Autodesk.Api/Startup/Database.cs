@@ -1,5 +1,5 @@
-﻿using Persistence.CreateStruture.Constants.ColumnType;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+﻿using Persistence.CreateStructure.Constants.ColumnType;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 
 namespace Autodesk.Api.Startup
 {

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Persistence.Repositories;
 
 namespace Persistence.Test.Repositories

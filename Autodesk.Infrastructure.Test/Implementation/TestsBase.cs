@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Persistence.Context.Implementation;
-using Persistence.CreateStruture.Constants.ColumnType.Database;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 
 namespace Autodesk.Infrastructure.Test.Implementation
 {

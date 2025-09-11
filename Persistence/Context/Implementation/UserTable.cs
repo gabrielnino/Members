@@ -1,7 +1,7 @@
 ﻿using Autodesk.Domain;
 using Microsoft.EntityFrameworkCore;
-using Persistence.CreateStruture.Constants;
-using Persistence.CreateStruture.Constants.ColumnType;
+using Persistence.CreateStructure.Constants;
+using Persistence.CreateStructure.Constants.ColumnType;
 
 namespace Persistence.Context.Implementation
 {
