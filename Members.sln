@@ -74,6 +74,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration", "Configurat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveNetwork.Infrastructure", "LiveNetwork.Infrastructure\LiveNetwork.Infrastructure.csproj", "{EE066B5F-FE42-449D-A5D7-2F1A6E380543}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{F4007A52-62BA-457F-9E05-426230EEACE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +166,10 @@ Global
 		{EE066B5F-FE42-449D-A5D7-2F1A6E380543}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE066B5F-FE42-449D-A5D7-2F1A6E380543}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE066B5F-FE42-449D-A5D7-2F1A6E380543}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4007A52-62BA-457F-9E05-426230EEACE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4007A52-62BA-457F-9E05-426230EEACE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4007A52-62BA-457F-9E05-426230EEACE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4007A52-62BA-457F-9E05-426230EEACE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -195,6 +201,7 @@ Global
 		{3D197651-113B-638F-6830-0CD7539303F6} = {F837326E-B73A-4E13-A778-287A702B6186}
 		{4DC63F6D-F224-25D5-BB69-94B9DD95C085} = {9473EDDB-16E1-4AE2-89C4-2F40E51C98B9}
 		{EE066B5F-FE42-449D-A5D7-2F1A6E380543} = {9A2BBEFE-7378-4E84-8FB7-920BF32C2283}
+		{F4007A52-62BA-457F-9E05-426230EEACE3} = {3BB78DC1-BDFA-49ED-842C-5F8C429CBD78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8EB74582-5E99-4317-87A0-9626007B6698}
