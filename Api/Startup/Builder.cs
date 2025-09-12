@@ -1,6 +1,6 @@
 ﻿namespace Api.Startup
 {
-    public class Services : Database
+    public class Builder : Database
     {
         protected static void ConfigureServices(WebApplicationBuilder builder)
         {

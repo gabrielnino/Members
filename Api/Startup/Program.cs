@@ -4,7 +4,7 @@ namespace Api.Startup
 {
 
 
-    public class Program : Services
+    public class Program : Builder
     {
         private static void Main(string[] args)
         {
