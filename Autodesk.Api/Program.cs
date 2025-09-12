@@ -1,7 +1,7 @@
 using Api.Startup;
 using Persistence.Context.Implementation;
 
-namespace Autodesk.Api.Startup
+namespace Autodesk.Api
 {
 
 
@@ -9,10 +9,10 @@ namespace Autodesk.Api.Startup
     {
         private static void Main(string[] args)
         {
-            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
             ConfigureServices(builder);
-            WebApplication app = builder.Build();
+            var app = builder.Build();
             ConfigureMiddleware(app);
             using (var scope = app.Services.CreateScope())
             {
