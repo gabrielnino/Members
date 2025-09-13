@@ -14,6 +14,7 @@ namespace Api.Startup
             Cache(builder);
             ErrorLog(builder);
             Configuration(builder);
+            Commands(builder);
             Composition(builder);
         }
     }

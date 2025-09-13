@@ -34,6 +34,7 @@
 		<ProjectReference Include="..\Autodesk.Infrastructure\Autodesk.Infrastructure.csproj" />
 		<ProjectReference Include="..\Autodesk.Persistence\Autodesk.Persistence.csproj" />
 		<ProjectReference Include="..\Autodesk.Shared\Autodesk.Shared.csproj" />
+		<ProjectReference Include="..\Commands\Commands.csproj" />
 		<ProjectReference Include="..\LiveNetwork.Application\LiveNetwork.Application.csproj" />
 		<ProjectReference Include="..\LiveNetwork.Infrastructure\LiveNetwork.Infrastructure.csproj" />
 	</ItemGroup>

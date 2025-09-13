@@ -9,6 +9,7 @@ using Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
+using Commands;
 using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
@@ -90,8 +91,20 @@ namespace Api.Startup
             builder.Services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
             builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
             builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
-
             builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
+            //builder.Services.AddSingleton<ILinkedInChat, LinkedInChat>();
+            
+        }
+
+        protected static void Commands(WebApplicationBuilder builder)
+        {
+            //builder.Services.AddSingleton<CommandFactory>();
+            builder.Services.AddTransient<HelpCommand>();
+            builder.Services.AddTransient<SearchCommand>();
+            builder.Services.AddTransient<PromtCommand>();
+            builder.Services.AddTransient<InviteCommand>();
+            builder.Services.AddTransient<CollectorCommand>();
+            //builder.Services.AddTransient<ChatCommand>();
         }
 
         protected static void Configuration(WebApplicationBuilder builder)
