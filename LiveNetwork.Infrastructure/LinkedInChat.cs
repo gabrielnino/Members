@@ -1,10 +1,8 @@
 ﻿using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Domain;
-using LiveNetwork.Infrastructure.Services;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using Services.Interfaces;
 
 namespace LiveNetwork.Infrastructure.Services
 {
@@ -13,12 +11,10 @@ namespace LiveNetwork.Infrastructure.Services
         private readonly AppConfig _config;
         private readonly IWebDriver _driver;
         private readonly ILogger<InviteConnections> _logger;
-        //private readonly ICaptureSnapshot _capture;
+        private readonly ICaptureSnapshot _capture;
         private readonly ExecutionTracker _executionOptions;
         private readonly ITrackingService _trackingService;
         private readonly ILoginService _loginService;
-        //const string ExecutionFolder = "Invite";
-        //const string Stage = "Send";
         private readonly IUtil _util;
         public LinkedInChat(AppConfig config,
           IWebDriverFactory driverFactory,
@@ -32,7 +28,7 @@ namespace LiveNetwork.Infrastructure.Services
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            //_capture = capture ?? throw new ArgumentNullException(nameof(capture));
+            _capture = capture ?? throw new ArgumentNullException(nameof(capture));
             _executionOptions = executionOptions ?? throw new ArgumentNullException(nameof(executionOptions));
             _trackingService = trackingService ?? throw new ArgumentNullException(nameof(trackingService));
             _loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
