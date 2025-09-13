@@ -16,5 +16,10 @@ namespace Persistence.Repositories
         {
             await _dbSet.AddAsync(entity);
         }
+
+        protected async Task CreateRange(List<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
     }
 }

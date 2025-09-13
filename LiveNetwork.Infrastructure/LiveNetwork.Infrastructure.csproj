@@ -13,8 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\LiveNetwork.Application\LiveNetwork.Application.csproj" />
     <ProjectReference Include="..\LiveNetwork.Domain\LiveNetwork.Domain.csproj" />
+    <ProjectReference Include="..\Persistence\Persistence.csproj" />
   </ItemGroup>
 
 </Project>

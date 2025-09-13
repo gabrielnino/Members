@@ -19,5 +19,13 @@ namespace Infrastructure.Repositories.Abstract.CRUD.Create
             var message = string.Format(success, typeof(T).Name);
             return Operation<bool>.Success(true, message);
         }
+
+        public async Task<Operation<bool>> CreateEntities(List<T> entities)
+        {
+            await CreateRange(entities);
+            var success = CreateLabels.CreationSuccess;
+            var message = string.Format(success, typeof(T).Name);
+            return Operation<bool>.Success(true, message);
+        }
     }
 }
