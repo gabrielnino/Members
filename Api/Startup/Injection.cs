@@ -4,7 +4,7 @@ namespace Api.Startup
 {
     public class Injection : Dependency
     {
-        protected static void AddScoped(WebApplicationBuilder builder)
+        protected static void AddScoped(WebApplicationBuilder builder, string[] args)
         {
             DataSeeder(builder);
             DataBase(builder);
@@ -14,7 +14,7 @@ namespace Api.Startup
             Cache(builder);
             ErrorLog(builder);
             Configuration(builder);
-            Commands(builder);
+            Commands(builder, args);
             Composition(builder);
         }
     }

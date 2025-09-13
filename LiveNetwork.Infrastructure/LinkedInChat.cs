@@ -1,8 +1,10 @@
 ﻿using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Domain;
+using LiveNetwork.Infrastructure.Services;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
+using Services.Interfaces;
 
 namespace LiveNetwork.Infrastructure.Services
 {
@@ -18,7 +20,7 @@ namespace LiveNetwork.Infrastructure.Services
         //const string ExecutionFolder = "Invite";
         //const string Stage = "Send";
         private readonly IUtil _util;
-        LinkedInChat(AppConfig config,
+        public LinkedInChat(AppConfig config,
           IWebDriverFactory driverFactory,
             ILogger<InviteConnections> logger,
             ICaptureSnapshot capture,

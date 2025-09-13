@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+306bca6d25d52ac0dc53bca69bf96982bed5cb76")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
 [assembly: System.Reflection.AssemblyProductAttribute("Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -77,11 +77,11 @@ global using global::System.Threading.Tasks;
 {
 public class Builder : Database
 {
-protected static void ConfigureServices(WebApplicationBuilder builder)
+protected static void ConfigureServices(WebApplicationBuilder builder, string[] args)
 {
 string connectionString = GetConnectionString(builder);
 Database.SetDatabase(builder);
-AddScoped(builder);
+AddScoped(builder, args);
 builder.Services.AddLogging(loggingBuilder =>
 {
 loggingBuilder.ClearProviders();
@@ -135,6 +135,7 @@ using Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
+using Commands;
 using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
@@ -208,6 +209,17 @@ builder.Services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
 builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
 builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
 builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
+builder.Services.AddScoped<ILinkedInChat, LinkedInChat>();
+}
+protected static void Commands(WebApplicationBuilder builder, string[] args)
+{
+builder.Services.AddSingleton(new CommandArgs(args));
+builder.Services.AddSingleton<CommandFactory>();
+builder.Services.AddTransient<HelpCommand>();
+builder.Services.AddTransient<SearchCommand>();
+builder.Services.AddTransient<PromtCommand>();
+builder.Services.AddTransient<InviteCommand>();
+builder.Services.AddTransient<CollectorCommand>();
 }
 protected static void Configuration(WebApplicationBuilder builder)
 {
@@ -284,7 +296,7 @@ namespace Api.Startup
 {
 public class Injection : Dependency
 {
-protected static void AddScoped(WebApplicationBuilder builder)
+protected static void AddScoped(WebApplicationBuilder builder, string[] args)
 {
 DataSeeder(builder);
 DataBase(builder);
@@ -294,6 +306,7 @@ Invoice(builder);
 Cache(builder);
 ErrorLog(builder);
 Configuration(builder);
+Commands(builder, args);
 Composition(builder);
 }
 }
@@ -335,7 +348,7 @@ private static void Main(string[] args)
 {
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
-ConfigureServices(builder);
+ConfigureServices(builder, args);
 WebApplication app = builder.Build();
 ConfigureMiddleware(app);
 using (var scope = app.Services.CreateScope())
@@ -426,7 +439,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -770,7 +783,7 @@ private static void Main(string[] args)
 {
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
-ConfigureServices(builder);
+ConfigureServices(builder, args);
 var app = builder.Build();
 ConfigureMiddleware(app);
 using (var scope = app.Services.CreateScope())
@@ -2040,7 +2053,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+306bca6d25d52ac0dc53bca69bf96982bed5cb76")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2084,7 +2097,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2269,7 +2282,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2783,7 +2796,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3150,7 +3163,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3425,7 +3438,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3471,7 +3484,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3502,7 +3515,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3620,7 +3633,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3687,7 +3700,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3928,7 +3941,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3943,6 +3956,317 @@ global using global::System.Net.Http;
 global using global::System.Threading;
 global using global::System.Threading.Tasks;
 global using global::Xunit;
+
+=== FILE: F:\Members\Commands\ChatCommand.cs ===
+
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using LiveNetwork.Application.Services;
+using Microsoft.Extensions.Logging;
+using Services.Interfaces;
+namespace Commands
+{
+public class ChatCommand : ICommand
+{
+private readonly ILogger<ChatCommand> _logger;
+private readonly ILinkedInChat _iLinkedInChat;
+public ChatCommand(ILogger<ChatCommand> logger, ILinkedInChat iLinkedInChat)
+{
+_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+_iLinkedInChat = iLinkedInChat ?? throw new ArgumentNullException(nameof(iLinkedInChat));
+}
+public async Task ExecuteAsync(Dictionary<string, string>? arguments = null)
+{
+_logger.LogInformation("ChatCommand: starting. args={@Args}", arguments);
+await _iLinkedInChat.SendMessageAsync();
+_logger.LogInformation("ChatCommand: finished.");
+}
+}
+}
+
+=== FILE: F:\Members\Commands\CollectorCommand.cs ===
+
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using LiveNetwork.Application.Services;
+using Microsoft.Extensions.Logging;
+using Services.Interfaces;
+namespace Commands
+{
+public class CollectorCommand : ICommand
+{
+private readonly ILogger<CollectorCommand> _logger;
+private readonly IConnectionInfoCollector _iConnectionInfoCollector;
+public CollectorCommand(ILogger<CollectorCommand> logger, IConnectionInfoCollector iConnectionInfoCollector)
+{
+_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+_iConnectionInfoCollector = iConnectionInfoCollector ?? throw new ArgumentNullException(nameof(iConnectionInfoCollector));
+}
+public async Task ExecuteAsync(Dictionary<string, string>? arguments = null)
+{
+_logger.LogInformation("InviteCommand: starting. args={@Args}", arguments);
+await _iConnectionInfoCollector.LoadConnectionsAsync();
+_logger.LogInformation("InviteCommand: finished.");
+}
+}
+}
+
+=== FILE: F:\Members\Commands\CommandArgs.cs ===
+
+﻿namespace Commands
+{
+public class CommandArgs
+{
+public const string search = "--search";
+public const string prompt = "--prompt";
+public const string invite = "--invite";
+public const string load = "--load";
+public const string chat = "--chat";
+private static readonly HashSet<string> ValidCommands = new(StringComparer.OrdinalIgnoreCase)
+{
+search,
+prompt,
+invite,
+load,
+chat
+};
+public string MainCommand { get; }
+public Dictionary<string, string> Arguments { get; }
+public CommandArgs(string[] args)
+{
+if (args == null || args.Length == 0)
+{
+MainCommand = string.Empty;
+Arguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+return;
+}
+MainCommand = args.FirstOrDefault(IsCommand) ?? args.FirstOrDefault(IsArgument).Split("=").FirstOrDefault();
+Arguments = args
+.Where(IsArgument)
+.Select(arg =>
+{
+var parts = arg.Split('=', 2);
+var key = parts[0];
+var value = parts.Length > 1 ? parts[1] : string.Empty;
+return new KeyValuePair<string, string>(key, value);
+})
+.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+}
+private static bool IsCommand(string arg) => ValidCommands.Contains(arg);
+private static bool IsArgument(string arg) => arg.Contains("=");
+}
+}
+
+=== FILE: F:\Members\Commands\CommandFactory.cs ===
+
+﻿using Microsoft.Extensions.DependencyInjection;
+using Services;
+namespace Commands
+{
+public class CommandFactory
+{
+private readonly IServiceProvider _serviceProvider;
+private readonly CommandArgs _jobCommandArgs;
+public CommandFactory(IServiceProvider serviceProvider, CommandArgs jobCommandArgs)
+{
+_serviceProvider = serviceProvider;
+_jobCommandArgs = jobCommandArgs;
+}
+public IEnumerable<ICommand> CreateCommand()
+{
+var commands = new List<ICommand>();
+switch (_jobCommandArgs.MainCommand.ToLowerInvariant())
+{
+case CommandArgs.invite:
+commands.Add(_serviceProvider.GetRequiredService<InviteCommand>());
+break;
+case CommandArgs.search:
+commands.Add(_serviceProvider.GetRequiredService<SearchCommand>());
+break;
+case CommandArgs.prompt:
+commands.Add(_serviceProvider.GetRequiredService<PromtCommand>());
+break;
+case CommandArgs.load:
+commands.Add(_serviceProvider.GetRequiredService<CollectorCommand>());
+break;
+case CommandArgs.chat:
+commands.Add(_serviceProvider.GetRequiredService<ChatCommand>());
+break;
+default:
+commands.Add(_serviceProvider.GetRequiredService<HelpCommand>());
+break;
+}
+return commands;
+}
+}
+}
+
+=== FILE: F:\Members\Commands\HelpCommand.cs ===
+
+﻿using Microsoft.Extensions.Logging;
+namespace Commands
+{
+public class
+HelpCommand : ICommand
+{
+private readonly ILogger<HelpCommand> _logger;
+public HelpCommand(ILogger<HelpCommand> logger = null)
+{
+_logger = logger;
+}
+public Task ExecuteAsync(Dictionary<string, string>? Arguments)
+{
+_logger?.LogInformation("Displaying help information");
+Console.WriteLine("Available commands:");
+Console.WriteLine("--search\tSearch for jobs");
+Console.WriteLine("--export\tExport results");
+Console.WriteLine("--help\t\tShow this help");
+return Task.CompletedTask;
+}
+}
+}
+
+=== FILE: F:\Members\Commands\ICommand.cs ===
+
+﻿namespace Commands
+{
+public interface ICommand
+{
+Task ExecuteAsync(Dictionary<string, string>? arguments=null);
+}
+}
+
+=== FILE: F:\Members\Commands\InviteCommand.cs ===
+
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using LiveNetwork.Application.Services;
+using Microsoft.Extensions.Logging;
+using Services.Interfaces;
+namespace Commands
+{
+public class InviteCommand : ICommand
+{
+private readonly ILogger<InviteCommand> _logger;
+private readonly IInviteConnections _iInviteCommand;
+public InviteCommand(ILogger<InviteCommand> logger, IInviteConnections iInviteCommand)
+{
+_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+_iInviteCommand = iInviteCommand ?? throw new ArgumentNullException(nameof(iInviteCommand));
+}
+public async Task ExecuteAsync(Dictionary<string, string>? arguments = null)
+{
+_logger.LogInformation("InviteCommand: starting. args={@Args}", arguments);
+await _iInviteCommand.Invite();
+_logger.LogInformation("InviteCommand: finished.");
+}
+}
+}
+
+=== FILE: F:\Members\Commands\PromtCommand.cs ===
+
+﻿using LiveNetwork.Application.Services;
+using Microsoft.Extensions.Logging;
+using Services.Interfaces;
+namespace Commands
+{
+public class PromtCommand(
+ILogger<PromtCommand> logger,
+IPromptGenerator promptGenerator) : ICommand
+{
+private readonly ILogger<PromtCommand> _logger = logger;
+private readonly IPromptGenerator _promptGenerator = promptGenerator;
+public async Task ExecuteAsync(Dictionary<string, string>? arguments = null)
+{
+_logger.LogInformation("Starting job application process...");
+await _promptGenerator.GeneratPrompt();
+}
+}
+}
+
+=== FILE: F:\Members\Commands\SearchCommand.cs ===
+
+﻿using LiveNetwork.Application.Services;
+using Microsoft.Extensions.Logging;
+using Services.Interfaces;
+namespace Commands
+{
+public class SearchCommand(
+ISearchCoordinator linkedInService,
+ILogger<SearchCommand> logger) : ICommand
+{
+private readonly ISearchCoordinator _linkedInService = linkedInService;
+private readonly ILogger<SearchCommand> _logger = logger;
+public async Task ExecuteAsync(Dictionary<string, string>? arguments = null)
+{
+_logger.LogInformation("Starting job search...");
+await _linkedInService.SearchConnectionAsync();
+}
+}
+}
+
+=== FILE: F:\Members\Commands\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ===
+
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+=== FILE: F:\Members\Commands\obj\Debug\net8.0\Commands.AssemblyInfo.cs ===
+
+using System;
+using System.Reflection;
+[assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
+[assembly: System.Reflection.AssemblyProductAttribute("Commands")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+=== FILE: F:\Members\Commands\obj\Debug\net8.0\Commands.GlobalUsings.g.cs ===
+
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
+
+=== FILE: F:\Members\Commands\obj\Release\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ===
+
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+=== FILE: F:\Members\Commands\obj\Release\net8.0\Commands.AssemblyInfo.cs ===
+
+using System;
+using System.Reflection;
+[assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f7b61cc657b6b85a6c4b54e1aee2477c28bbe28")]
+[assembly: System.Reflection.AssemblyProductAttribute("Commands")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+=== FILE: F:\Members\Commands\obj\Release\net8.0\Commands.GlobalUsings.g.cs ===
+
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
 
 === FILE: F:\Members\Configuration\AppConfig.cs ===
 
@@ -4098,7 +4422,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73a339a9404c84cad408a550d58f544cd453273b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4240,7 +4564,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4557,7 +4881,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4600,7 +4924,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -5148,7 +5472,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -6279,7 +6603,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -7665,27 +7989,15 @@ public class LinkedInChat : ILinkedInChat
 {
 private readonly AppConfig _config;
 private readonly IWebDriver _driver;
-private readonly ILogger<InviteConnections> _logger;
+private readonly ILogger<LinkedInChat> _logger;
 private readonly ExecutionTracker _executionOptions;
 private readonly ITrackingService _trackingService;
 private readonly ILoginService _loginService;
 private readonly IUtil _util;
-LinkedInChat(AppConfig config,
-IWebDriverFactory driverFactory,
-ILogger<InviteConnections> logger,
-ICaptureSnapshot capture,
-ExecutionTracker executionOptions,
-ITrackingService trackingService,
-ILoginService loginService,
-IUtil util)
+LinkedInChat(AppConfig config
+)
 {
 _config = config ?? throw new ArgumentNullException(nameof(config));
-_driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
-_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-_executionOptions = executionOptions ?? throw new ArgumentNullException(nameof(executionOptions));
-_trackingService = trackingService ?? throw new ArgumentNullException(nameof(trackingService));
-_loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
-_util = util;
 }
 public async Task SendMessageAsync()
 {
@@ -10443,7 +10755,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -11090,7 +11402,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -11741,7 +12053,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ab22b50e32f2b7e57702d741469abf6eebe412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

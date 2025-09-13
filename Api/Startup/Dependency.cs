@@ -92,13 +92,14 @@ namespace Api.Startup
             builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
             builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
             builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
-            //builder.Services.AddSingleton<ILinkedInChat, LinkedInChat>();
+            builder.Services.AddScoped<ILinkedInChat, LinkedInChat>();
             
         }
 
-        protected static void Commands(WebApplicationBuilder builder)
+        protected static void Commands(WebApplicationBuilder builder, string[] args)
         {
-            //builder.Services.AddSingleton<CommandFactory>();
+            builder.Services.AddSingleton(new CommandArgs(args));
+            builder.Services.AddSingleton<CommandFactory>();
             builder.Services.AddTransient<HelpCommand>();
             builder.Services.AddTransient<SearchCommand>();
             builder.Services.AddTransient<PromtCommand>();
@@ -109,10 +110,13 @@ namespace Api.Startup
 
         protected static void Configuration(WebApplicationBuilder builder)
         {
-            AppConfig appConfig = new();
+
+            var appConfig = new AppConfig();
+            builder.Configuration.Bind(appConfig);
+            builder.Services.AddSingleton<AppConfig>(appConfig);
             ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
             builder.Services.AddSingleton(executionOptions);
-            builder.Services.AddSingleton(appConfig);
+
         }
     }
 }

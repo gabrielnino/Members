@@ -10,7 +10,7 @@ namespace Api.Startup
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
-            ConfigureServices(builder);
+            ConfigureServices(builder, args);
             WebApplication app = builder.Build();
             ConfigureMiddleware(app);
             using (var scope = app.Services.CreateScope())

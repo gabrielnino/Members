@@ -11,7 +11,7 @@ namespace Autodesk.Api
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
-            ConfigureServices(builder);
+            ConfigureServices(builder, args);
             var app = builder.Build();
             ConfigureMiddleware(app);
             using (var scope = app.Services.CreateScope())

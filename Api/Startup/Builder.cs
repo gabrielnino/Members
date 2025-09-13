@@ -2,11 +2,11 @@
 {
     public class Builder : Database
     {
-        protected static void ConfigureServices(WebApplicationBuilder builder)
+        protected static void ConfigureServices(WebApplicationBuilder builder, string[] args)
         {
             string connectionString = GetConnectionString(builder);
             Database.SetDatabase(builder);
-            AddScoped(builder);
+            AddScoped(builder, args);
             builder.Services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();

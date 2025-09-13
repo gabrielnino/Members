@@ -22,6 +22,14 @@
 
         public CommandArgs(string[] args)
         {
+            if (args == null || args.Length == 0)
+            {
+                // Workaround: no arguments passed
+                MainCommand = string.Empty;
+                Arguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                return;
+            }
+
             MainCommand = args.FirstOrDefault(IsCommand) ?? args.FirstOrDefault(IsArgument).Split("=").FirstOrDefault();
             Arguments = args
                 .Where(IsArgument)
