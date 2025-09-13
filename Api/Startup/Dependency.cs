@@ -13,9 +13,12 @@ using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Application.UseCases.CRUD.Profile;
 using LiveNetwork.Infrastructure.Services;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
+using Persistence.CreateStructure.Constants.ColumnType;
+using Persistence.CreateStructure.Constants.ColumnType.Database;
 using Services.Interfaces;
 
 namespace Api.Startup
@@ -59,21 +62,25 @@ namespace Api.Startup
             ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
             builder.Services.AddSingleton(executionOptions);
             builder.Services.AddSingleton(appConfig);
-            //builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
+            builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
             builder.Services.AddTransient<IPromptGenerator, PromptGenerator>();
-            //services.AddTransient<ILoginService, LoginService>();
-            //services.AddTransient<ICaptureSnapshot, CaptureSnapshot>();
-            //services.AddSingleton<IWebDriverFactory, ChromeDriverFactory>();
-            //services.AddTransient<ISearch, Search>();
-            //services.AddTransient<IProcessor, Processor>();
-            //services.AddSingleton<IDirectoryCheck, DirectoryCheck>();
+            builder.Services.AddTransient<ILoginService, LoginService>();
+            builder.Services.AddTransient<ICaptureSnapshot, CaptureSnapshot>();
+            builder.Services.AddSingleton<IWebDriverFactory, ChromeDriverFactory>();
+            builder.Services.AddTransient<ISearch, Search>();
+            builder.Services.AddTransient<IProcessor, Processor>();
+            builder.Services.AddSingleton<IDirectoryCheck, DirectoryCheck>();
             builder.Services.AddSingleton<IOpenAIClient, OpenAIClient>();
-            //builder.Services.AddSingleton<IUtil, Util>();
+            builder.Services.AddSingleton<IUtil, Util>();
             builder.Services.AddSingleton <ITrackingService, TrackingService>();
-            //services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
-            //services.AddSingleton<IResumeDetailService, ResumeDetailService>();
-            //services.AddSingleton<IInviteConnections, InviteConnections>();
-            //services.AddSingleton<IConnectionInfoCollector, ConnectionInfoCollector>();
+            builder.Services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
+            builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
+            builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddSingleton<IColumnTypes, SQLite>();
+            builder.Services.AddSingleton<IErrorHandler, ErrorHandler>();
+            //builder.Services.AddSingleton<IProfileCreate, ProfileCreate>();
+            //builder.Services.AddSingleton<IConnectionInfoCollector, ConnectionInfoCollector>();
         }
     }
 }
