@@ -11,6 +11,7 @@ namespace Api.Startup
             Invoice(builder);
             Cache(builder);
             ErrorLog(builder);
+            Composition(builder);
         }
     }
 }

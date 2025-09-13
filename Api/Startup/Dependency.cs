@@ -9,10 +9,14 @@ using Autodesk.Infrastructure.Implementation.CRUD.Invoice.Query.ReadFilter;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Create;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Delete;
 using Autodesk.Infrastructure.Implementation.CRUD.User.Update;
+using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
+using LiveNetwork.Application.Services;
+using LiveNetwork.Infrastructure.Services;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
+using Services.Interfaces;
 
 namespace Api.Startup
 {
@@ -47,6 +51,29 @@ namespace Api.Startup
         protected static void DataSeeder(WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
+        }
+
+        protected static void Composition(WebApplicationBuilder builder)
+        {
+            AppConfig appConfig = new();
+            ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
+            builder.Services.AddSingleton(executionOptions);
+            builder.Services.AddSingleton(appConfig);
+            //builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
+            builder.Services.AddTransient<IPromptGenerator, PromptGenerator>();
+            //services.AddTransient<ILoginService, LoginService>();
+            //services.AddTransient<ICaptureSnapshot, CaptureSnapshot>();
+            //services.AddSingleton<IWebDriverFactory, ChromeDriverFactory>();
+            //services.AddTransient<ISearch, Search>();
+            //services.AddTransient<IProcessor, Processor>();
+            //services.AddSingleton<IDirectoryCheck, DirectoryCheck>();
+            builder.Services.AddSingleton<IOpenAIClient, OpenAIClient>();
+            //builder.Services.AddSingleton<IUtil, Util>();
+            builder.Services.AddSingleton <ITrackingService, TrackingService>();
+            //services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
+            //services.AddSingleton<IResumeDetailService, ResumeDetailService>();
+            //services.AddSingleton<IInviteConnections, InviteConnections>();
+            //services.AddSingleton<IConnectionInfoCollector, ConnectionInfoCollector>();
         }
     }
 }
