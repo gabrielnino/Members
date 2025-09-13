@@ -31,12 +31,12 @@ namespace Api.Startup
 {
     public class Dependency
     {
-        protected static void Cache(WebApplicationBuilder builder)
+        protected static void Cache(IHostApplicationBuilder builder)
         {
             builder.Services.AddMemoryCache();
         }
 
-        protected static void User(WebApplicationBuilder builder)
+        protected static void User(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IUserRead, UserRead>();
             builder.Services.AddScoped<IUserCreate, UserCreate>();
@@ -44,13 +44,13 @@ namespace Api.Startup
             builder.Services.AddScoped<IUserDelete, UserDelete>();
         }
 
-        protected static void DataBase(WebApplicationBuilder builder)
+        protected static void DataBase(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddSingleton<IColumnTypes, SQLite>();
         }
 
-        protected static void Profile(WebApplicationBuilder builder)
+        protected static void Profile(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IProfileCreate, ProfileCreate>();
             builder.Services.AddScoped<IProfileRead, ProfileRead>();
@@ -58,24 +58,24 @@ namespace Api.Startup
             builder.Services.AddScoped<IProfileUpdate, ProfileUpdate>();
         }
 
-        protected static void Invoice(WebApplicationBuilder builder)
+        protected static void Invoice(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IInvoiceCreate, InvoiceCreate>();
             builder.Services.AddScoped<IInvoiceRead, InvoiceRead>();
         }
 
-        protected static void ErrorLog(WebApplicationBuilder builder)
+        protected static void ErrorLog(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IErrorLogCreate, ErrorLogCreate>();
         }
 
         //
-        protected static void DataSeeder(WebApplicationBuilder builder)
+        protected static void DataSeeder(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
         }
 
-        protected static void Composition(WebApplicationBuilder builder)
+        protected static void Composition(IHostApplicationBuilder builder)
         {
             builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
             builder.Services.AddTransient<IPromptGenerator, PromptGenerator>();
@@ -96,7 +96,7 @@ namespace Api.Startup
             
         }
 
-        protected static void Commands(WebApplicationBuilder builder, string[] args)
+        protected static void Commands(IHostApplicationBuilder builder, string[] args)
         {
             builder.Services.AddSingleton(new CommandArgs(args));
             builder.Services.AddSingleton<CommandFactory>();
@@ -108,7 +108,7 @@ namespace Api.Startup
             //builder.Services.AddTransient<ChatCommand>();
         }
 
-        protected static void Configuration(WebApplicationBuilder builder)
+        protected static void Configuration(IHostApplicationBuilder builder)
         {
 
             var appConfig = new AppConfig();

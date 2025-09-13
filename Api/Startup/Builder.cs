@@ -2,7 +2,7 @@
 {
     public class Builder : Database
     {
-        protected static void ConfigureServices(WebApplicationBuilder builder, string[] args)
+        protected static void ConfigureServices(IHostApplicationBuilder builder, string[] args)
         {
             string connectionString = GetConnectionString(builder);
             Database.SetDatabase(builder);

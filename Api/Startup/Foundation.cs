@@ -10,7 +10,7 @@ namespace Api.Startup
 {
     public class Foundation : Injection
     {
-        protected static void RunErrorStrategy(WebApplicationBuilder builder)
+        protected static void RunErrorStrategy(IHostApplicationBuilder builder)
         {
             using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
@@ -21,7 +21,7 @@ namespace Api.Startup
             }
         }
 
-        protected static void AddJwtBearer(WebApplicationBuilder builder)
+        protected static void AddJwtBearer(IHostApplicationBuilder builder)
         {
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -37,7 +37,7 @@ namespace Api.Startup
             });
         }
 
-        protected static void AddDbContextSQLite(WebApplicationBuilder builder, string? connectionString)
+        protected static void AddDbContextSQLite(IHostApplicationBuilder builder, string? connectionString)
         {
             connectionString = ValidateArgument(connectionString);
             builder.Services.AddDbContext<DataContext>(options =>

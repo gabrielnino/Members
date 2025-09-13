@@ -4,7 +4,7 @@ namespace Api.Startup
 {
     public class Injection : Dependency
     {
-        protected static void AddScoped(WebApplicationBuilder builder, string[] args)
+        protected static void AddScoped(IHostApplicationBuilder builder, string[] args)
         {
             DataSeeder(builder);
             DataBase(builder);

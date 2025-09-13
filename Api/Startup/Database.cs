@@ -6,13 +6,13 @@ namespace Api.Startup
 {
     public class Database : Middleware
     {
-        protected static void SetDatabase(WebApplicationBuilder builder)
+        protected static void SetDatabase(IHostApplicationBuilder builder)
         {
             builder.Services.AddScoped<IColumnTypes, SQLite>();
             AddDbContextSQLite(builder, GetConnectionString(builder));
         }
 
-        protected static string GetConnectionString(WebApplicationBuilder builder)
+        protected static string GetConnectionString(IHostApplicationBuilder builder)
         {
             var section = builder.Configuration.GetSection("ConnectionStrings");
             var connetionString = section[Settings.SQLite]  ??string.Empty;

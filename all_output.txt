@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
 [assembly: System.Reflection.AssemblyProductAttribute("Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -223,10 +223,11 @@ builder.Services.AddTransient<CollectorCommand>();
 }
 protected static void Configuration(WebApplicationBuilder builder)
 {
-AppConfig appConfig = new();
+var appConfig = new AppConfig();
+builder.Configuration.Bind(appConfig);
+builder.Services.AddSingleton<AppConfig>(appConfig);
 ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
 builder.Services.AddSingleton(executionOptions);
-builder.Services.AddSingleton(appConfig);
 }
 }
 }
@@ -2053,7 +2054,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4225,7 +4226,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
 [assembly: System.Reflection.AssemblyProductAttribute("Commands")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -7989,15 +7990,29 @@ public class LinkedInChat : ILinkedInChat
 {
 private readonly AppConfig _config;
 private readonly IWebDriver _driver;
-private readonly ILogger<LinkedInChat> _logger;
+private readonly ILogger<InviteConnections> _logger;
+private readonly ICaptureSnapshot _capture;
 private readonly ExecutionTracker _executionOptions;
 private readonly ITrackingService _trackingService;
 private readonly ILoginService _loginService;
 private readonly IUtil _util;
-LinkedInChat(AppConfig config
-)
+public LinkedInChat(AppConfig config,
+IWebDriverFactory driverFactory,
+ILogger<InviteConnections> logger,
+ICaptureSnapshot capture,
+ExecutionTracker executionOptions,
+ITrackingService trackingService,
+ILoginService loginService,
+IUtil util)
 {
 _config = config ?? throw new ArgumentNullException(nameof(config));
+_driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
+_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+_capture = capture ?? throw new ArgumentNullException(nameof(capture));
+_executionOptions = executionOptions ?? throw new ArgumentNullException(nameof(executionOptions));
+_trackingService = trackingService ?? throw new ArgumentNullException(nameof(trackingService));
+_loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
+_util = util;
 }
 public async Task SendMessageAsync()
 {
@@ -10755,7 +10770,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f1de26e044320e275d6d5643c737d59328fd49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
