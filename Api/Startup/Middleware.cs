@@ -4,7 +4,13 @@
     {
         protected static void ConfigureMiddleware(WebApplication app)
         {
-            app.UseCors(policyBuilder => policyBuilder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(_ => true).AllowCredentials());
+            app.UseCors(
+                policyBuilder => policyBuilder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials()
+                );
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseHttpsRedirection();

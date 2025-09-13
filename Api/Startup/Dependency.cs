@@ -37,11 +37,16 @@ namespace Api.Startup
 
         protected static void User(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRead, UserRead>();
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();
             builder.Services.AddScoped<IUserDelete, UserDelete>();
+        }
+
+        protected static void DataBase(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddSingleton<IColumnTypes, SQLite>();
         }
 
         protected static void Profile(WebApplicationBuilder builder)
@@ -71,10 +76,6 @@ namespace Api.Startup
 
         protected static void Composition(WebApplicationBuilder builder)
         {
-            AppConfig appConfig = new();
-            ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
-            builder.Services.AddSingleton(executionOptions);
-            builder.Services.AddSingleton(appConfig);
             builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
             builder.Services.AddTransient<IPromptGenerator, PromptGenerator>();
             builder.Services.AddTransient<ILoginService, LoginService>();
@@ -89,12 +90,16 @@ namespace Api.Startup
             builder.Services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
             builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
             builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddSingleton<IColumnTypes, SQLite>();
-            builder.Services.AddSingleton<IErrorHandler, ErrorHandler>();
+
             builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
         }
 
-
+        protected static void Configuration(WebApplicationBuilder builder)
+        {
+            AppConfig appConfig = new();
+            ExecutionTracker executionOptions = new(Environment.CurrentDirectory);
+            builder.Services.AddSingleton(executionOptions);
+            builder.Services.AddSingleton(appConfig);
+        }
     }
 }
