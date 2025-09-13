@@ -14,6 +14,11 @@ using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Create;
+using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Delete;
+using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter;
+using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Update;
 using LiveNetwork.Infrastructure.Services;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
@@ -37,6 +42,14 @@ namespace Api.Startup
             builder.Services.AddScoped<IUserCreate, UserCreate>();
             builder.Services.AddScoped<IUserUpdate, UserUpdate>();
             builder.Services.AddScoped<IUserDelete, UserDelete>();
+        }
+
+        protected static void Profile(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IProfileCreate, ProfileCreate>();
+            builder.Services.AddScoped<IProfileRead, ProfileRead>();
+            builder.Services.AddScoped<IProfileDelete, ProfileDelete>();
+            builder.Services.AddScoped<IProfileUpdate, ProfileUpdate>();
         }
 
         protected static void Invoice(WebApplicationBuilder builder)
@@ -72,15 +85,16 @@ namespace Api.Startup
             builder.Services.AddSingleton<IDirectoryCheck, DirectoryCheck>();
             builder.Services.AddSingleton<IOpenAIClient, OpenAIClient>();
             builder.Services.AddSingleton<IUtil, Util>();
-            builder.Services.AddSingleton <ITrackingService, TrackingService>();
+            builder.Services.AddSingleton<ITrackingService, TrackingService>();
             builder.Services.AddSingleton<ISearchCoordinator, SearchCoordinator>();
             builder.Services.AddSingleton<IResumeDetailService, ResumeDetailService>();
             builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddSingleton<IColumnTypes, SQLite>();
             builder.Services.AddSingleton<IErrorHandler, ErrorHandler>();
-            //builder.Services.AddSingleton<IProfileCreate, ProfileCreate>();
-            //builder.Services.AddSingleton<IConnectionInfoCollector, ConnectionInfoCollector>();
+            builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
         }
+
+
     }
 }

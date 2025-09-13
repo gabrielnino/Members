@@ -8,6 +8,7 @@ namespace Api.Startup
         {
             DataSeeder(builder);
             User(builder);
+            Profile(builder);
             Invoice(builder);
             Cache(builder);
             ErrorLog(builder);

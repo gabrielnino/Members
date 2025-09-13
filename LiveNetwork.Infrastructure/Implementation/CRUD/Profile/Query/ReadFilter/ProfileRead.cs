@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter
 {
     using Profile = Domain.Profile;
+
     public class ProfileRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache, IErrorLogCreate errorLogCreate) : ReadRepository<Profile>(unitOfWork, q => q.OrderBy(u => u.FullName!).ThenBy(u => u.Id)), IProfileRead
     {
         private readonly IErrorHandler errorHandler = errorHandler;
