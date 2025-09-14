@@ -51,7 +51,7 @@ namespace LiveNetwork.Infrastructure.Services
             var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
             var listRR = threads.ToDomainProfiles();
             var firts = listRR.FirstOrDefault();
-            await _profileCreate.CreateProfileAsync(firts);
+            await _profileCreate.CreateProfilesAsync(listRR);
             //await _profileCreate.CreateProfilesAsync(listRR);
 
 
