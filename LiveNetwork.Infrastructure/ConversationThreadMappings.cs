@@ -1,157 +1,155 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using LiveNetwork.Domain;
+using Invite = LiveNetwork.Domain.Invite;
+using Message = LiveNetwork.Domain.Message;
 
 namespace LiveNetwork.Infrastructure.Services
 {
-    using System.Security.Cryptography;
-    using System.Text;
-    using LiveNetwork.Domain;
-    using System.Globalization;
-    using InviteStatus = LiveNetwork.Domain.InviteStatus;
-    using Invite = LiveNetwork.Domain.Invite;
-    using Message = LiveNetwork.Domain.Message;
-    using MessageStatus = LiveNetwork.Domain.MessageStatus;
     public static class ConversationThreadMappings
     {
-        /// <summary>
-        /// Convert a set of external ConversationThreads (Models) into domain Profiles (LiveNetwork.Domain).
-        /// Deterministic IDs are generated from stable fields (e.g., URLs, names, payloads).
-        /// </summary>
         public static List<Profile> ToDomainProfiles(this IEnumerable<ConversationThread> threads)
         {
             if (threads is null) throw new ArgumentNullException(nameof(threads));
 
-            var result = new List<Profile>();
+            // Diccionarios para validar duplicados
+            var profilesById = new Dictionary<string, Profile>();
+            var experiencesById = new Dictionary<string, Experience>();
+            var rolesById = new Dictionary<string, ExperienceRole>();
+            var educationsById = new Dictionary<string, Education>();
+            var commsById = new Dictionary<string, Interaction>();
+
             foreach (var t in threads)
             {
                 if (t?.TargetProfile is null) continue;
 
                 var mp = t.TargetProfile;
 
-                // ---- Profile (deterministic Id from Url or FullName) ----
-                var profileIdSeed = mp.Url?.ToString() ?? mp.FullName ?? Guid.NewGuid().ToString("N");
-                var profileId = Guid.NewGuid().ToString();
+                // ---------- Profile ----------
+                var profileKey = (mp.Url?.ToString() ?? mp.FullName ?? "").Trim().ToLowerInvariant();
+                var profileId = MakeId($"profile|{profileKey}");
 
-                var dp = new Profile(profileId)
+                if (!profilesById.TryGetValue(profileId, out var dp))
                 {
-                    FullName = mp.FullName ?? string.Empty,
-                    Headline = mp.Headline ?? string.Empty,
-                    Location = mp.Location ?? string.Empty,
-                    CurrentCompany = mp.CurrentCompany ?? string.Empty,
-                    ProfileImageUrl = mp.ProfileImageUrl ?? string.Empty,
-                    BackgroundImageUrl = mp.BackgroundImageUrl ?? string.Empty,
-                    ConnectionDegree = mp.ConnectionDegree ?? string.Empty,
-                    Connections = mp.Connections ?? string.Empty,
-                    Followers = mp.Followers ?? string.Empty,
-                    AboutText = mp.AboutText ?? string.Empty,
-                    Url = mp.Url ?? new Uri("about:blank"),
-                };
+                    dp = new Profile(profileId)
+                    {
+                        FullName = mp.FullName ?? string.Empty,
+                        Headline = mp.Headline ?? string.Empty,
+                        Location = mp.Location ?? string.Empty,
+                        CurrentCompany = mp.CurrentCompany ?? string.Empty,
+                        ProfileImageUrl = mp.ProfileImageUrl ?? string.Empty,
+                        BackgroundImageUrl = mp.BackgroundImageUrl ?? string.Empty,
+                        ConnectionDegree = mp.ConnectionDegree ?? string.Empty,
+                        Connections = mp.Connections ?? string.Empty,
+                        Followers = mp.Followers ?? string.Empty,
+                        AboutText = mp.AboutText ?? string.Empty,
+                        Url = mp.Url ?? new Uri("about:blank"),
+                    };
+                    profilesById[profileId] = dp;
+                }
 
-                // ---- Experiences ----
+                // ---------- Experiences ----------
                 if (mp.Experiences is not null)
                 {
-                    var seenRoleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var xe in mp.Experiences)
                     {
-                        var expId = Guid.NewGuid().ToString();
-                        var de = new Experience(expId)
+                        var expId = MakeId($"experience|{profileId}|{xe.Company}|{xe.EmploymentSummary}");
+                        if (!experiencesById.ContainsKey(expId))
                         {
-                            Company = xe.Company ?? string.Empty,
-                            CompanyUrl = xe.CompanyUrl ?? string.Empty,
-                            CompanyLogoUrl = xe.CompanyLogoUrl ?? string.Empty,
-                            CompanyLogoAlt = xe.CompanyLogoAlt ?? string.Empty,
-                            EmploymentSummary = xe.EmploymentSummary ?? string.Empty,
-                            Location = xe.Location ?? string.Empty,
-                            Roles = []
-                        };
+                            var de = new Experience(expId)
+                            {
+                                Company = xe.Company ?? string.Empty,
+                                CompanyUrl = xe.CompanyUrl ?? string.Empty,
+                                CompanyLogoUrl = xe.CompanyLogoUrl ?? string.Empty,
+                                CompanyLogoAlt = xe.CompanyLogoAlt ?? string.Empty,
+                                EmploymentSummary = xe.EmploymentSummary ?? string.Empty,
+                                Location = xe.Location ?? string.Empty,
+                                Roles = []
+                            };
+                            experiencesById[expId] = de;
+                            dp.AddExperience(de);
+                        }
 
+                        // Roles dentro de la experiencia
                         if (xe.Roles is not null)
                         {
                             foreach (var xr in xe.Roles)
                             {
-                                // ID determinista basado en la experiencia y los campos del rol
-                                var baseId = MakeId($"ExperienceRole|{de.Id}|{xr.Title}|{xr.DateRange}|{xr.WorkArrangement}");
-                                // Si ya existe en esta ejecución/perfil, crea uno nuevo para evitar colisión de tracking
-                                var roleId = seenRoleIds.Add(baseId) ? baseId : Guid.NewGuid().ToString();
-
-                                var dr = new ExperienceRole(roleId)
+                                var roleId = MakeId($"role|{profileId}|{xe.Company}|{xr.Title}|{xr.DateRange}|{xr.WorkArrangement}");
+                                if (!rolesById.ContainsKey(roleId))
                                 {
-                                    Title = xr.Title ?? string.Empty,
-                                    DateRange = xr.DateRange ?? string.Empty,
-                                    WorkArrangement = xr.WorkArrangement ?? string.Empty,
-                                    Description = xr.Description ?? string.Empty,
-                                    ContextualSkills = xr.ContextualSkills ?? string.Empty
-                                };
-                                de.Roles.Add(dr);
+                                    var dr = new ExperienceRole(roleId)
+                                    {
+                                        Title = xr.Title ?? string.Empty,
+                                        DateRange = xr.DateRange ?? string.Empty,
+                                        WorkArrangement = xr.WorkArrangement ?? string.Empty,
+                                        Description = xr.Description ?? string.Empty,
+                                        ContextualSkills = xr.ContextualSkills ?? string.Empty
+                                    };
+                                    rolesById[roleId] = dr;
+                                    experiencesById[expId].Roles.Add(dr);
+                                }
                             }
                         }
-
-                        dp.AddExperience(de);
                     }
                 }
 
-                // ---- Educations ----
+                // ---------- Educations ----------
                 if (mp.Educations is not null)
                 {
                     foreach (var xe in mp.Educations)
                     {
-                        var eduId = Guid.NewGuid().ToString();
-                        var de = new Education(eduId)
+                        var eduId = MakeId($"education|{profileId}|{xe.School}|{xe.Degree}|{xe.Field}|{xe.DateRange}");
+                        if (!educationsById.ContainsKey(eduId))
                         {
-                            School = xe.School ?? string.Empty,
-                            SchoolUrl = xe.SchoolUrl ?? string.Empty,
-                            LogoUrl = xe.LogoUrl ?? string.Empty,
-                            LogoAlt = xe.LogoAlt ?? string.Empty,
-                            Degree = xe.Degree ?? string.Empty,
-                            Field = xe.Field ?? string.Empty,
-                            DateRange = xe.DateRange ?? string.Empty,
-                            Description = xe.Description ?? string.Empty
-                        };
-                        dp.AddEducation(de);
+                            var de = new Education(eduId)
+                            {
+                                School = xe.School ?? string.Empty,
+                                SchoolUrl = xe.SchoolUrl ?? string.Empty,
+                                LogoUrl = xe.LogoUrl ?? string.Empty,
+                                LogoAlt = xe.LogoAlt ?? string.Empty,
+                                Degree = xe.Degree ?? string.Empty,
+                                Field = xe.Field ?? string.Empty,
+                                DateRange = xe.DateRange ?? string.Empty,
+                                Description = xe.Description ?? string.Empty
+                            };
+                            educationsById[eduId] = de;
+                            dp.AddEducation(de);
+                        }
                     }
                 }
 
-                // ---- Communications (Invite / Message) ----
+                // ---------- Communications ----------
                 if (t.Communications is not null)
                 {
                     foreach (var xc in t.Communications)
                     {
                         if (xc is null) continue;
 
-                        var commIdSeed = $"{xc.TypeName}|{xc.CreateDate.ToUniversalTime():O}|{xc.Content}|{xc.Experiment}";
-                        var commId = Guid.NewGuid().ToString();
+                        var commId = MakeId($"comm|{profileId}|{xc.TypeName}|{xc.CreateDate.ToUniversalTime():O}|{xc.Content}|{xc.Experiment}");
+                        if (commsById.ContainsKey(commId)) continue;
 
-                        //Discriminate by TypeName, map status safely
                         if (string.Equals(xc.TypeName, nameof(Invite), StringComparison.Ordinal))
                         {
                             var status = ParseEnumSafe<ConnectionStatus>(xc.Status, ConnectionStatus.Draft);
                             var invite = new ConnectionInvite(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
+                            commsById[commId] = invite;
                             dp.AddInvite(invite);
                         }
                         else if (string.Equals(xc.TypeName, nameof(Message), StringComparison.Ordinal))
                         {
                             var status = ParseEnumSafe<InteractionStatus>(xc.Status, InteractionStatus.Draft);
                             var message = new MessageInteraction(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
+                            commsById[commId] = message;
                             dp.AddMessage(message);
-                        }
-                        else
-                        {
-                           // Unknown type: ignore or log; here we ignore.
-                            continue;
                         }
                     }
                 }
-
-                result.Add(dp);
             }
 
-            return result;
+            return profilesById.Values.ToList();
         }
 
-        // ---------- helpers ----------
 
         private static TEnum ParseEnumSafe<TEnum>(string? value, TEnum @default) where TEnum : struct, Enum
             => Enum.TryParse<TEnum>(value, ignoreCase: true, out var parsed) ? parsed : @default;

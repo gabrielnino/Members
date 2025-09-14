@@ -1,6 +1,0 @@
-@Autodesk.Api_HostAddress = http://localhost:5032
-
-GET {{Autodesk.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
