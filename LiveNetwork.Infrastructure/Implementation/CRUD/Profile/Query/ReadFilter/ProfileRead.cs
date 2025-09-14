@@ -1,18 +1,20 @@
 ﻿using System.Linq.Expressions;
+using System.Xml.Linq;
 using Application.Common.Pagination;
 using Application.Result;
 using Application.UseCases.Repository.UseCases.CRUD;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter
 {
+    using static OpenQA.Selenium.PrintOptions;
     using Profile = Domain.Profile;
 
     public class ProfileRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache, IErrorLogCreate errorLogCreate) : ReadRepository<Profile>(unitOfWork, q => q.OrderBy(u => u.FullName!).ThenBy(u => u.Id)), IProfileRead
@@ -100,6 +102,9 @@ namespace LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilte
         /// </summary>
         private static Expression<Func<Profile, bool>> BuildNameFilter(string name) => u => EF.Functions.Like(u.FullName!, $"%{name}%");
 
+
+        private static Expression<Func<Profile, bool>> BuildUrlFilter(string url) => u => u.Url == new Uri(url);
+
         /// <summary>
         /// No filter: return all Profiles.
         /// </summary>
@@ -137,6 +142,36 @@ namespace LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilte
         {
             var result = GetAllMembers(cancellationToken).Result;
             return [.. result.Data.Items];
+        }
+
+        public async Task<Operation<PagedResult<Profile>>> GetProfilesByUrlAsync(
+            string? url,
+            string? cursor,
+            int pageSize)
+        {
+            try
+            {
+                var cacheKey = $"Profiles:{url}:{cursor}:{pageSize}";
+                if (cache.TryGetValue(cacheKey, out PagedResult<Profile> cached))
+                {
+                    return Operation<PagedResult<Profile>>.Success(cached);
+                }
+                var result = await GetPageAsync(BuildUrlFilter(url), cursor, pageSize);
+                var pagedResult = result.Data;
+
+
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .AddExpirationToken(new CancellationChangeToken(_ProfileCacheTokenSource.Token))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+
+                cache.Set(cacheKey, pagedResult, cacheOptions);
+
+                return Operation<PagedResult<Profile>>.Success(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                return errorHandler.Fail<PagedResult<Profile>>(ex, errorLogCreate);
+            }
         }
     }
 }

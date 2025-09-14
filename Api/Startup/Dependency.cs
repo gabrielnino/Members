@@ -105,7 +105,7 @@ namespace Api.Startup
             builder.Services.AddTransient<PromtCommand>();
             builder.Services.AddTransient<InviteCommand>();
             builder.Services.AddTransient<CollectorCommand>();
-            //builder.Services.AddTransient<ChatCommand>();
+            builder.Services.AddTransient<ChatCommand>();
         }
 
         protected static void Configuration(IHostApplicationBuilder builder)
