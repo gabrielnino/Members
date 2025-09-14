@@ -42,7 +42,7 @@ namespace Api.Startup
             connectionString = ValidateArgument(connectionString);
             builder.Services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"))
+                options.UseSqlite(connectionString, b => b.MigrationsAssembly("Api"))
                 .AddInterceptors(new SqliteFunctionInterceptor());
             });
         }

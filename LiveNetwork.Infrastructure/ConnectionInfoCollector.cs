@@ -52,20 +52,10 @@ namespace LiveNetwork.Infrastructure.Services
             var listRR = threads.ToDomainProfiles();
             var firts = listRR.FirstOrDefault();
 
-            //await _profileCreate.CreateProfilesAsync(listRR);
-            await _profileCreate.CreateProfileAsync(firts);
+            await _profileCreate.CreateProfilesAsync(listRR);
 
-            var url = "https://www.linkedin.com/mynetwork/invite-connect/connections/";
-            _logger.LogInformation("Navigating to profile: {ProfileUrl}", url);
-            await _loginService.LoginAsync();
-            _driver.Navigate().GoToUrl(url);
-            for (int i = 0; i < 5; i++)
-            {
-                await _util.WaitForPageLoadAsync(10);
-                ScrollWorkspaceDown();
-                await Task.Delay(500);
-            }
-            var list = GetConnections();
+
+
 
         }
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Persistence.Context.Implementation;
 using Serilog;
 
 public class Program : Builder
@@ -71,6 +72,18 @@ public class Program : Builder
             Log.Information("🚗 Executing booking at {Time}", DateTimeOffset.Now);
             var appBuilder = CreateDefaultAppBuilder(args);
             ConfigureServices(appBuilder, args);
+
+            var app = appBuilder.Build();
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                if (!db.Initialize())
+                {
+                    throw new Exception("Database initialization failed");
+                }
+            }
+
+
             using var host = appBuilder.Build();
             var commandFactory = host.Services.GetRequiredService<CommandFactory>();
             var commands = commandFactory.CreateCommand().ToList();

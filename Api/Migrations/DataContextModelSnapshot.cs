@@ -7,7 +7,7 @@ using Persistence.Context.Implementation;
 
 #nullable disable
 
-namespace Autodesk.Api.Migrations
+namespace Api.Migrations
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot
