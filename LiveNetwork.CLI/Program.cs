@@ -73,8 +73,8 @@ public class Program : Builder
             var appBuilder = CreateDefaultAppBuilder(args);
             ConfigureServices(appBuilder, args);
 
-            var app = appBuilder.Build();
-            using (var scope = app.Services.CreateScope())
+            var host = appBuilder.Build();
+            using (var scope = host.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 if (!db.Initialize())
@@ -84,7 +84,6 @@ public class Program : Builder
             }
 
 
-            using var host = appBuilder.Build();
             var commandFactory = host.Services.GetRequiredService<CommandFactory>();
             var commands = commandFactory.CreateCommand().ToList();
             var jobArgs = host.Services.GetRequiredService<CommandArgs>();
