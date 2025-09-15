@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -77,7 +77,7 @@ global using global::System.Threading.Tasks;
 {
 public class Builder : Database
 {
-protected static void ConfigureServices(WebApplicationBuilder builder, string[] args)
+protected static void ConfigureServices(IHostApplicationBuilder builder, string[] args)
 {
 string connectionString = GetConnectionString(builder);
 Database.SetDatabase(builder);
@@ -108,12 +108,12 @@ namespace Api.Startup
 {
 public class Database : Middleware
 {
-protected static void SetDatabase(WebApplicationBuilder builder)
+protected static void SetDatabase(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IColumnTypes, SQLite>();
 AddDbContextSQLite(builder, GetConnectionString(builder));
 }
-protected static string GetConnectionString(WebApplicationBuilder builder)
+protected static string GetConnectionString(IHostApplicationBuilder builder)
 {
 var section = builder.Configuration.GetSection("ConnectionStrings");
 var connetionString = section[Settings.SQLite]  ??string.Empty;
@@ -140,8 +140,11 @@ using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
 using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Create;
+using LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Query.ReadFilter;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Create;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Delete;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter;
@@ -156,43 +159,45 @@ namespace Api.Startup
 {
 public class Dependency
 {
-protected static void Cache(WebApplicationBuilder builder)
+protected static void Cache(IHostApplicationBuilder builder)
 {
 builder.Services.AddMemoryCache();
 }
-protected static void User(WebApplicationBuilder builder)
+protected static void User(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IUserRead, UserRead>();
 builder.Services.AddScoped<IUserCreate, UserCreate>();
 builder.Services.AddScoped<IUserUpdate, UserUpdate>();
 builder.Services.AddScoped<IUserDelete, UserDelete>();
 }
-protected static void DataBase(WebApplicationBuilder builder)
+protected static void DataBase(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddSingleton<IColumnTypes, SQLite>();
 }
-protected static void Profile(WebApplicationBuilder builder)
+protected static void Profile(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IProfileCreate, ProfileCreate>();
 builder.Services.AddScoped<IProfileRead, ProfileRead>();
+builder.Services.AddScoped<IMessageInteractionCreate, MessageInteractionCreate>();
+builder.Services.AddScoped<IMessageInteractionRead, MessageInteractionRead>();
 builder.Services.AddScoped<IProfileDelete, ProfileDelete>();
 builder.Services.AddScoped<IProfileUpdate, ProfileUpdate>();
 }
-protected static void Invoice(WebApplicationBuilder builder)
+protected static void Invoice(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IInvoiceCreate, InvoiceCreate>();
 builder.Services.AddScoped<IInvoiceRead, InvoiceRead>();
 }
-protected static void ErrorLog(WebApplicationBuilder builder)
+protected static void ErrorLog(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IErrorLogCreate, ErrorLogCreate>();
 }
-protected static void DataSeeder(WebApplicationBuilder builder)
+protected static void DataSeeder(IHostApplicationBuilder builder)
 {
 builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
 }
-protected static void Composition(WebApplicationBuilder builder)
+protected static void Composition(IHostApplicationBuilder builder)
 {
 builder.Services.AddSingleton<ISecurityCheck, SecurityCheck>();
 builder.Services.AddTransient<IPromptGenerator, PromptGenerator>();
@@ -211,7 +216,7 @@ builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
 builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
 builder.Services.AddScoped<ILinkedInChat, LinkedInChat>();
 }
-protected static void Commands(WebApplicationBuilder builder, string[] args)
+protected static void Commands(IHostApplicationBuilder builder, string[] args)
 {
 builder.Services.AddSingleton(new CommandArgs(args));
 builder.Services.AddSingleton<CommandFactory>();
@@ -220,8 +225,9 @@ builder.Services.AddTransient<SearchCommand>();
 builder.Services.AddTransient<PromtCommand>();
 builder.Services.AddTransient<InviteCommand>();
 builder.Services.AddTransient<CollectorCommand>();
+builder.Services.AddTransient<ChatCommand>();
 }
-protected static void Configuration(WebApplicationBuilder builder)
+protected static void Configuration(IHostApplicationBuilder builder)
 {
 var appConfig = new AppConfig();
 builder.Configuration.Bind(appConfig);
@@ -245,7 +251,7 @@ namespace Api.Startup
 {
 public class Foundation : Injection
 {
-protected static void RunErrorStrategy(WebApplicationBuilder builder)
+protected static void RunErrorStrategy(IHostApplicationBuilder builder)
 {
 using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
@@ -255,7 +261,7 @@ var errorHandler = scope.ServiceProvider.GetRequiredService<IErrorHandler>();
 errorHandler.LoadErrorMappings("ErrorMappings.json");
 }
 }
-protected static void AddJwtBearer(WebApplicationBuilder builder)
+protected static void AddJwtBearer(IHostApplicationBuilder builder)
 {
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -270,12 +276,12 @@ ValidateAudience = false
 };
 });
 }
-protected static void AddDbContextSQLite(WebApplicationBuilder builder, string? connectionString)
+protected static void AddDbContextSQLite(IHostApplicationBuilder builder, string? connectionString)
 {
 connectionString = ValidateArgument(connectionString);
 builder.Services.AddDbContext<DataContext>(options =>
 {
-options.UseSqlite(connectionString, b => b.MigrationsAssembly("Autodesk.Api"))
+options.UseSqlite(connectionString, b => b.MigrationsAssembly("Api"))
 .AddInterceptors(new SqliteFunctionInterceptor());
 });
 }
@@ -297,7 +303,7 @@ namespace Api.Startup
 {
 public class Injection : Dependency
 {
-protected static void AddScoped(WebApplicationBuilder builder, string[] args)
+protected static void AddScoped(IHostApplicationBuilder builder, string[] args)
 {
 DataSeeder(builder);
 DataBase(builder);
@@ -440,7 +446,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -957,1090 +963,6 @@ return NoContent();
 }
 }
 
-=== FILE: F:\Members\Autodesk.Api\Migrations\20250911030046_InitialCreate.cs ===
-
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-#nullable disable
-namespace Autodesk.Api.Migrations
-{
-public partial class InitialCreate : Migration
-{
-protected override void Up(MigrationBuilder migrationBuilder)
-{
-migrationBuilder.CreateTable(
-name: "ErrorLogs",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
-Level = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-Message = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-ExceptionType = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-StackTrace = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-Context = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_ErrorLogs", x => x.Id);
-});
-migrationBuilder.CreateTable(
-name: "Invoices",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-InvoiceNumber = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-InvoiceDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-CustomerName = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-TotalAmount = table.Column<decimal>(type: "TEXT", nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Invoices", x => x.Id);
-});
-migrationBuilder.CreateTable(
-name: "Profiles",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-FullName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-Headline = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
-Location = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-CurrentCompany = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-ProfileImageUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-BackgroundImageUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-ConnectionDegree = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-Connections = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-Followers = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-AboutText = table.Column<string>(type: "TEXT", maxLength: 5000, nullable: false),
-Url = table.Column<string>(type: "TEXT", nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Profiles", x => x.Id);
-});
-migrationBuilder.CreateTable(
-name: "Users",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-Lastname = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-Email = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Users", x => x.Id);
-});
-migrationBuilder.CreateTable(
-name: "Products",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-Price = table.Column<decimal>(type: "TEXT", nullable: false),
-InvoiceId = table.Column<string>(type: "TEXT", nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Products", x => x.Id);
-table.ForeignKey(
-name: "FK_Products_Invoices_InvoiceId",
-column: x => x.InvoiceId,
-principalTable: "Invoices",
-principalColumn: "Id",
-onDelete: ReferentialAction.Cascade);
-});
-migrationBuilder.CreateTable(
-name: "Communications",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-ProfileId = table.Column<string>(type: "TEXT", nullable: false),
-Content = table.Column<string>(type: "TEXT", nullable: false),
-Experiment = table.Column<string>(type: "TEXT", nullable: false),
-FeedbackNotes = table.Column<string>(type: "TEXT", nullable: true),
-CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-Discriminator = table.Column<string>(type: "TEXT", maxLength: 21, nullable: false),
-SentAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-CompletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-Status = table.Column<string>(type: "TEXT", nullable: true),
-DeliveredAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-ReadAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-MessageInteraction_Status = table.Column<string>(type: "TEXT", nullable: true),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Communications", x => x.Id);
-table.ForeignKey(
-name: "FK_Communications_Profiles_ProfileId",
-column: x => x.ProfileId,
-principalTable: "Profiles",
-principalColumn: "Id",
-onDelete: ReferentialAction.Cascade);
-});
-migrationBuilder.CreateTable(
-name: "Educations",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-ProfileId = table.Column<string>(type: "TEXT", nullable: false),
-School = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-SchoolUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-LogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-LogoAlt = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-Degree = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-Field = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-DateRange = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-Description = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Educations", x => x.Id);
-table.ForeignKey(
-name: "FK_Educations_Profiles_ProfileId",
-column: x => x.ProfileId,
-principalTable: "Profiles",
-principalColumn: "Id",
-onDelete: ReferentialAction.Cascade);
-});
-migrationBuilder.CreateTable(
-name: "Experiences",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-ProfileId = table.Column<string>(type: "TEXT", nullable: false),
-Company = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-CompanyUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-CompanyLogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-CompanyLogoAlt = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-EmploymentSummary = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-Location = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_Experiences", x => x.Id);
-table.ForeignKey(
-name: "FK_Experiences_Profiles_ProfileId",
-column: x => x.ProfileId,
-principalTable: "Profiles",
-principalColumn: "Id",
-onDelete: ReferentialAction.Cascade);
-});
-migrationBuilder.CreateTable(
-name: "ExperienceRoles",
-columns: table => new
-{
-Id = table.Column<string>(type: "TEXT", nullable: false),
-ExperienceId = table.Column<string>(type: "TEXT", nullable: false),
-Title = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-DateRange = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-WorkArrangement = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-Description = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-ContextualSkills = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-Active = table.Column<bool>(type: "INTEGER", nullable: false)
-},
-constraints: table =>
-{
-table.PrimaryKey("PK_ExperienceRoles", x => x.Id);
-table.ForeignKey(
-name: "FK_ExperienceRoles_Experiences_ExperienceId",
-column: x => x.ExperienceId,
-principalTable: "Experiences",
-principalColumn: "Id",
-onDelete: ReferentialAction.Cascade);
-});
-migrationBuilder.CreateIndex(
-name: "IX_Communications_ProfileId",
-table: "Communications",
-column: "ProfileId");
-migrationBuilder.CreateIndex(
-name: "IX_Educations_ProfileId",
-table: "Educations",
-column: "ProfileId");
-migrationBuilder.CreateIndex(
-name: "IX_ExperienceRoles_ExperienceId",
-table: "ExperienceRoles",
-column: "ExperienceId");
-migrationBuilder.CreateIndex(
-name: "IX_Experiences_ProfileId",
-table: "Experiences",
-column: "ProfileId");
-migrationBuilder.CreateIndex(
-name: "IX_Products_InvoiceId",
-table: "Products",
-column: "InvoiceId");
-migrationBuilder.CreateIndex(
-name: "IX_Profiles_FullName",
-table: "Profiles",
-column: "FullName");
-migrationBuilder.CreateIndex(
-name: "UC_Profiles_Url",
-table: "Profiles",
-column: "Url",
-unique: true);
-migrationBuilder.CreateIndex(
-name: "UC_Users_Email",
-table: "Users",
-column: "Email",
-unique: true);
-}
-protected override void Down(MigrationBuilder migrationBuilder)
-{
-migrationBuilder.DropTable(
-name: "Communications");
-migrationBuilder.DropTable(
-name: "Educations");
-migrationBuilder.DropTable(
-name: "ErrorLogs");
-migrationBuilder.DropTable(
-name: "ExperienceRoles");
-migrationBuilder.DropTable(
-name: "Products");
-migrationBuilder.DropTable(
-name: "Users");
-migrationBuilder.DropTable(
-name: "Experiences");
-migrationBuilder.DropTable(
-name: "Invoices");
-migrationBuilder.DropTable(
-name: "Profiles");
-}
-}
-}
-
-=== FILE: F:\Members\Autodesk.Api\Migrations\20250911030046_InitialCreate.Designer.cs ===
-
-﻿
-using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Persistence.Context.Implementation;
-#nullable disable
-namespace Autodesk.Api.Migrations
-{
-[DbContext(typeof(DataContext))]
-[Migration("20250911030046_InitialCreate")]
-partial class InitialCreate
-{
-protected override void BuildTargetModel(ModelBuilder modelBuilder)
-{
-#pragma warning disable 612, 618
-modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
-modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("CustomerName")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<DateTime>("InvoiceDate")
-.HasColumnType("TEXT");
-b.Property<string>("InvoiceNumber")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<decimal>("TotalAmount")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.ToTable("Invoices", (string)null);
-});
-modelBuilder.Entity("Autodesk.Domain.Product", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Description")
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("InvoiceId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("Name")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<decimal>("Price")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("InvoiceId");
-b.ToTable("Products", (string)null);
-});
-modelBuilder.Entity("Autodesk.Domain.User", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Email")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Lastname")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Name")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex(new[] { "Email" }, "UC_Users_Email")
-.IsUnique();
-b.ToTable("Users", (string)null);
-});
-modelBuilder.Entity("Domain.ErrorLog", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Context")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("ExceptionType")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Level")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Message")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("StackTrace")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<DateTime>("Timestamp")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.ToTable("ErrorLogs", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Education", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("DateRange")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Degree")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Description")
-.IsRequired()
-.HasMaxLength(2000)
-.HasColumnType("TEXT");
-b.Property<string>("Field")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("LogoAlt")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("LogoUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("School")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("SchoolUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId")
-.HasDatabaseName("IX_Educations_ProfileId");
-b.ToTable("Educations", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Company")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyLogoAlt")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyLogoUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("EmploymentSummary")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Location")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId")
-.HasDatabaseName("IX_Experiences_ProfileId");
-b.ToTable("Experiences", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.ExperienceRole", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("ContextualSkills")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("DateRange")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Description")
-.IsRequired()
-.HasMaxLength(2000)
-.HasColumnType("TEXT");
-b.Property<string>("ExperienceId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("Title")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("WorkArrangement")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ExperienceId")
-.HasDatabaseName("IX_ExperienceRoles_ExperienceId");
-b.ToTable("ExperienceRoles", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Interaction", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Content")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset>("CreatedAt")
-.HasColumnType("TEXT");
-b.Property<string>("Discriminator")
-.IsRequired()
-.HasMaxLength(21)
-.HasColumnType("TEXT");
-b.Property<string>("Experiment")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("FeedbackNotes")
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset>("UpdatedAt")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId");
-b.ToTable("Communications", (string)null);
-b.HasDiscriminator().HasValue("Interaction");
-b.UseTphMappingStrategy();
-});
-modelBuilder.Entity("LiveNetwork.Domain.Profile", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<string>("AboutText")
-.IsRequired()
-.HasMaxLength(5000)
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("BackgroundImageUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("ConnectionDegree")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("Connections")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("CurrentCompany")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Followers")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("FullName")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Headline")
-.IsRequired()
-.HasMaxLength(300)
-.HasColumnType("TEXT");
-b.Property<string>("Location")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileImageUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("Url")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex(new[] { "FullName" }, "IX_Profiles_FullName");
-b.HasIndex(new[] { "Url" }, "UC_Profiles_Url")
-.IsUnique();
-b.ToTable("Profiles", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.ConnectionInvite", b =>
-{
-b.HasBaseType("LiveNetwork.Domain.Interaction");
-b.Property<DateTimeOffset?>("CompletedAt")
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset?>("SentAt")
-.HasColumnType("TEXT");
-b.Property<string>("Status")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasDiscriminator().HasValue("ConnectionInvite");
-});
-modelBuilder.Entity("LiveNetwork.Domain.MessageInteraction", b =>
-{
-b.HasBaseType("LiveNetwork.Domain.Interaction");
-b.Property<DateTimeOffset?>("DeliveredAt")
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset?>("ReadAt")
-.HasColumnType("TEXT");
-b.Property<string>("Status")
-.IsRequired()
-.HasColumnType("TEXT");
-b.ToTable("Communications", t =>
-{
-t.Property("Status")
-.HasColumnName("MessageInteraction_Status");
-});
-b.HasDiscriminator().HasValue("MessageInteraction");
-});
-modelBuilder.Entity("Autodesk.Domain.Product", b =>
-{
-b.HasOne("Autodesk.Domain.Invoice", null)
-.WithMany("Products")
-.HasForeignKey("InvoiceId")
-.OnDelete(DeleteBehavior.Cascade);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Education", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Educations")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Experiences")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("LiveNetwork.Domain.ExperienceRole", b =>
-{
-b.HasOne("LiveNetwork.Domain.Experience", "Experience")
-.WithMany("Roles")
-.HasForeignKey("ExperienceId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Experience");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Interaction", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Communications")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
-{
-b.Navigation("Products");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.Navigation("Roles");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Profile", b =>
-{
-b.Navigation("Communications");
-b.Navigation("Educations");
-b.Navigation("Experiences");
-});
-#pragma warning restore 612, 618
-}
-}
-}
-
-=== FILE: F:\Members\Autodesk.Api\Migrations\DataContextModelSnapshot.cs ===
-
-﻿
-using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Persistence.Context.Implementation;
-#nullable disable
-namespace Autodesk.Api.Migrations
-{
-[DbContext(typeof(DataContext))]
-partial class DataContextModelSnapshot : ModelSnapshot
-{
-protected override void BuildModel(ModelBuilder modelBuilder)
-{
-#pragma warning disable 612, 618
-modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
-modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("CustomerName")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<DateTime>("InvoiceDate")
-.HasColumnType("TEXT");
-b.Property<string>("InvoiceNumber")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<decimal>("TotalAmount")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.ToTable("Invoices", (string)null);
-});
-modelBuilder.Entity("Autodesk.Domain.Product", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Description")
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("InvoiceId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("Name")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<decimal>("Price")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("InvoiceId");
-b.ToTable("Products", (string)null);
-});
-modelBuilder.Entity("Autodesk.Domain.User", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Email")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Lastname")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Name")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex(new[] { "Email" }, "UC_Users_Email")
-.IsUnique();
-b.ToTable("Users", (string)null);
-});
-modelBuilder.Entity("Domain.ErrorLog", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Context")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("ExceptionType")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Level")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Message")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("StackTrace")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<DateTime>("Timestamp")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.ToTable("ErrorLogs", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Education", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("DateRange")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Degree")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Description")
-.IsRequired()
-.HasMaxLength(2000)
-.HasColumnType("TEXT");
-b.Property<string>("Field")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("LogoAlt")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("LogoUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("School")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("SchoolUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId")
-.HasDatabaseName("IX_Educations_ProfileId");
-b.ToTable("Educations", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Company")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyLogoAlt")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyLogoUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("CompanyUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("EmploymentSummary")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("Location")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId")
-.HasDatabaseName("IX_Experiences_ProfileId");
-b.ToTable("Experiences", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.ExperienceRole", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("ContextualSkills")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("DateRange")
-.IsRequired()
-.HasMaxLength(100)
-.HasColumnType("TEXT");
-b.Property<string>("Description")
-.IsRequired()
-.HasMaxLength(2000)
-.HasColumnType("TEXT");
-b.Property<string>("ExperienceId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("Title")
-.IsRequired()
-.HasMaxLength(150)
-.HasColumnType("TEXT");
-b.Property<string>("WorkArrangement")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ExperienceId")
-.HasDatabaseName("IX_ExperienceRoles_ExperienceId");
-b.ToTable("ExperienceRoles", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Interaction", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("Content")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset>("CreatedAt")
-.HasColumnType("TEXT");
-b.Property<string>("Discriminator")
-.IsRequired()
-.HasMaxLength(21)
-.HasColumnType("TEXT");
-b.Property<string>("Experiment")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<string>("FeedbackNotes")
-.HasColumnType("TEXT");
-b.Property<string>("ProfileId")
-.IsRequired()
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset>("UpdatedAt")
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex("ProfileId");
-b.ToTable("Communications", (string)null);
-b.HasDiscriminator().HasValue("Interaction");
-b.UseTphMappingStrategy();
-});
-modelBuilder.Entity("LiveNetwork.Domain.Profile", b =>
-{
-b.Property<string>("Id")
-.HasColumnType("TEXT");
-b.Property<string>("AboutText")
-.IsRequired()
-.HasMaxLength(5000)
-.HasColumnType("TEXT");
-b.Property<bool>("Active")
-.HasColumnType("INTEGER");
-b.Property<string>("BackgroundImageUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("ConnectionDegree")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("Connections")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("CurrentCompany")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Followers")
-.IsRequired()
-.HasMaxLength(50)
-.HasColumnType("TEXT");
-b.Property<string>("FullName")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("Headline")
-.IsRequired()
-.HasMaxLength(300)
-.HasColumnType("TEXT");
-b.Property<string>("Location")
-.IsRequired()
-.HasMaxLength(200)
-.HasColumnType("TEXT");
-b.Property<string>("ProfileImageUrl")
-.IsRequired()
-.HasMaxLength(500)
-.HasColumnType("TEXT");
-b.Property<string>("Url")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasKey("Id");
-b.HasIndex(new[] { "FullName" }, "IX_Profiles_FullName");
-b.HasIndex(new[] { "Url" }, "UC_Profiles_Url")
-.IsUnique();
-b.ToTable("Profiles", (string)null);
-});
-modelBuilder.Entity("LiveNetwork.Domain.ConnectionInvite", b =>
-{
-b.HasBaseType("LiveNetwork.Domain.Interaction");
-b.Property<DateTimeOffset?>("CompletedAt")
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset?>("SentAt")
-.HasColumnType("TEXT");
-b.Property<string>("Status")
-.IsRequired()
-.HasColumnType("TEXT");
-b.HasDiscriminator().HasValue("ConnectionInvite");
-});
-modelBuilder.Entity("LiveNetwork.Domain.MessageInteraction", b =>
-{
-b.HasBaseType("LiveNetwork.Domain.Interaction");
-b.Property<DateTimeOffset?>("DeliveredAt")
-.HasColumnType("TEXT");
-b.Property<DateTimeOffset?>("ReadAt")
-.HasColumnType("TEXT");
-b.Property<string>("Status")
-.IsRequired()
-.HasColumnType("TEXT");
-b.ToTable("Communications", t =>
-{
-t.Property("Status")
-.HasColumnName("MessageInteraction_Status");
-});
-b.HasDiscriminator().HasValue("MessageInteraction");
-});
-modelBuilder.Entity("Autodesk.Domain.Product", b =>
-{
-b.HasOne("Autodesk.Domain.Invoice", null)
-.WithMany("Products")
-.HasForeignKey("InvoiceId")
-.OnDelete(DeleteBehavior.Cascade);
-});
-modelBuilder.Entity("LiveNetwork.Domain.Education", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Educations")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Experiences")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("LiveNetwork.Domain.ExperienceRole", b =>
-{
-b.HasOne("LiveNetwork.Domain.Experience", "Experience")
-.WithMany("Roles")
-.HasForeignKey("ExperienceId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Experience");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Interaction", b =>
-{
-b.HasOne("LiveNetwork.Domain.Profile", "Profile")
-.WithMany("Communications")
-.HasForeignKey("ProfileId")
-.OnDelete(DeleteBehavior.Cascade)
-.IsRequired();
-b.Navigation("Profile");
-});
-modelBuilder.Entity("Autodesk.Domain.Invoice", b =>
-{
-b.Navigation("Products");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Experience", b =>
-{
-b.Navigation("Roles");
-});
-modelBuilder.Entity("LiveNetwork.Domain.Profile", b =>
-{
-b.Navigation("Communications");
-b.Navigation("Educations");
-b.Navigation("Experiences");
-});
-#pragma warning restore 612, 618
-}
-}
-}
-
 === FILE: F:\Members\Autodesk.Api\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ===
 
 using System;
@@ -2054,7 +976,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2098,7 +1020,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2283,7 +1205,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2797,7 +1719,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Domain.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3164,7 +2086,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3439,7 +2361,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3485,7 +2407,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Members.Portal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3516,7 +2438,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3634,7 +2556,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3701,7 +2623,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3942,7 +2864,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+baa02174b6a2a3ef1ff51a2dec0c05f1653ce8db")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Shared.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4226,7 +3148,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Commands")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4423,7 +3345,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Configuration")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4565,7 +3487,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4882,7 +3804,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Domain.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4925,7 +3847,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -5473,7 +4395,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -5675,6 +4597,31 @@ ChromeOptions GetDefaultOptions(string downloadFolder);
 }
 }
 
+=== FILE: F:\Members\LiveNetwork.Application\UseCases\CRUD\IMessageInteraction\IMessageInteractionCreate.cs ===
+
+﻿using Application.Result;
+using LiveNetwork.Domain;
+namespace LiveNetwork.Application.UseCases.CRUD.IMessageInteraction
+{
+public interface IMessageInteractionCreate
+{
+Task<Operation<MessageInteraction>> CreateMessageInteractionAsync(MessageInteraction entity);
+}
+}
+
+=== FILE: F:\Members\LiveNetwork.Application\UseCases\CRUD\IMessageInteraction\Query\IMessageInteractionRead.cs ===
+
+﻿using Application.Common.Pagination;
+using Application.Result;
+using LiveNetwork.Domain;
+namespace LiveNetwork.Application.UseCases.CRUD.Profile.Query
+{
+public interface IMessageInteractionRead
+{
+Task<Operation<PagedResult<MessageInteraction>>> GetMessageInteractionPageAsync(string? id, string? cursor, int pageSize);
+}
+}
+
 === FILE: F:\Members\LiveNetwork.Application\UseCases\CRUD\Profile\IProfileCreate.cs ===
 
 ﻿
@@ -5726,9 +4673,143 @@ namespace LiveNetwork.Application.UseCases.CRUD.Profile.Query
 using Profile = Domain.Profile;
 public interface IProfileRead
 {
-Task<Operation<PagedResult<Profile>>> GetProfilesPageAsync(string? id, string? name, string? cursor, int pageSize);
+Task<Operation<PagedResult<Profile>>> GetProfilesPageAsync(
+string? id,
+string? name,
+string? cursor,
+int pageSize);
+Task<Operation<PagedResult<Profile>>> GetProfilesByUrlAsync(
+string? url,
+string? cursor,
+int pageSize);
 }
 }
+
+=== FILE: F:\Members\LiveNetwork.CLI\Program.cs ===
+
+﻿using System.Reflection;
+using Api.Startup;
+using Commands;
+using Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Persistence.Context.Implementation;
+using Serilog;
+public class Program : Builder
+{
+public static HostApplicationBuilder CreateDefaultAppBuilder(string[] args, string? basePath = null)
+{
+var cmdArgs = (args is { Length: > 0 }) ? args : Array.Empty<string>();
+var builder = Host.CreateApplicationBuilder(cmdArgs);
+basePath ??= Directory.GetCurrentDirectory();
+var envName = builder.Environment.EnvironmentName;
+builder.Configuration
+.SetBasePath(basePath)
+.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+.AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true);
+#if DEBUG
+if (builder.Environment.IsDevelopment())
+builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true);
+#endif
+builder.Configuration.AddEnvironmentVariables();
+if (cmdArgs.Length > 0) builder.Configuration.AddCommandLine(cmdArgs);
+var executionOptions = new ExecutionTracker(Environment.CurrentDirectory);
+var logPath = Path.Combine(executionOptions.ExecutionFolder, "Logs");
+Directory.CreateDirectory(logPath);
+Log.Logger = new LoggerConfiguration()
+.ReadFrom.Configuration(builder.Configuration)
+.Enrich.FromLogContext()
+.MinimumLevel.Debug()
+.WriteTo.Console()
+.WriteTo.File(
+path: Path.Combine(logPath, "LiveNetwork-.log"),
+rollingInterval: RollingInterval.Day,
+fileSizeLimitBytes: 5_000_000,
+retainedFileCountLimit: 7,
+rollOnFileSizeLimit: true,
+outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message}{NewLine}{Exception}"
+)
+.CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(Log.Logger, dispose: true);
+return builder;
+}
+public static async Task Main(string[] args)
+{
+try
+{
+Log.Information("🚗 Executing booking at {Time}", DateTimeOffset.Now);
+var appBuilder = CreateDefaultAppBuilder(args);
+ConfigureServices(appBuilder, args);
+var host = appBuilder.Build();
+using (var scope = host.Services.CreateScope())
+{
+var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+if (!db.Initialize())
+{
+throw new Exception("Database initialization failed");
+}
+}
+var commandFactory = host.Services.GetRequiredService<CommandFactory>();
+var commands = commandFactory.CreateCommand().ToList();
+var jobArgs = host.Services.GetRequiredService<CommandArgs>();
+foreach (var command in commands)
+{
+try
+{
+Log.Information("Executing command {Command}...", command.GetType().Name);
+await command.ExecuteAsync(jobArgs.Arguments);
+Log.Information("{Command} completed successfully", command.GetType().Name);
+}
+catch (Exception ex)
+{
+Log.Error(ex, "Execution failed for {Command}", command.GetType().Name);
+throw;
+}
+}
+}
+catch (Exception ex)
+{
+Log.Fatal(ex, "❌ Application terminated unexpectedly");
+Environment.ExitCode = 1;
+}
+finally
+{
+await Log.CloseAndFlushAsync();
+}
+Log.Information("⏱ Waiting 15 minutes before the next booking attempt...");
+}
+}
+
+=== FILE: F:\Members\LiveNetwork.CLI\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs ===
+
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+=== FILE: F:\Members\LiveNetwork.CLI\obj\Debug\net8.0\LiveNetwork.CLI.AssemblyInfo.cs ===
+
+using System;
+using System.Reflection;
+[assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.CLI")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.CLI")]
+[assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.CLI")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+=== FILE: F:\Members\LiveNetwork.CLI\obj\Debug\net8.0\LiveNetwork.CLI.GlobalUsings.g.cs ===
+
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
 
 === FILE: F:\Members\LiveNetwork.Domain\AIPromptBuilder.cs ===
 
@@ -6289,7 +5370,7 @@ namespace LiveNetwork.Domain
 [method: SetsRequiredMembers]
 public abstract class Interaction(string id) : Entity(id)
 {
-public string ProfileId { get; private set; } = string.Empty;
+public string ProfileId { get; init; } = string.Empty;
 public Profile? Profile { get; private set; }
 public string Content { get; protected set; } = string.Empty;
 public string Experiment { get; protected set; } = string.Empty;
@@ -6604,7 +5685,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -6820,18 +5901,7 @@ var threadsPath = _config.Paths.ConversationOutputFilePath;
 var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
 var listRR = threads.ToDomainProfiles();
 var firts = listRR.FirstOrDefault();
-await _profileCreate.CreateProfileAsync(firts);
-var url = "https://www.linkedin.com/mynetwork/invite-connect/connections/";
-_logger.LogInformation("Navigating to profile: {ProfileUrl}", url);
-await _loginService.LoginAsync();
-_driver.Navigate().GoToUrl(url);
-for (int i = 0; i < 5; i++)
-{
-await _util.WaitForPageLoadAsync(10);
-ScrollWorkspaceDown();
-await Task.Delay(500);
-}
-var list = GetConnections();
+await _profileCreate.CreateProfilesAsync(listRR);
 }
 public async Task<List<ConnectionInfo>> GetConnections()
 {
@@ -6955,88 +6025,78 @@ _logger.LogError(ex, "ScrollWorkspaceDown: Unexpected error while scrolling work
 
 === FILE: F:\Members\LiveNetwork.Infrastructure\ConversationThreadMappings.cs ===
 
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace LiveNetwork.Infrastructure.Services
-{
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using LiveNetwork.Domain;
-using System.Globalization;
-using InviteStatus = LiveNetwork.Domain.InviteStatus;
 using Invite = LiveNetwork.Domain.Invite;
 using Message = LiveNetwork.Domain.Message;
-using MessageStatus = LiveNetwork.Domain.MessageStatus;
+namespace LiveNetwork.Infrastructure.Services
+{
 public static class ConversationThreadMappings
 {
 public static List<Profile> ToDomainProfiles(this IEnumerable<ConversationThread> threads)
 {
 if (threads is null) throw new ArgumentNullException(nameof(threads));
-var result = new List<Profile>();
-foreach (var t in threads)
+var profilesById = new Dictionary<string, Profile>();
+var experiencesById = new Dictionary<string, Experience>();
+var rolesById = new Dictionary<string, ExperienceRole>();
+var educationsById = new Dictionary<string, Education>();
+var commsById = new Dictionary<string, Interaction>();
+foreach (var thread  in threads)
 {
-if (t?.TargetProfile is null) continue;
-var mp = t.TargetProfile;
-var profileIdSeed = mp.Url?.ToString() ?? mp.FullName ?? Guid.NewGuid().ToString("N");
-var profileId = Guid.NewGuid().ToString();
-var dp = new Profile(profileId)
+if (thread?.TargetProfile is null)
 {
-FullName = mp.FullName ?? string.Empty,
-Headline = mp.Headline ?? string.Empty,
-Location = mp.Location ?? string.Empty,
-CurrentCompany = mp.CurrentCompany ?? string.Empty,
-ProfileImageUrl = mp.ProfileImageUrl ?? string.Empty,
-BackgroundImageUrl = mp.BackgroundImageUrl ?? string.Empty,
-ConnectionDegree = mp.ConnectionDegree ?? string.Empty,
-Connections = mp.Connections ?? string.Empty,
-Followers = mp.Followers ?? string.Empty,
-AboutText = mp.AboutText ?? string.Empty,
-Url = mp.Url ?? new Uri("about:blank"),
-};
-if (mp.Experiences is not null)
+continue;
+}
+var sourceProfile = thread.TargetProfile;
+var profileId = GenerateProfileId(sourceProfile);
+if (!profilesById.TryGetValue(profileId, out var domainProfile))
 {
-var seenRoleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-foreach (var xe in mp.Experiences)
+domainProfile = CreateDomainProfile(sourceProfile, profileId);
+profilesById[profileId] = domainProfile;
+}
+ProcessExperiences(experiencesById, rolesById, sourceProfile, profileId, domainProfile);
+ProcessEducations(educationsById, sourceProfile, profileId, domainProfile);
+ProcessCommunications(commsById, thread, profileId, domainProfile);
+}
+return [.. profilesById.Values];
+}
+private static void ProcessCommunications(Dictionary<string, Interaction> commsById, ConversationThread thread, string profileId, Profile domainProfile)
 {
-var expId = Guid.NewGuid().ToString();
-var de = new Experience(expId)
+if (thread.Communications is null)
 {
-Company = xe.Company ?? string.Empty,
-CompanyUrl = xe.CompanyUrl ?? string.Empty,
-CompanyLogoUrl = xe.CompanyLogoUrl ?? string.Empty,
-CompanyLogoAlt = xe.CompanyLogoAlt ?? string.Empty,
-EmploymentSummary = xe.EmploymentSummary ?? string.Empty,
-Location = xe.Location ?? string.Empty,
-Roles = []
-};
-if (xe.Roles is not null)
+return;
+}
+foreach (var xc in thread.Communications)
 {
-foreach (var xr in xe.Roles)
+if (xc is null) continue;
+var commId = MakeId($"comm|{profileId}|{xc.TypeName}|{xc.CreateDate.ToUniversalTime():O}|{xc.Content}|{xc.Experiment}");
+if (commsById.ContainsKey(commId)) continue;
+if (string.Equals(xc.TypeName, nameof(Invite), StringComparison.Ordinal))
 {
-var baseId = MakeId($"ExperienceRole|{de.Id}|{xr.Title}|{xr.DateRange}|{xr.WorkArrangement}");
-var roleId = seenRoleIds.Add(baseId) ? baseId : Guid.NewGuid().ToString();
-var dr = new ExperienceRole(roleId)
+var status = ParseEnumSafe<ConnectionStatus>(xc.Status, ConnectionStatus.Draft);
+var invite = new ConnectionInvite(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
+commsById[commId] = invite;
+domainProfile.AddInvite(invite);
+}
+else if (string.Equals(xc.TypeName, nameof(Message), StringComparison.Ordinal))
 {
-Title = xr.Title ?? string.Empty,
-DateRange = xr.DateRange ?? string.Empty,
-WorkArrangement = xr.WorkArrangement ?? string.Empty,
-Description = xr.Description ?? string.Empty,
-ContextualSkills = xr.ContextualSkills ?? string.Empty
-};
-de.Roles.Add(dr);
+var status = ParseEnumSafe<InteractionStatus>(xc.Status, InteractionStatus.Draft);
+var message = new MessageInteraction(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
+commsById[commId] = message;
+domainProfile.AddMessage(message);
 }
 }
-dp.AddExperience(de);
 }
-}
-if (mp.Educations is not null)
+private static void ProcessEducations(Dictionary<string, Education> educationsById, LinkedInProfile sourceProfile, string profileId, Profile domainProfile)
 {
-foreach (var xe in mp.Educations)
+if (sourceProfile.Educations is not null)
 {
-var eduId = Guid.NewGuid().ToString();
+foreach (var xe in sourceProfile.Educations)
+{
+var eduId = MakeId($"education|{profileId}|{xe.School}|{xe.Degree}|{xe.Field}|{xe.DateRange}");
+if (!educationsById.ContainsKey(eduId))
+{
 var de = new Education(eduId)
 {
 School = xe.School ?? string.Empty,
@@ -7048,37 +6108,87 @@ Field = xe.Field ?? string.Empty,
 DateRange = xe.DateRange ?? string.Empty,
 Description = xe.Description ?? string.Empty
 };
-dp.AddEducation(de);
+educationsById[eduId] = de;
+domainProfile.AddEducation(de);
 }
 }
-if (t.Communications is not null)
+}
+}
+private static void ProcessExperiences(Dictionary<string, Experience> experiencesById, Dictionary<string, ExperienceRole> rolesById, LinkedInProfile sourceProfile, string profileId, Profile domainProfile)
 {
-foreach (var xc in t.Communications)
+if (sourceProfile.Experiences is not null)
 {
-if (xc is null) continue;
-var commIdSeed = $"{xc.TypeName}|{xc.CreateDate.ToUniversalTime():O}|{xc.Content}|{xc.Experiment}";
-var commId = Guid.NewGuid().ToString();
-if (string.Equals(xc.TypeName, nameof(Invite), StringComparison.Ordinal))
+foreach (var xe in sourceProfile.Experiences)
 {
-var status = ParseEnumSafe<ConnectionStatus>(xc.Status, ConnectionStatus.Draft);
-var invite = new ConnectionInvite(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
-dp.AddInvite(invite);
-}
-else if (string.Equals(xc.TypeName, nameof(Message), StringComparison.Ordinal))
+var expId = MakeId($"experience|{profileId}|{xe.Company}|{xe.EmploymentSummary}");
+if (!experiencesById.ContainsKey(expId))
 {
-var status = ParseEnumSafe<InteractionStatus>(xc.Status, InteractionStatus.Draft);
-var message = new MessageInteraction(commId, xc.Content ?? string.Empty, xc.Experiment ?? string.Empty, status);
-dp.AddMessage(message);
-}
-else
+var de = new Experience(expId)
 {
-continue;
+Company = xe.Company ?? string.Empty,
+CompanyUrl = xe.CompanyUrl ?? string.Empty,
+CompanyLogoUrl = xe.CompanyLogoUrl ?? string.Empty,
+CompanyLogoAlt = xe.CompanyLogoAlt ?? string.Empty,
+EmploymentSummary = xe.EmploymentSummary ?? string.Empty,
+Location = xe.Location ?? string.Empty,
+Roles = []
+};
+experiencesById[expId] = de;
+domainProfile.AddExperience(de);
+}
+if (xe.Roles is not null)
+{
+foreach (var xr in xe.Roles)
+{
+var roleId = MakeId($"role|{profileId}|{xe.Company}|{xr.Title}|{xr.DateRange}|{xr.WorkArrangement}");
+if (!rolesById.ContainsKey(roleId))
+{
+var dr = new ExperienceRole(roleId)
+{
+Title = xr.Title ?? string.Empty,
+DateRange = xr.DateRange ?? string.Empty,
+WorkArrangement = xr.WorkArrangement ?? string.Empty,
+Description = xr.Description ?? string.Empty,
+ContextualSkills = xr.ContextualSkills ?? string.Empty
+};
+rolesById[roleId] = dr;
+experiencesById[expId].Roles.Add(dr);
 }
 }
 }
-result.Add(dp);
 }
-return result;
+}
+}
+private static Profile CreateDomainProfile(LinkedInProfile sourceProfile, string profileId)
+{
+return new Profile(profileId)
+{
+FullName = sourceProfile.FullName ?? string.Empty,
+Headline = sourceProfile.Headline ?? string.Empty,
+Location = sourceProfile.Location ?? string.Empty,
+CurrentCompany = sourceProfile.CurrentCompany ?? string.Empty,
+ProfileImageUrl = sourceProfile.ProfileImageUrl ?? string.Empty,
+BackgroundImageUrl = sourceProfile.BackgroundImageUrl ?? string.Empty,
+ConnectionDegree = sourceProfile.ConnectionDegree ?? string.Empty,
+Connections = sourceProfile.Connections ?? string.Empty,
+Followers = sourceProfile.Followers ?? string.Empty,
+AboutText = sourceProfile.AboutText ?? string.Empty,
+Url = sourceProfile.Url ?? new Uri("about:blank"),
+};
+}
+private static string GenerateProfileId(LinkedInProfile sourceProfile)
+{
+var profileKey = (sourceProfile.Url?.ToString() ?? sourceProfile.FullName ?? Guid.NewGuid().ToString())
+.Trim().ToLowerInvariant();
+return GenerateId($"profile|{profileKey}");
+}
+private static string GenerateId(string seed)
+{
+if (string.IsNullOrWhiteSpace(seed))
+return Guid.NewGuid().ToString("N");
+using var sha = SHA256.Create();
+var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(seed));
+return Convert.ToHexString(hash, 0, 16);
 }
 private static TEnum ParseEnumSafe<TEnum>(string? value, TEnum @default) where TEnum : struct, Enum
 => Enum.TryParse<TEnum>(value, ignoreCase: true, out var parsed) ? parsed : @default;
@@ -7979,120 +7089,223 @@ return sb.ToString();
 
 === FILE: F:\Members\LiveNetwork.Infrastructure\LinkedInChat.cs ===
 
-﻿using Configuration;
+﻿using System.Diagnostics;
+using Configuration;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
+using LiveNetwork.Application.UseCases.CRUD.Profile;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace LiveNetwork.Infrastructure.Services
 {
 public class LinkedInChat : ILinkedInChat
 {
 private readonly AppConfig _config;
 private readonly IWebDriver _driver;
-private readonly ILogger<InviteConnections> _logger;
+private readonly ILogger<LinkedInChat> _logger;
 private readonly ICaptureSnapshot _capture;
 private readonly ExecutionTracker _executionOptions;
 private readonly ITrackingService _trackingService;
 private readonly ILoginService _loginService;
 private readonly IUtil _util;
-public LinkedInChat(AppConfig config,
+private readonly IProfileRead _profileRead;
+private readonly IProfileUpdate _profileUpdate;
+private readonly IMessageInteractionCreate _messageInteractionCreate;
+public LinkedInChat(
+AppConfig config,
 IWebDriverFactory driverFactory,
-ILogger<InviteConnections> logger,
+ILogger<LinkedInChat> logger,
 ICaptureSnapshot capture,
 ExecutionTracker executionOptions,
 ITrackingService trackingService,
 ILoginService loginService,
-IUtil util)
+IUtil util,
+IProfileRead profileRead,
+IProfileUpdate profileUpdate,
+IMessageInteractionCreate messageInteractionCreate)
 {
 _config = config ?? throw new ArgumentNullException(nameof(config));
-_driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
+_driver = driverFactory?.Create() ?? throw new ArgumentNullException(nameof(driverFactory));
 _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 _capture = capture ?? throw new ArgumentNullException(nameof(capture));
 _executionOptions = executionOptions ?? throw new ArgumentNullException(nameof(executionOptions));
 _trackingService = trackingService ?? throw new ArgumentNullException(nameof(trackingService));
 _loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
-_util = util;
+_util = util ?? throw new ArgumentNullException(nameof(util));
+_profileRead = profileRead ?? throw new ArgumentNullException(nameof(profileRead));
+_profileUpdate = profileUpdate ?? throw new ArgumentNullException(nameof(profileUpdate));
+_messageInteractionCreate = messageInteractionCreate ?? throw new ArgumentNullException(nameof(messageInteractionCreate));
 }
 public async Task SendMessageAsync()
 {
-var results = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
-var threadsPath = _config.Paths.ConversationOutputFilePath;
-var threads = await _trackingService.LoadConversationThreadAsync(threadsPath) ?? [];
-var lastProcessedUtc = await _trackingService.LoadLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt");
-var threadByUrl = new Dictionary<string, ConversationThread>(StringComparer.OrdinalIgnoreCase);
-var addedMessages = 0;
-var unmatched = 0;
-var newestProcessedUtc = lastProcessedUtc;
-foreach (var t in threads)
-{
-var url = NormalizeUrlString(GetProfileUrlFromThread(t));
-if (!string.IsNullOrEmpty(url) && !threadByUrl.ContainsKey(url))
-{
-threadByUrl[url] = t;
-}
-}
-var candidates = results
-.Where(c => c.ProfileUrl != null && c.ConnectedOn.HasValue)
-.Select(c => new { Url = NormalizeUrlString(c.ProfileUrl), WhenUtc = ToUtcSafe(c.ConnectedOn!.Value), Raw = c })
-.Where(x => !string.IsNullOrEmpty(x.Url) && x.WhenUtc > lastProcessedUtc)
-.OrderBy(x => x.WhenUtc)
-.ToList();
-if (candidates.Count == 0)
-{
-_logger.LogInformation("No new connections to process. LastProcessedUtc={LastProcessedUtc:o}", lastProcessedUtc);
-return;
-}
-const string experimentTag = "AutoWelcome";
-foreach (var c in candidates)
-{
-if (!threadByUrl.TryGetValue(c.Url!, out var thread))
-{
-unmatched++;
-_logger.LogDebug("No existing thread found for URL: {Url}. Skipping welcome message.", c.Url);
-continue;
-}
-var content = BuildWelcomeMessage(thread);
-var message = new Message(content, experimentTag, MessageStatus.Draft);
-thread.AddCommunication(message);
-addedMessages++;
-_logger.LogInformation("Added welcome draft message for {Url}.", c.Url);
-if (c.WhenUtc > newestProcessedUtc)
-{
-newestProcessedUtc = c.WhenUtc;
-await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
-}
-}
-}
-static DateTime ToUtcSafe(DateTime dt)
-=> dt.Kind switch
-{
-DateTimeKind.Utc => dt,
-DateTimeKind.Local => dt.ToUniversalTime(),
-_ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
-};
-static string NormalizeUrlString(string? url)
-{
-if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+int processed = 0, skipped = 0, errors = 0;
+var connections = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
+var remainingConnections  = connections.ToList();
+var sw = Stopwatch.StartNew();
 try
 {
-var u = new Uri(url, UriKind.Absolute);
-var builder = new UriBuilder(u) { Query = string.Empty, Fragment = string.Empty };
-var normalized = builder.Uri.ToString().TrimEnd('/').ToLowerInvariant();
-return normalized;
-}
-catch
+_logger.LogInformation("Starting LinkedInChat.SendMessageAsync at {UtcNow} UTC", DateTimeOffset.UtcNow);
+var lastProcessedUtc = await _trackingService.LoadLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt");
+var newestProcessedUtc = lastProcessedUtc;
+if (connections.Count == 0)
 {
-return url.Trim().TrimEnd('/').ToLowerInvariant();
+_logger.LogWarning("No connections found to process.");
+return;
 }
-}
-static string NormalizeUrlString(Uri? uri) => uri is null ? string.Empty : NormalizeUrlString(uri.ToString());
-static string? GetProfileUrlFromThread(ConversationThread t) => t?.TargetProfile?.Url?.ToString();
-static string BuildWelcomeMessage(ConversationThread thread)
+_logger.LogInformation("Loaded {Count} connections. LastProcessedUtc={LastProcessedUtc:o}", connections.Count, lastProcessedUtc);
+_logger.LogInformation("Starting LinkedIn login…");
+await _loginService.LoginAsync();
+_logger.LogInformation("LinkedIn login completed successfully.");
+foreach (var connection in connections)
 {
-return "Thanks for connecting! 👋\n\n" +
-"Great to have you in my network. If there’s anything you’re building or exploring that I can help with—especially automation/AI workflows—happy to share ideas or resources.\n\n" +
-"Welcome aboard!";
+if (connection.ConnectedOn < lastProcessedUtc)
+{
+_logger.LogDebug("Skipping connection (older than last processed): {ConnectedOn:o}", connection.ConnectedOn);
+skipped++;
+continue;
+}
+if (connection?.ProfileUrl == null)
+{
+_logger.LogWarning("Connection missing ProfileUrl. Title/Position={Title}", connection?.TitleOrPosition);
+skipped++;
+continue;
+}
+var url = connection.ProfileUrl.IsAbsoluteUri
+? connection.ProfileUrl.AbsoluteUri
+: new Uri(new Uri("https://www.linkedin.com"), connection.ProfileUrl).AbsoluteUri;
+var path = connection.ProfileUrl.OriginalString;
+if (string.IsNullOrWhiteSpace(path))
+{
+_logger.LogWarning("ProfileUrl path is empty for URL: {Url}", url);
+skipped++;
+continue;
+}
+_logger.LogInformation("Resolving profile for URL: {Url} | ConnectedOn: {ConnectedOn:o}", url, connection.ConnectedOn);
+var profileOp = await _profileRead.GetProfilesByUrlAsync(path, null, 10);
+if (!profileOp.IsSuccessful)
+{
+_logger.LogWarning("Profile lookup failed for {Url}. Reason: {Message}", url, profileOp.Message);
+skipped++;
+continue;
+}
+var items = profileOp.Data?.Items;
+if (items == null || !items.Any())
+{
+_logger.LogWarning("No profile found in repository for {Url}", url);
+skipped++;
+continue;
+}
+var firstProfile = items.FirstOrDefault();
+if (firstProfile is null || string.IsNullOrWhiteSpace(firstProfile.Url.AbsolutePath))
+{
+_logger.LogWarning("Resolved profile is null or missing URL for {Url}", url);
+skipped++;
+continue;
+}
+var content = BuildWelcomeMessage();
+var message = new MessageInteraction
+(
+Guid.NewGuid().ToString("N"),
+content,
+"WelcomeMessage",
+InteractionStatus.Sent
+)
+{
+ProfileId = firstProfile.Id
+};
+_logger.LogInformation("Navigating to profile page: {ProfileUrl}", firstProfile.Url);
+_driver.Navigate().GoToUrl(firstProfile.Url);
+var button = FindMessageButton();
+button.Click();
+var textArea = FindMessageTextArea();
+EnterTextInContentEditable(textArea, content);
+await _messageInteractionCreate.CreateMessageInteractionAsync(message);
+if (connection.ConnectedOn == null)
+{
+_logger.LogWarning("Connection missing ConnectedOn date for profile {ProfileId}", firstProfile.Id);
+skipped++;
+continue;
+}
+if (connection.ConnectedOn > newestProcessedUtc)
+{
+newestProcessedUtc = connection.ConnectedOn.Value;
+}
+processed++;
+remainingConnections .Remove(connection);
+await _trackingService.SaveCollectorConnectionsAsync(remainingConnections , "Connections_Collected.json");
+}
+await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
+}
+catch (Exception ex)
+{
+_logger.LogError(ex, "LinkedIn login failed. Aborting message sending.");
+errors++;
+await _capture.CaptureArtifactsAsync(_executionOptions.ExecutionFolder, "login_failed");
+}
+sw.Stop();
+_logger.LogInformation("LinkedInChat finished in {Ms} ms. Processed={Processed}, Skipped={Skipped}, Errors={Errors}, Total={Total}.",
+sw.ElapsedMilliseconds, processed, skipped, errors, connections.Count);
+_logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
+}
+public IWebElement? FindMessageButton()
+{
+try
+{
+var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+var button = wait.Until(drv =>
+{
+var buttons = drv.FindElements(By.CssSelector("button[aria-label^='Message'][class*='artdeco-button']"));
+return buttons.FirstOrDefault(btn => btn.Text.Contains("Message"));
+});
+return button;
+}
+catch (WebDriverTimeoutException)
+{
+throw new NoSuchElementException("Message button not found within the timeout period");
+}
+}
+public IWebElement FindMessageTextArea()
+{
+var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+return wait.Until(drv =>
+{
+return drv.FindElement(By.CssSelector("div[role='textbox'][aria-label='Write a message…']"));
+});
+}
+private void EnterTextInContentEditable(IWebElement textArea, string message)
+{
+try
+{
+textArea.Click();
+textArea.Clear();
+textArea.SendKeys(message);
+textArea.SendKeys(Keys.Enter);
+}
+catch (Exception ex)
+{
+try
+{
+IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
+js.ExecuteScript(@"
+arguments[0].innerText = arguments[1];
+arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+", textArea, message);
+}
+catch (Exception jsEx)
+{
+throw new Exception($"Failed to enter text in contenteditable div. Standard error: {ex.Message}, JS error: {jsEx.Message}");
+}
+}
+}
+static string BuildWelcomeMessage()
+{
+return "Great to join your network! If you’re facing hiring or project challenges around C# or AI, I’d be glad to share ideas that could help.";
 }
 }
 }
@@ -10541,6 +9754,119 @@ _logger.LogError(ex, "❌ ID:{TimeStamp} Failed to scroll to the 'Experience' se
 }
 }
 
+=== FILE: F:\Members\LiveNetwork.Infrastructure\Implementation\CRUD\MessageInteraction\Create\MessageInteractionCreate.cs ===
+
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
+using Infrastructure.Repositories.Abstract.CRUD.Create;
+using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using Persistence.Context.Interface;
+namespace LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Create
+{
+using MessageInteraction = Domain.MessageInteraction;
+public class MessageInteractionCreate(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IErrorLogCreate errorLogCreate, IMessageInteractionRead profileRead) : CreateRepository<MessageInteraction>(unitOfWork), IMessageInteractionCreate
+{
+public async Task<Operation<MessageInteraction>> CreateMessageInteractionAsync(MessageInteraction entity)
+{
+try
+{
+await CreateEntity(entity);
+await unitOfWork.CommitAsync();
+return Operation<MessageInteraction>.Success(entity);
+}
+catch (Exception ex)
+{
+return errorHandler.Fail<MessageInteraction>(ex, errorLogCreate);
+}
+}
+}
+}
+
+=== FILE: F:\Members\LiveNetwork.Infrastructure\Implementation\CRUD\MessageInteraction\Query\ReadFileter\MessageInteractionRead.cs ===
+
+﻿using System;
+using System.Linq.Expressions;
+using Application.Common.Pagination;
+using Application.Result;
+using Application.UseCases.Repository.UseCases.CRUD;
+using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
+using Persistence.Context.Implementation;
+using Persistence.Context.Interface;
+namespace LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Query.ReadFilter
+{
+using static OpenQA.Selenium.PrintOptions;
+using InteractionStatus = Domain.InteractionStatus;
+using MessageInteraction = Domain.MessageInteraction;
+public class MessageInteractionRead(
+IUnitOfWork unitOfWork,
+IErrorHandler errorHandler,
+IMemoryCache cache,
+IErrorLogCreate errorLogCreate)
+: ReadRepository<MessageInteraction>(unitOfWork, q => q.OrderBy(i => i.CreatedAt).ThenBy(i => i.Id)), IMessageInteractionRead
+{
+private readonly IErrorHandler _errorHandler = errorHandler;
+private readonly IMemoryCache _cache = cache;
+private readonly Func<MessageInteraction, (DateTimeOffset Primary, string Secondary)> _cursorSelector
+= i => (i.CreatedAt, i.Id);
+private static CancellationTokenSource _interactionCacheTokenSource = new();
+private static Expression<Func<MessageInteraction, bool>> BuildIdFilter(string id)   => i => i.Id == id;
+public async Task<Operation<PagedResult<MessageInteraction>>> GetMessageInteractionPageAsync(string? id, string? cursor, int pageSize)
+{
+try
+{
+var cacheKey = $"MessageInteraction:{id}";
+if (cache.TryGetValue(cacheKey, out PagedResult<MessageInteraction> cached))
+{
+return Operation<PagedResult<MessageInteraction>>.Success(cached);
+}
+var result = await GetPageAsync(BuildIdFilter(id), cursor, pageSize);
+var pagedResult = result.Data;
+var cacheOptions = new MemoryCacheEntryOptions()
+.AddExpirationToken(new CancellationChangeToken(_interactionCacheTokenSource.Token))
+.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+cache.Set(cacheKey, pagedResult, cacheOptions);
+return Operation<PagedResult<MessageInteraction>>.Success(pagedResult);
+}
+catch (Exception ex)
+{
+return errorHandler.Fail<PagedResult<MessageInteraction>>(ex, errorLogCreate);
+}
+}
+protected override IQueryable<MessageInteraction> ApplyCursorFilter(IQueryable<MessageInteraction> query, string cursor)
+{
+var parts = Uri.UnescapeDataString(cursor).Split('|', 2);
+var createdStr = parts[0];
+var lastId = parts.Length > 1 ? parts[1] : string.Empty;
+DateTimeOffset createdCursor;
+if (!DateTimeOffset.TryParse(createdStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out createdCursor))
+{
+return query;
+}
+return query.Where(i =>
+i.CreatedAt > createdCursor ||
+(i.CreatedAt == createdCursor && DataContext.StringCompareOrdinal(i.Id, lastId) > 0)
+);
+}
+protected override string? BuildNextCursor(List<MessageInteraction> items, int size)
+{
+if (items.Count <= size) return null;
+var extra = items[size];
+var (createdAt, id) = _cursorSelector(extra);
+return Uri.EscapeDataString($"{createdAt:O}|{id}");
+}
+}
+}
+
 === FILE: F:\Members\LiveNetwork.Infrastructure\Implementation\CRUD\Profile\Create\ProfileCreate.cs ===
 
 ﻿using Application.Result;
@@ -10621,18 +9947,20 @@ return errorHandler.Fail<bool>(ex, errorLogCreate);
 === FILE: F:\Members\LiveNetwork.Infrastructure\Implementation\CRUD\Profile\Query\ReadFilter\ProfileRead.cs ===
 
 ﻿using System.Linq.Expressions;
+using System.Xml.Linq;
 using Application.Common.Pagination;
 using Application.Result;
 using Application.UseCases.Repository.UseCases.CRUD;
 using Infrastructure.Repositories.Abstract.CRUD.Query.Read;
 using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Persistence.Context.Implementation;
 using Persistence.Context.Interface;
-using Microsoft.EntityFrameworkCore;
 namespace LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter
 {
+using static OpenQA.Selenium.PrintOptions;
 using Profile = Domain.Profile;
 public class ProfileRead(IUnitOfWork unitOfWork, IErrorHandler errorHandler, IMemoryCache cache, IErrorLogCreate errorLogCreate) : ReadRepository<Profile>(unitOfWork, q => q.OrderBy(u => u.FullName!).ThenBy(u => u.Id)), IProfileRead
 {
@@ -10682,6 +10010,7 @@ private static bool ShouldFilterById(string? id) => !string.IsNullOrWhiteSpace(i
 private static bool ShouldFilterByName(string? name) => !string.IsNullOrWhiteSpace(name);
 private static Expression<Func<Profile, bool>> BuildIdFilter(string id) => u => u.Id == id;
 private static Expression<Func<Profile, bool>> BuildNameFilter(string name) => u => EF.Functions.Like(u.FullName!, $"%{name}%");
+private static Expression<Func<Profile, bool>> BuildUrlFilter(string url) => u => u.Url == new Uri(url);
 private static Expression<Func<Profile, bool>> ReturnDefaultFilter() => u => true;
 protected override IQueryable<Profile> ApplyCursorFilter(IQueryable<Profile> query, string cursor)
 {
@@ -10709,6 +10038,31 @@ public List<Profile> GetStreamProfiles(CancellationToken cancellationToken = def
 {
 var result = GetAllMembers(cancellationToken).Result;
 return [.. result.Data.Items];
+}
+public async Task<Operation<PagedResult<Profile>>> GetProfilesByUrlAsync(
+string? url,
+string? cursor,
+int pageSize)
+{
+try
+{
+var cacheKey = $"Profiles:{url}:{cursor}:{pageSize}";
+if (cache.TryGetValue(cacheKey, out PagedResult<Profile> cached))
+{
+return Operation<PagedResult<Profile>>.Success(cached);
+}
+var result = await GetPageAsync(BuildUrlFilter(url), cursor, pageSize);
+var pagedResult = result.Data;
+var cacheOptions = new MemoryCacheEntryOptions()
+.AddExpirationToken(new CancellationChangeToken(_ProfileCacheTokenSource.Token))
+.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+cache.Set(cacheKey, pagedResult, cacheOptions);
+return Operation<PagedResult<Profile>>.Success(pagedResult);
+}
+catch (Exception ex)
+{
+return errorHandler.Fail<PagedResult<Profile>>(ex, errorLogCreate);
+}
 }
 }
 }
@@ -10770,7 +10124,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16df22f560346ad2ba4ec42a01e0cc52c09cf6be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -11417,7 +10771,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -12068,7 +11422,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c66c550c29142e4f145342281fad996073589c7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

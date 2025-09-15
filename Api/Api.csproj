@@ -39,6 +39,7 @@
 		<ProjectReference Include="..\Commands\Commands.csproj" />
 		<ProjectReference Include="..\LiveNetwork.Application\LiveNetwork.Application.csproj" />
 		<ProjectReference Include="..\LiveNetwork.Infrastructure\LiveNetwork.Infrastructure.csproj" />
+		<ProjectReference Include="..\Persistence\Persistence.csproj" />
 	</ItemGroup>
 
 </Project>

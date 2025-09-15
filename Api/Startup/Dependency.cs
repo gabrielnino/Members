@@ -14,8 +14,11 @@ using Configuration;
 using Infrastructure.Repositories.CRUD;
 using Infrastructure.Result;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
 using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
+using LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Create;
+using LiveNetwork.Infrastructure.Implementation.CRUD.MessageInteraction.Query.ReadFilter;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Create;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Delete;
 using LiveNetwork.Infrastructure.Implementation.CRUD.Profile.Query.ReadFilter;
@@ -54,6 +57,8 @@ namespace Api.Startup
         {
             builder.Services.AddScoped<IProfileCreate, ProfileCreate>();
             builder.Services.AddScoped<IProfileRead, ProfileRead>();
+            builder.Services.AddScoped<IMessageInteractionCreate, MessageInteractionCreate>();
+            builder.Services.AddScoped<IMessageInteractionRead, MessageInteractionRead>();
             builder.Services.AddScoped<IProfileDelete, ProfileDelete>();
             builder.Services.AddScoped<IProfileUpdate, ProfileUpdate>();
         }

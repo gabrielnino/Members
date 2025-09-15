@@ -1,11 +1,15 @@
-﻿using Configuration;
+﻿using System.Diagnostics;
+using Configuration;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
 using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace LiveNetwork.Infrastructure.Services
 {
@@ -21,6 +25,7 @@ namespace LiveNetwork.Infrastructure.Services
         private readonly IUtil _util;
         private readonly IProfileRead _profileRead;
         private readonly IProfileUpdate _profileUpdate;
+        private readonly IMessageInteractionCreate _messageInteractionCreate;
 
         public LinkedInChat(
             AppConfig config,
@@ -32,7 +37,8 @@ namespace LiveNetwork.Infrastructure.Services
             ILoginService loginService,
             IUtil util,
             IProfileRead profileRead,
-            IProfileUpdate profileUpdate)
+            IProfileUpdate profileUpdate,
+            IMessageInteractionCreate messageInteractionCreate)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _driver = driverFactory?.Create() ?? throw new ArgumentNullException(nameof(driverFactory));
@@ -44,15 +50,21 @@ namespace LiveNetwork.Infrastructure.Services
             _util = util ?? throw new ArgumentNullException(nameof(util));
             _profileRead = profileRead ?? throw new ArgumentNullException(nameof(profileRead));
             _profileUpdate = profileUpdate ?? throw new ArgumentNullException(nameof(profileUpdate));
+            _messageInteractionCreate = messageInteractionCreate ?? throw new ArgumentNullException(nameof(messageInteractionCreate));
         }
 
         public async Task SendMessageAsync()
         {
+            int processed = 0, skipped = 0, errors = 0;
+            var connections = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
+            var remainingConnections  = connections.ToList();
+            var sw = Stopwatch.StartNew();
             try
             {
+
                 _logger.LogInformation("Starting LinkedInChat.SendMessageAsync at {UtcNow} UTC", DateTimeOffset.UtcNow);
 
-                var connections = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
+
                 var lastProcessedUtc = await _trackingService.LoadLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt"); // ✅ evita null
                 var newestProcessedUtc = lastProcessedUtc;
                 if (connections.Count == 0)
@@ -64,25 +76,24 @@ namespace LiveNetwork.Infrastructure.Services
                 _logger.LogInformation("Loaded {Count} connections. LastProcessedUtc={LastProcessedUtc:o}", connections.Count, lastProcessedUtc);
 
                 // ✅ Login una sola vez antes del loop
-
-                _logger.LogInformation("Attempting LinkedIn login…");
+                _logger.LogInformation("Starting LinkedIn login…");
                 await _loginService.LoginAsync();
-                _logger.LogInformation("Login successful.");
+                _logger.LogInformation("LinkedIn login completed successfully.");
 
-
-                var processed = 0;
                 foreach (var connection in connections)
                 {
                     // ✅ Filtra por fecha de conexión procesada
-                    if (connection.ConnectedOn <= lastProcessedUtc)
+                    if (connection.ConnectedOn < lastProcessedUtc)
                     {
                         _logger.LogDebug("Skipping connection (older than last processed): {ConnectedOn:o}", connection.ConnectedOn);
+                        skipped++;
                         continue;
                     }
 
                     if (connection?.ProfileUrl == null)
                     {
                         _logger.LogWarning("Connection missing ProfileUrl. Title/Position={Title}", connection?.TitleOrPosition);
+                        skipped++;
                         continue;
                     }
 
@@ -97,6 +108,7 @@ namespace LiveNetwork.Infrastructure.Services
                     if (string.IsNullOrWhiteSpace(path))
                     {
                         _logger.LogWarning("ProfileUrl path is empty for URL: {Url}", url);
+                        skipped++;
                         continue;
                     }
 
@@ -106,6 +118,7 @@ namespace LiveNetwork.Infrastructure.Services
                     if (!profileOp.IsSuccessful)
                     {
                         _logger.LogWarning("Profile lookup failed for {Url}. Reason: {Message}", url, profileOp.Message);
+                        skipped++;
                         continue;
                     }
 
@@ -113,6 +126,7 @@ namespace LiveNetwork.Infrastructure.Services
                     if (items == null || !items.Any())
                     {
                         _logger.LogWarning("No profile found in repository for {Url}", url);
+                        skipped++;
                         continue;
                     }
 
@@ -120,18 +134,21 @@ namespace LiveNetwork.Infrastructure.Services
                     if (firstProfile is null || string.IsNullOrWhiteSpace(firstProfile.Url.AbsolutePath))
                     {
                         _logger.LogWarning("Resolved profile is null or missing URL for {Url}", url);
+                        skipped++;
                         continue;
                     }
 
                     var content = BuildWelcomeMessage();
                     var message = new MessageInteraction
                     (
-                        firstProfile.Id,
+                        Guid.NewGuid().ToString("N"),
                         content,
                         "WelcomeMessage",
                         InteractionStatus.Sent
-                    );
-
+                    )
+                    {
+                        ProfileId = firstProfile.Id
+                    };
 
                     // ✅ Navega al perfil
                     _logger.LogInformation("Navigating to profile page: {ProfileUrl}", firstProfile.Url);
@@ -140,28 +157,36 @@ namespace LiveNetwork.Infrastructure.Services
                     button.Click();
                     var textArea = FindMessageTextArea();
                     EnterTextInContentEditable(textArea, content);
-                    firstProfile.AddMessage(message);
-                    await _profileUpdate.UpdateProfileAsync(firstProfile);
+                    await _messageInteractionCreate.CreateMessageInteractionAsync(message);
                     if (connection.ConnectedOn == null)
                     {
                         _logger.LogWarning("Connection missing ConnectedOn date for profile {ProfileId}", firstProfile.Id);
+                        skipped++;
                         continue;
                     }
                     if (connection.ConnectedOn > newestProcessedUtc)
                     {
                         newestProcessedUtc = connection.ConnectedOn.Value;
-                        await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
                     }
+                    processed++;
+                    remainingConnections .Remove(connection);
+                    await _trackingService.SaveCollectorConnectionsAsync(remainingConnections , "Connections_Collected.json");
                 }
+                await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
 
-                _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Login failed. Aborting message sending.");
+                _logger.LogError(ex, "LinkedIn login failed. Aborting message sending.");
+                errors++;
                 await _capture.CaptureArtifactsAsync(_executionOptions.ExecutionFolder, "login_failed");
             }
+            sw.Stop();
+            _logger.LogInformation("LinkedInChat finished in {Ms} ms. Processed={Processed}, Skipped={Skipped}, Errors={Errors}, Total={Total}.",
+                sw.ElapsedMilliseconds, processed, skipped, errors, connections.Count);
+            _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
         }
+
 
 
         /// <summary>
@@ -217,10 +242,10 @@ namespace LiveNetwork.Infrastructure.Services
                 {
                     IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
                     js.ExecuteScript(@"
-                arguments[0].innerText = arguments[1];
-                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-            ", textArea, message);
+                                        arguments[0].innerText = arguments[1];
+                                        arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+                                        arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+                                        ", textArea, message);
                 }
                 catch (Exception jsEx)
                 {
