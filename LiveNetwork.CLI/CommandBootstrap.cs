@@ -17,7 +17,7 @@ namespace LiveNetwork.CLI
         // ==== Flags admitidos por el menú / línea de comandos ====
         private static readonly string[] KnownFlags = new[]
         {
-            "--prompt", "--invite", "--load", "--chat", "--help"
+            "--prompt", "--invite", "--load", "--chat", "--search", "--help"
         };
 
         public static HostApplicationBuilder CreateDefaultAppBuilder(string[] args, string? basePath = null)
@@ -128,6 +128,8 @@ namespace LiveNetwork.CLI
                 Console.WriteLine(" 2) Invite        (equivale a --invite)");
                 Console.WriteLine(" 3) Load          (equivale a --load)");
                 Console.WriteLine(" 4) Chat          (equivale a --chat)");
+                Console.WriteLine(" 4) Chat          (equivale a --chat)");
+                Console.WriteLine(" 5) Search          (equivale a --search)");
                 Console.WriteLine("----------------------------------------");
                 Console.WriteLine(" h) Help          (equivale a --help)");
                 Console.WriteLine(" 0) Exit");
@@ -143,6 +145,7 @@ namespace LiveNetwork.CLI
                     '2' => ["--invite"],
                     '3' => ["--load"],
                     '4' => ["--chat"],
+                    '5' => ["--search"],
                     'h' or 'H' or '?' => new[] { "--help" },
                     '0' => null, // exit
                     _ => Array.Empty<string>()

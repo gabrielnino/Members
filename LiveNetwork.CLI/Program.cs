@@ -6,7 +6,7 @@ public class Program : Builder
 {
     private static readonly string[] KnownFlags = new[]
     {
-        "--prompt", "--invite", "--load", "--chat", "--help"
+        "--prompt", "--invite", "--load", "--chat", "--search", "--help"
     };
 
     public static async Task<int> Main(string[] args)
@@ -36,6 +36,7 @@ public class Program : Builder
                 2 => ["--invite"],
                 3 => ["--load"],
                 4 => ["--chat"],
+                5 => ["--search"],
                 _ => null!
             };
 
@@ -64,6 +65,7 @@ public class Program : Builder
         "Send Invitations         (--invite) - Automate connection requests",
         "Load Connections         (--load)   - Collect network data & profiles",
         "Automated Messaging      (--chat)   - Engage in conversation threads",
+        "Search connection     (--search)   - search",
         "Exit Application"
     };
 
@@ -72,12 +74,13 @@ public class Program : Builder
         "  • Automated connection invitation sending to prospects",
         "  • Data collection from your existing LinkedIn network",
         "  • Automated follow-up messaging with connections",
-        "  • Close the application"
+        "  • Close the application",
+        "  • Search connection "
     };
 
         for (int i = 0; i < options.Length; i++)
         {
-            if (i == 4)
+            if (i == 6)
             {
                 Console.WriteLine("  ───────────────────────────────────────────────────────");
             }
@@ -98,7 +101,7 @@ public class Program : Builder
     private static int HandleMenuNavigation()
     {
         int selectedIndex = 0;
-        int totalOptions = 5; // 4 commands + exit
+        int totalOptions = 6; // 4 commands + exit
 
         while (true)
         {
@@ -139,6 +142,9 @@ public class Program : Builder
                 case ConsoleKey.D4:
                 case ConsoleKey.NumPad4:
                     return 4;
+                case ConsoleKey.D5:
+                case ConsoleKey.NumPad5:
+                    return 5;
                 case ConsoleKey.D0:
                 case ConsoleKey.NumPad0:
                     return 0;
@@ -155,6 +161,7 @@ public class Program : Builder
             "👥  Invite        (--invite)",
             "📂  Load          (--load)",
             "💬  Chat          (--chat)",
+            "💬  search          (--search)",
             "❌  Exit"
         };
 
@@ -227,6 +234,7 @@ public class Program : Builder
         Console.WriteLine("• --invite   : Invite management");
         Console.WriteLine("• --load     : Load configuration/files");
         Console.WriteLine("• --chat     : Start chat session");
+        Console.WriteLine("• --search   : Search connections");
         Console.WriteLine();
         Console.WriteLine("Navigation:");
         Console.WriteLine("• Arrow keys: Navigate menu");
