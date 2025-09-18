@@ -157,12 +157,12 @@ public class Program : Builder
         Console.SetCursorPosition(0, 6); // Start of options
 
         string[] options = {
-            "🚀  Prompt        (--prompt)",
-            "👥  Invite        (--invite)",
-            "📂  Load          (--load)",
-            "💬  Chat          (--chat)",
-            "💬  search          (--search)",
-            "❌  Exit"
+            "  • Prompt        (--prompt)",
+            "  • Invite        (--invite)",
+            "  • Load          (--load)",
+            "  • Chat          (--chat)",
+            "  • Search        (--search)",
+            "  • Exit"
         };
 
         for (int i = 0; i < totalOptions; i++)
