@@ -3170,7 +3170,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3522,7 +3522,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4232,7 +4232,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Commands")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4931,7 +4931,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -8270,6 +8270,7 @@ skipped++;
 continue;
 }
 _logger.LogInformation("Resolving profile for URL: {Url} | ConnectedOn: {ConnectedOn:o}", url, connection.ConnectedOn);
+var content = BuildWelcomeMessage();
 var profileOp = await _profileRead.GetProfilesByUrlAsync(path, null, 10);
 if (!profileOp.IsSuccessful)
 {
@@ -8281,6 +8282,9 @@ var items = profileOp.Data?.Items;
 if (items == null || !items.Any())
 {
 _logger.LogWarning("No profile found in repository for {Url}", url);
+Set(path, content);
+remainingConnections.Remove(connection);
+await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
 skipped++;
 continue;
 }
@@ -8291,7 +8295,6 @@ _logger.LogWarning("Resolved profile is null or missing URL for {Url}", url);
 skipped++;
 continue;
 }
-var content = BuildWelcomeMessage();
 var message = new MessageInteraction
 (
 Guid.NewGuid().ToString("N"),
@@ -8303,11 +8306,7 @@ InteractionStatus.Sent
 ProfileId = firstProfile.Id
 };
 _logger.LogInformation("Navigating to profile page: {ProfileUrl}", firstProfile.Url);
-_driver.Navigate().GoToUrl(firstProfile.Url);
-var button = FindMessageButton();
-button.Click();
-var textArea = FindMessageTextArea();
-EnterTextInContentEditable(textArea, content);
+Set(firstProfile.Url.OriginalString, content);
 await _messageInteractionCreate.CreateMessageInteractionAsync(message);
 if (connection.ConnectedOn == null)
 {
@@ -8320,8 +8319,8 @@ if (connection.ConnectedOn > newestProcessedUtc)
 newestProcessedUtc = connection.ConnectedOn.Value;
 }
 processed++;
-remainingConnections .Remove(connection);
-await _trackingService.SaveCollectorConnectionsAsync(remainingConnections , "Connections_Collected.json");
+remainingConnections.Remove(connection);
+await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
 }
 await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
 }
@@ -8335,6 +8334,14 @@ sw.Stop();
 _logger.LogInformation("LinkedInChat finished in {Ms} ms. Processed={Processed}, Skipped={Skipped}, Errors={Errors}, Total={Total}.",
 sw.ElapsedMilliseconds, processed, skipped, errors, connections.Count);
 _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
+}
+private void Set(string url, string content)
+{
+_driver.Navigate().GoToUrl(url);
+var button = FindMessageButton();
+button.Click();
+var textArea = FindMessageTextArea();
+EnterTextInContentEditable(textArea, content);
 }
 public IWebElement? FindMessageButton()
 {
@@ -8370,21 +8377,8 @@ textArea.Clear();
 textArea.SendKeys(message);
 textArea.SendKeys(Keys.Enter);
 }
-catch (Exception ex)
+catch
 {
-try
-{
-IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
-js.ExecuteScript(@"
-arguments[0].innerText = arguments[1];
-arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-", textArea, message);
-}
-catch (Exception jsEx)
-{
-throw new Exception($"Failed to enter text in contenteditable div. Standard error: {ex.Message}, JS error: {jsEx.Message}");
-}
 }
 }
 static string BuildWelcomeMessage()
@@ -11208,7 +11202,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -11855,7 +11849,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

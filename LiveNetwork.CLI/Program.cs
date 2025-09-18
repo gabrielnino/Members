@@ -2,6 +2,7 @@
 using Api.Startup;
 using Commands;
 using Configuration;
+using LiveNetwork.CLI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,107 +12,94 @@ using Serilog;
 
 public class Program : Builder
 {
-    public static HostApplicationBuilder CreateDefaultAppBuilder(string[] args, string? basePath = null)
+    public static class Program
     {
-        var cmdArgs = (args is { Length: > 0 }) ? args : Array.Empty<string>();
-        var builder = Host.CreateApplicationBuilder(cmdArgs); // HostApplicationBuilder
-
-        basePath ??= Directory.GetCurrentDirectory();
-        var envName = builder.Environment.EnvironmentName;
-
-        builder.Configuration
-            .SetBasePath(basePath)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{envName}.json", optional: true, reloadOnChange: true);
-#if DEBUG
-        if (builder.Environment.IsDevelopment())
-            builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true);
-#endif
-        builder.Configuration.AddEnvironmentVariables();
-        if (cmdArgs.Length > 0) builder.Configuration.AddCommandLine(cmdArgs);
-
-        // AppConfig (bind)
-        //var appConfig = new AppConfig();
-        //var appSection = builder.Configuration.GetSection("AppConfig");
-        //builder.Configuration.Bind(appConfig);
-        //builder.Services.AddSingleton(appConfig);
-
-        // ExecutionTracker (para carpeta de logs)
-        var executionOptions = new ExecutionTracker(Environment.CurrentDirectory);
-        //builder.Services.AddSingleton(executionOptions);
-
-        // Serilog
-        var logPath = Path.Combine(executionOptions.ExecutionFolder, "Logs");
-        Directory.CreateDirectory(logPath);
-
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .Enrich.FromLogContext()
-            .MinimumLevel.Debug()
-            .WriteTo.Console()
-            .WriteTo.File(
-                path: Path.Combine(logPath, "LiveNetwork-.log"),
-                rollingInterval: RollingInterval.Day,
-                fileSizeLimitBytes: 5_000_000,
-                retainedFileCountLimit: 7,
-                rollOnFileSizeLimit: true,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message}{NewLine}{Exception}"
-            )
-            .CreateLogger();
-
-        builder.Logging.ClearProviders();
-        builder.Logging.AddSerilog(Log.Logger, dispose: true);
-
-        return builder;
-    }
-
-    public static async Task Main(string[] args)
-    {
-        try
+        // Lista de flags válidos
+        private static readonly string[] KnownFlags = new[]
         {
-            Log.Information("🚗 Executing booking at {Time}", DateTimeOffset.Now);
-            var appBuilder = CreateDefaultAppBuilder(args);
-            ConfigureServices(appBuilder, args);
+            "--prompt", "--invite", "--load", "--chat", "--help"
+        };
 
-            var host = appBuilder.Build();
-            using (var scope = host.Services.CreateScope())
+        public static async Task<int> Main(string[] args)
+        {
+            // Si hay flags conocidos, continúa con el flujo normal del CLI
+            if (ContainsKnownFlag(args))
+                CommandBootstrap.RunAsync(args);
+
+            // Sin argumentos válidos -> mostrar menú
+            while (true)
             {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                if (!db.Initialize())
+                Console.Clear();
+                Console.WriteLine("========================================");
+                Console.WriteLine("          LiveNetwork.CLI  Menu          ");
+                Console.WriteLine("========================================");
+                Console.WriteLine(" 1) Prompt        (equivale a --prompt)");
+                Console.WriteLine(" 2) Invite        (equivale a --invite)");
+                Console.WriteLine(" 3) Load          (equivale a --load)");
+                Console.WriteLine(" 4) Chat          (equivale a --chat)");
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine(" 0) Exit");
+                Console.WriteLine("========================================");
+                Console.Write("Select an option: ");
+
+                var key = Console.ReadKey(intercept: true).KeyChar;
+                Console.WriteLine();
+
+                string[] selectedArgs = key switch
                 {
-                    throw new Exception("Database initialization failed");
+                    '1' => new[] { "--prompt" },
+                    '2' => new[] { "--invite" },
+                    '3' => new[] { "--load" },
+                    '4' => new[] { "--chat" },
+                    '0' => Array.Empty<string>(),
+                    _ => null!
+                };
+
+                if (selectedArgs is null)
+                {
+                    Console.WriteLine("Invalid option. Press any key to continue...");
+                    Console.ReadKey();
+                    continue;
                 }
-            }
 
+                if (selectedArgs.Length == 0)
+                {
+                    // Exit
+                    Console.WriteLine("Bye!");
+                    return 0;
+                }
 
-            var commandFactory = host.Services.GetRequiredService<CommandFactory>();
-            var commands = commandFactory.CreateCommand().ToList();
-            var jobArgs = host.Services.GetRequiredService<CommandArgs>();
-            foreach (var command in commands)
-            {
                 try
                 {
-                    Log.Information("Executing command {Command}...", command.GetType().Name);
-                    await command.ExecuteAsync(jobArgs.Arguments);
-                    Log.Information("{Command} completed successfully", command.GetType().Name);
+                    var code = CommandBootstrap.RunAsync(selectedArgs);
+                    Console.WriteLine();
+                    Console.WriteLine($"Command finished with exit code {code}.");
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Execution failed for {Command}", command.GetType().Name);
-                    throw;
+                    Console.WriteLine();
+                    Console.WriteLine("An error occurred while running the command:");
+                    Console.WriteLine(ex.Message);
                 }
+
+                Console.WriteLine();
+                Console.Write("Press any key to return to the menu...");
+                Console.ReadKey();
             }
         }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "❌ Application terminated unexpectedly");
-            Environment.ExitCode = 1;
-        }
-        finally
-        {
-            await Log.CloseAndFlushAsync();
-        }
 
-        Log.Information("⏱ Waiting 15 minutes before the next booking attempt...");
+        private static bool ContainsKnownFlag(string[] args)
+        {
+            if (args is null || args.Length == 0) return false;
+            foreach (var a in args)
+            {
+                foreach (var f in KnownFlags)
+                {
+                    if (string.Equals(a, f, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            return false;
+        }
     }
-}
+    }

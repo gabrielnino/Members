@@ -113,7 +113,7 @@ namespace LiveNetwork.Infrastructure.Services
                     }
 
                     _logger.LogInformation("Resolving profile for URL: {Url} | ConnectedOn: {ConnectedOn:o}", url, connection.ConnectedOn);
-
+                    var content = BuildWelcomeMessage();
                     var profileOp = await _profileRead.GetProfilesByUrlAsync(path, null, 10);
                     if (!profileOp.IsSuccessful)
                     {
@@ -126,6 +126,9 @@ namespace LiveNetwork.Infrastructure.Services
                     if (items == null || !items.Any())
                     {
                         _logger.LogWarning("No profile found in repository for {Url}", url);
+                        Set(path, content);
+                        remainingConnections.Remove(connection);
+                        await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
                         skipped++;
                         continue;
                     }
@@ -138,7 +141,7 @@ namespace LiveNetwork.Infrastructure.Services
                         continue;
                     }
 
-                    var content = BuildWelcomeMessage();
+                   
                     var message = new MessageInteraction
                     (
                         Guid.NewGuid().ToString("N"),
@@ -152,11 +155,7 @@ namespace LiveNetwork.Infrastructure.Services
 
                     // ✅ Navega al perfil
                     _logger.LogInformation("Navigating to profile page: {ProfileUrl}", firstProfile.Url);
-                    _driver.Navigate().GoToUrl(firstProfile.Url);
-                    var button = FindMessageButton();
-                    button.Click();
-                    var textArea = FindMessageTextArea();
-                    EnterTextInContentEditable(textArea, content);
+                    Set(firstProfile.Url.OriginalString, content);
                     await _messageInteractionCreate.CreateMessageInteractionAsync(message);
                     if (connection.ConnectedOn == null)
                     {
@@ -169,8 +168,8 @@ namespace LiveNetwork.Infrastructure.Services
                         newestProcessedUtc = connection.ConnectedOn.Value;
                     }
                     processed++;
-                    remainingConnections .Remove(connection);
-                    await _trackingService.SaveCollectorConnectionsAsync(remainingConnections , "Connections_Collected.json");
+                    remainingConnections.Remove(connection);
+                    await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
                 }
                 await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
 
@@ -185,6 +184,15 @@ namespace LiveNetwork.Infrastructure.Services
             _logger.LogInformation("LinkedInChat finished in {Ms} ms. Processed={Processed}, Skipped={Skipped}, Errors={Errors}, Total={Total}.",
                 sw.ElapsedMilliseconds, processed, skipped, errors, connections.Count);
             _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
+        }
+
+        private void Set(string url, string content)
+        {
+            _driver.Navigate().GoToUrl(url);
+            var button = FindMessageButton();
+            button.Click();
+            var textArea = FindMessageTextArea();
+            EnterTextInContentEditable(textArea, content);
         }
 
 
@@ -235,22 +243,9 @@ namespace LiveNetwork.Infrastructure.Services
                 textArea.SendKeys(message);
                 textArea.SendKeys(Keys.Enter); // To trigger any change events if necessary   
             }
-            catch (Exception ex)
+            catch
             {
-                // Method 2: Fallback using JavaScript
-                try
-                {
-                    IJavaScriptExecutor js = (IJavaScriptExecutor)_driver;
-                    js.ExecuteScript(@"
-                                        arguments[0].innerText = arguments[1];
-                                        arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-                                        arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-                                        ", textArea, message);
-                }
-                catch (Exception jsEx)
-                {
-                    throw new Exception($"Failed to enter text in contenteditable div. Standard error: {ex.Message}, JS error: {jsEx.Message}");
-                }
+
             }
         }
 
