@@ -1,6 +1,5 @@
-﻿using Api.Startup;
-using LiveNetwork.CLI;
-using System.Drawing;
+﻿using LiveNetwork.CLI;
+using Api.Startup;
 
 public class Program : Builder
 {
@@ -11,6 +10,7 @@ public class Program : Builder
 
     private static int _previousSelection = 0;
     private static bool _firstDraw = true;
+    private static int[] _optionLinePositions = Array.Empty<int>();
 
     public static async Task<int> Main(string[] args)
     {
@@ -21,6 +21,9 @@ public class Program : Builder
 
         Console.CursorVisible = false;
         Console.Title = "LiveNetwork.CLI - Interactive Menu";
+
+        // Initialize the API startup
+        InitializeConsole();
 
         while (true)
         {
@@ -81,13 +84,19 @@ public class Program : Builder
             "  • Safely close the application"
         ];
 
+        // Store line positions for navigation
+        _optionLinePositions = new int[options.Length];
+
         for (int i = 0; i < options.Length; i++)
         {
+            _optionLinePositions[i] = Console.CursorTop;
+
             if (i == options.Length - 1) // Add separator before exit option
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("  ───────────────────────────────────────────────────────────────────────────");
                 Console.ResetColor();
+                _optionLinePositions[i] = Console.CursorTop;
             }
 
             if (i == _previousSelection && !_firstDraw)
@@ -122,8 +131,8 @@ public class Program : Builder
         int selectedIndex = _previousSelection;
         int totalOptions = 7; // 6 commands + exit
 
-        // Set initial cursor position to avoid flickering
-        Console.CursorTop = 10 + (selectedIndex * 2) + (selectedIndex >= 6 ? 1 : 0);
+        // Use Api.Startup for smooth cursor positioning
+        SetCursorPosition(0, _optionLinePositions[selectedIndex]);
 
         while (true)
         {
@@ -133,22 +142,22 @@ public class Program : Builder
             {
                 case ConsoleKey.UpArrow:
                     selectedIndex = (selectedIndex - 1 + totalOptions) % totalOptions;
-                    UpdateSelection(selectedIndex, totalOptions);
+                    UpdateSelection(selectedIndex);
                     break;
 
                 case ConsoleKey.DownArrow:
                     selectedIndex = (selectedIndex + 1) % totalOptions;
-                    UpdateSelection(selectedIndex, totalOptions);
+                    UpdateSelection(selectedIndex);
                     break;
 
                 case ConsoleKey.Home:
                     selectedIndex = 0;
-                    UpdateSelection(selectedIndex, totalOptions);
+                    UpdateSelection(selectedIndex);
                     break;
 
                 case ConsoleKey.End:
                     selectedIndex = totalOptions - 1;
-                    UpdateSelection(selectedIndex, totalOptions);
+                    UpdateSelection(selectedIndex);
                     break;
 
                 case ConsoleKey.Enter:
@@ -166,50 +175,43 @@ public class Program : Builder
                 case ConsoleKey.D1:
                 case ConsoleKey.NumPad1:
                     _previousSelection = 0;
-                    return 0;
+                    return 1;
                 case ConsoleKey.D2:
                 case ConsoleKey.NumPad2:
                     _previousSelection = 1;
-                    return 1;
+                    return 2;
                 case ConsoleKey.D3:
                 case ConsoleKey.NumPad3:
                     _previousSelection = 2;
-                    return 2;
+                    return 3;
                 case ConsoleKey.D4:
                 case ConsoleKey.NumPad4:
                     _previousSelection = 3;
-                    return 3;
+                    return 4;
                 case ConsoleKey.D5:
                 case ConsoleKey.NumPad5:
                     _previousSelection = 4;
-                    return 4;
+                    return 5;
                 case ConsoleKey.D6:
                 case ConsoleKey.NumPad6:
                     _previousSelection = 5;
-                    return 5;
+                    return 6;
                 case ConsoleKey.D0:
                 case ConsoleKey.NumPad0:
-                    return 6;
+                    _previousSelection = 6;
+                    return 0;
             }
         }
     }
 
-    private static void UpdateSelection(int selectedIndex, int totalOptions)
+    private static void UpdateSelection(int selectedIndex)
     {
-        int currentCursorTop = Console.CursorTop;
-        int currentCursorLeft = Console.CursorLeft;
+        int totalOptions = 7;
 
-        // Calculate positions for all options
-        int[] optionPositions = new int[totalOptions];
+        // Update all options visually using Api.Startup for smooth rendering
         for (int i = 0; i < totalOptions; i++)
         {
-            optionPositions[i] = 10 + (i * 2) + (i >= 6 ? 1 : 0);
-        }
-
-        // Update all options visually
-        for (int i = 0; i < totalOptions; i++)
-        {
-            Console.SetCursorPosition(0, optionPositions[i]);
+            SetCursorPosition(0, _optionLinePositions[i]);
 
             if (i == selectedIndex)
             {
@@ -235,8 +237,8 @@ public class Program : Builder
             }
         }
 
-        // Restore cursor position
-        Console.SetCursorPosition(currentCursorLeft, currentCursorTop);
+        // Move cursor to selected position using Api.Startup
+        SetCursorPosition(0, _optionLinePositions[selectedIndex]);
         _previousSelection = selectedIndex;
     }
 
@@ -367,5 +369,18 @@ public class Program : Builder
     {
         if (args is null || args.Length == 0) return false;
         return args.Any(arg => KnownFlags.Contains(arg, StringComparer.OrdinalIgnoreCase));
+    }
+
+    public static void InitializeConsole()
+    {
+        // Console initialization logic
+        Console.CursorVisible = false;
+        Console.Title = "LiveNetwork CLI";
+        // Other initialization code...
+    }
+
+    public static void SetCursorPosition(int left, int top)
+    {
+        Console.SetCursorPosition(left, top);
     }
 }
