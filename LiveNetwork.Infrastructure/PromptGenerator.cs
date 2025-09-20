@@ -69,7 +69,7 @@ namespace LiveNetwork.Infrastructure.Services
                         threads.AddRange(profiles.Select(p => new ConversationThread(p)));
                         swInit.Stop();
                         _logger.LogInformation("Initialized {ThreadCount} threads from profiles (elapsed {ElapsedMs} ms).",
-                            threads.Count, swInit.ElapsedMilliseconds);
+                        threads.Count, swInit.ElapsedMilliseconds);
                     }
                     else
                     {
@@ -126,7 +126,8 @@ namespace LiveNetwork.Infrastructure.Services
 
                                 _logger.LogDebug("Requesting OpenAI chat completion...");
                                 var swAi = Stopwatch.StartNew();
-                                var content = "Message generation disabled.";
+                                var content = "Hi, I’m always curious about the challenges others are working through. I’ve learned so much from colleagues and peers, and I’d love to connect—maybe we can share ideas and support each other along the way.";
+
                                 if (_config.Options.EnableCustomMessages)
                                 {
                                     content = await _openAIClient.GetChatCompletionAsync(prompt);

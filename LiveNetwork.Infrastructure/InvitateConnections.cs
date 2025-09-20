@@ -255,8 +255,12 @@ namespace LiveNetwork.Infrastructure.Services
             var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
             if (threads is null || threads.Count == 0)
             {
+                var profilesPath = _config.Paths.DetailedProfilesOutputFilePath;
+                _logger.LogInformation("Step 1/6: Loading detailed profiles from path: {ProfilesPath}", profilesPath);
+                var swProfiles = Stopwatch.StartNew();
+                var profiles = await _trackingService.LoadDetailedProfilesAsync(profilesPath);
+                threads.AddRange(profiles.Select(p => new ConversationThread(p)));
                 _logger.LogWarning("({CorrelationId}) No conversation threads found at {ThreadsPath}. Nothing to process.", correlationId, threadsPath);
-                return null;
             }
             return threads;
         }

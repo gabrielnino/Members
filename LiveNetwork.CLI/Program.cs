@@ -4,10 +4,13 @@ using System.Drawing;
 
 public class Program : Builder
 {
-    private static readonly string[] KnownFlags = new[]
-    {
+    private static readonly string[] KnownFlags =
+    [
         "--prompt", "--invite", "--load", "--chat", "--search", "--help"
-    };
+    ];
+
+    private static int _previousSelection = 0;
+    private static bool _firstDraw = true;
 
     public static async Task<int> Main(string[] args)
     {
@@ -37,6 +40,7 @@ public class Program : Builder
                 3 => ["--load"],
                 4 => ["--chat"],
                 5 => ["--search"],
+                6 => ["--help"],
                 _ => null!
             };
 
@@ -50,58 +54,76 @@ public class Program : Builder
     private static void DrawMenu()
     {
         Console.Clear();
-        Console.ResetColor();
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
-        Console.WriteLine("║                LinkedIn Automation Toolkit               ║");
-        Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
+
+        // Draw header with gradient effect
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.WriteLine("  Navigate with ↑↓ arrows or number keys 1-6 • Enter to select • Esc to exit");
         Console.ResetColor();
         Console.WriteLine();
-        Console.WriteLine("  Use ↑↓ arrows to navigate, Enter to select");
-        Console.WriteLine();
 
-        string[] options = {
-        "Generate AI Messages     (--prompt) - Create personalized outreach content",
-        "Send Invitations         (--invite) - Automate connection requests",
-        "Load Connections         (--load)   - Collect network data & profiles",
-        "Automated Messaging      (--chat)   - Engage in conversation threads",
-        "Search connection     (--search)   - search",
-        "Exit Application"
-    };
+        string[] options = [
+            "1. Generate AI Messages     (--prompt) - Create personalized outreach content",
+            "2. Send Invitations         (--invite) - Automate connection requests",
+            "3. Load Connections         (--load)   - Collect network data & profiles",
+            "4. Automated Messaging      (--chat)   - Engage in conversation threads",
+            "5. Search Connections       (--search) - Find and filter your network",
+            "6. Help & Documentation     (--help)   - View detailed instructions",
+            "0. Exit Application"
+        ];
 
-        string[] descriptions = {
-        "  • AI-powered message generation for personalized outreach",
-        "  • Automated connection invitation sending to prospects",
-        "  • Data collection from your existing LinkedIn network",
-        "  • Automated follow-up messaging with connections",
-        "  • Close the application",
-        "  • Search connection "
-    };
+        string[] descriptions = [
+            "  • AI-powered message generation for personalized outreach campaigns",
+            "  • Automated connection invitation sending to targeted prospects",
+            "  • Data collection and analysis from your existing LinkedIn network",
+            "  • Automated follow-up messaging and conversation management",
+            "  • Advanced search capabilities to find specific connections",
+            "  • Detailed documentation and command reference guide",
+            "  • Safely close the application"
+        ];
 
         for (int i = 0; i < options.Length; i++)
         {
-            if (i == 6)
+            if (i == options.Length - 1) // Add separator before exit option
             {
-                Console.WriteLine("  ───────────────────────────────────────────────────────");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("  ───────────────────────────────────────────────────────────────────────────");
+                Console.ResetColor();
             }
 
-            Console.ForegroundColor = i == 4 ? ConsoleColor.Red : ConsoleColor.White;
-            Console.WriteLine($"  {options[i]}");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine($"  {descriptions[i]}");
-            Console.ResetColor();
+            if (i == _previousSelection && !_firstDraw)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($" {options[i]}");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine($" {descriptions[i]}");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.ForegroundColor = i == options.Length - 1 ? ConsoleColor.Red : ConsoleColor.White;
+                Console.WriteLine($" {options[i]}");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine($" {descriptions[i]}");
+                Console.ResetColor();
+            }
             Console.WriteLine();
         }
 
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("  Press F1 for detailed help, Esc to exit");
+        Console.WriteLine("  Press F1 for help, Home/End to jump to first/last option");
         Console.ResetColor();
+
+        _firstDraw = false;
     }
 
     private static int HandleMenuNavigation()
     {
-        int selectedIndex = 0;
-        int totalOptions = 6; // 4 commands + exit
+        int selectedIndex = _previousSelection;
+        int totalOptions = 7; // 6 commands + exit
+
+        // Set initial cursor position to avoid flickering
+        Console.CursorTop = 10 + (selectedIndex * 2) + (selectedIndex >= 6 ? 1 : 0);
 
         while (true)
         {
@@ -119,8 +141,19 @@ public class Program : Builder
                     UpdateSelection(selectedIndex, totalOptions);
                     break;
 
+                case ConsoleKey.Home:
+                    selectedIndex = 0;
+                    UpdateSelection(selectedIndex, totalOptions);
+                    break;
+
+                case ConsoleKey.End:
+                    selectedIndex = totalOptions - 1;
+                    UpdateSelection(selectedIndex, totalOptions);
+                    break;
+
                 case ConsoleKey.Enter:
-                    return selectedIndex + 1;
+                    _previousSelection = selectedIndex;
+                    return selectedIndex;
 
                 case ConsoleKey.Escape:
                     return 0;
@@ -132,65 +165,107 @@ public class Program : Builder
 
                 case ConsoleKey.D1:
                 case ConsoleKey.NumPad1:
-                    return 1;
+                    _previousSelection = 0;
+                    return 0;
                 case ConsoleKey.D2:
                 case ConsoleKey.NumPad2:
-                    return 2;
+                    _previousSelection = 1;
+                    return 1;
                 case ConsoleKey.D3:
                 case ConsoleKey.NumPad3:
-                    return 3;
+                    _previousSelection = 2;
+                    return 2;
                 case ConsoleKey.D4:
                 case ConsoleKey.NumPad4:
-                    return 4;
+                    _previousSelection = 3;
+                    return 3;
                 case ConsoleKey.D5:
                 case ConsoleKey.NumPad5:
+                    _previousSelection = 4;
+                    return 4;
+                case ConsoleKey.D6:
+                case ConsoleKey.NumPad6:
+                    _previousSelection = 5;
                     return 5;
                 case ConsoleKey.D0:
                 case ConsoleKey.NumPad0:
-                    return 0;
+                    return 6;
             }
         }
     }
 
     private static void UpdateSelection(int selectedIndex, int totalOptions)
     {
-        Console.SetCursorPosition(0, 6); // Start of options
+        int currentCursorTop = Console.CursorTop;
+        int currentCursorLeft = Console.CursorLeft;
 
-        string[] options = {
-            "  • Prompt        (--prompt)",
-            "  • Invite        (--invite)",
-            "  • Load          (--load)",
-            "  • Chat          (--chat)",
-            "  • Search        (--search)",
-            "  • Exit"
-        };
-
+        // Calculate positions for all options
+        int[] optionPositions = new int[totalOptions];
         for (int i = 0; i < totalOptions; i++)
         {
-            Console.SetCursorPosition(0, 6 + i + (i >= 4 ? 1 : 0)); // Account for separator
+            optionPositions[i] = 10 + (i * 2) + (i >= 6 ? 1 : 0);
+        }
+
+        // Update all options visually
+        for (int i = 0; i < totalOptions; i++)
+        {
+            Console.SetCursorPosition(0, optionPositions[i]);
 
             if (i == selectedIndex)
             {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.BackgroundColor = ConsoleColor.White;
-                Console.Write($"► {options[i]}");
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.White;
+
+                string optionText = GetOptionText(i);
+                Console.Write(" " + optionText);
+                Console.Write(new string(' ', Console.WindowWidth - optionText.Length - 1));
+
                 Console.ResetColor();
-                Console.Write(new string(' ', Console.WindowWidth - options[i].Length - 3));
             }
             else
             {
                 Console.ResetColor();
-                Console.Write($"  {options[i]}");
-                Console.Write(new string(' ', Console.WindowWidth - options[i].Length - 2));
+
+                string optionText = GetOptionText(i);
+                Console.ForegroundColor = i == totalOptions - 1 ? ConsoleColor.Red : ConsoleColor.White;
+                Console.Write(" " + optionText);
+                Console.Write(new string(' ', Console.WindowWidth - optionText.Length - 1));
+
+                Console.ResetColor();
             }
         }
+
+        // Restore cursor position
+        Console.SetCursorPosition(currentCursorLeft, currentCursorTop);
+        _previousSelection = selectedIndex;
+    }
+
+    private static string GetOptionText(int index)
+    {
+        return index switch
+        {
+            0 => "1. Generate AI Messages     (--prompt) - Create personalized outreach content",
+            1 => "2. Send Invitations         (--invite) - Automate connection requests",
+            2 => "3. Load Connections         (--load)   - Collect network data & profiles",
+            3 => "4. Automated Messaging      (--chat)   - Engage in conversation threads",
+            4 => "5. Search Connections       (--search) - Find and filter your network",
+            5 => "6. Help & Documentation     (--help)   - View detailed instructions",
+            6 => "0. Exit Application",
+            _ => ""
+        };
     }
 
     private static async Task ExecuteCommand(string[] args)
     {
         Console.Clear();
-        Console.WriteLine($"🚀 Executing: {args[0]}");
-        Console.WriteLine("──────────────────────────────────────────");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                             EXECUTING COMMAND                                   ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
+        Console.ResetColor();
+        Console.WriteLine();
+        Console.WriteLine($"  • Command: {args[0]}");
+        Console.WriteLine("──────────────────────────────────────────────────────────────────────────────────");
 
         try
         {
@@ -199,14 +274,14 @@ public class Program : Builder
             stopwatch.Stop();
 
             Console.WriteLine();
-            Console.ForegroundColor = exitCode == 0 ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.WriteLine($"✅ Command completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
+            Console.ForegroundColor = exitCode == 0 ? ConsoleColor.Green : ConsoleColor.Yellow;
+            Console.WriteLine($"  • Command completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
             Console.WriteLine($"Exit code: {exitCode}");
         }
         catch (Exception ex)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("❌ An error occurred:");
+            Console.WriteLine("  • An error occurred:");
             Console.WriteLine(ex.Message);
             Console.ResetColor();
             Console.WriteLine();
@@ -223,43 +298,68 @@ public class Program : Builder
     private static void ShowHelp()
     {
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("📖 LiveNetwork.CLI - Help");
-        Console.WriteLine("══════════════════════════════════════════");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                                HELP & DOCUMENTATION                             ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
         Console.ResetColor();
 
         Console.WriteLine();
-        Console.WriteLine("Available commands:");
-        Console.WriteLine("• --prompt   : Interactive prompt mode");
-        Console.WriteLine("• --invite   : Invite management");
-        Console.WriteLine("• --load     : Load configuration/files");
-        Console.WriteLine("• --chat     : Start chat session");
-        Console.WriteLine("• --search   : Search connections");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("Available Commands:");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("• --prompt   : Generate AI-powered personalized messages for outreach campaigns");
+        Console.WriteLine("• --invite   : Automate connection requests with customizable templates");
+        Console.WriteLine("• --load     : Extract and analyze your LinkedIn network data");
+        Console.WriteLine("• --chat     : Manage automated messaging with your connections");
+        Console.WriteLine("• --search   : Advanced search through your network with filters");
         Console.WriteLine();
-        Console.WriteLine("Navigation:");
-        Console.WriteLine("• Arrow keys: Navigate menu");
-        Console.WriteLine("• Enter     : Select option");
-        Console.WriteLine("• Number keys: Quick selection (1-4)");
-        Console.WriteLine("• Esc/F10   : Exit program");
-        Console.WriteLine("• F1        : Show this help");
+
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("Navigation Shortcuts:");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("• Arrow keys: Navigate through menu options");
+        Console.WriteLine("• Number keys: Direct selection (0-6)");
+        Console.WriteLine("• Home/End: Jump to first/last option");
+        Console.WriteLine("• Enter: Select highlighted option");
+        Console.WriteLine("• Esc: Exit application");
+        Console.WriteLine("• F1: Show this help screen");
+        Console.WriteLine();
+
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("Tips:");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("• Use --help with any command for command-specific help");
+        Console.WriteLine("• Check the documentation for detailed usage examples");
+        Console.WriteLine("• Ensure your LinkedIn account is properly configured before automation");
 
         Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write("Press any key to continue...");
+        Console.ResetColor();
         Console.ReadKey();
     }
 
     private static void ShowExitAnimation()
     {
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("👋 Thank you for using LiveNetwork.CLI!");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                             THANK YOU FOR USING                                 ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
         Console.ResetColor();
-        Console.WriteLine("Shutting down...");
+        Console.WriteLine();
 
-        for (int i = 0; i < 3; i++)
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("  • Thank you for using LiveNetwork CLI!");
+        Console.ResetColor();
+        Console.WriteLine();
+        Console.Write("Shutting down");
+
+        for (int i = 0; i < 5; i++)
         {
             Console.Write(".");
-            Thread.Sleep(300);
+            Thread.Sleep(200);
         }
     }
 
