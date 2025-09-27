@@ -1097,7 +1097,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -2060,7 +2060,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3170,7 +3170,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3445,7 +3445,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Infrastructure.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3522,7 +3522,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3640,7 +3640,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autodesk.Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -3966,14 +3966,8 @@ global using global::Xunit;
 
 === FILE: F:\Members\Commands\ChatCommand.cs ===
 
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LiveNetwork.Application.Services;
+﻿using LiveNetwork.Application.Services;
 using Microsoft.Extensions.Logging;
-using Services.Interfaces;
 namespace Commands
 {
 public class ChatCommand : ICommand
@@ -4232,7 +4226,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Commands")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Commands")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Commands")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -4931,7 +4925,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -5479,7 +5473,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -5536,11 +5530,12 @@ Task Invite();
 
 === FILE: F:\Members\LiveNetwork.Application\Services\ILinkedInChat.cs ===
 
-﻿namespace LiveNetwork.Application.Services
+﻿using LiveNetwork.Domain;
+namespace LiveNetwork.Application.Services
 {
 public interface ILinkedInChat
 {
-Task SendMessageAsync();
+Task SendMessageAsync(List<ConnectionInfo>? connections = null);
 }
 }
 
@@ -5788,7 +5783,7 @@ internal class CommandBootstrap : Builder
 {
 private static readonly string[] KnownFlags = new[]
 {
-"--prompt", "--invite", "--load", "--chat", "--help"
+"--prompt", "--invite", "--load", "--chat", "--search", "--help"
 };
 public static HostApplicationBuilder CreateDefaultAppBuilder(string[] args, string? basePath = null)
 {
@@ -5889,6 +5884,8 @@ Console.WriteLine(" 1) Prompt        (equivale a --prompt)");
 Console.WriteLine(" 2) Invite        (equivale a --invite)");
 Console.WriteLine(" 3) Load          (equivale a --load)");
 Console.WriteLine(" 4) Chat          (equivale a --chat)");
+Console.WriteLine(" 4) Chat          (equivale a --chat)");
+Console.WriteLine(" 5) Search          (equivale a --search)");
 Console.WriteLine("----------------------------------------");
 Console.WriteLine(" h) Help          (equivale a --help)");
 Console.WriteLine(" 0) Exit");
@@ -5902,6 +5899,7 @@ var selectedArgs = key switch
 '2' => ["--invite"],
 '3' => ["--load"],
 '4' => ["--chat"],
+'5' => ["--search"],
 'h' or 'H' or '?' => new[] { "--help" },
 '0' => null,
 _ => Array.Empty<string>()
@@ -5963,15 +5961,17 @@ return aggregateExit;
 
 === FILE: F:\Members\LiveNetwork.CLI\Program.cs ===
 
-﻿using Api.Startup;
-using LiveNetwork.CLI;
-using System.Drawing;
+﻿using LiveNetwork.CLI;
+using Api.Startup;
 public class Program : Builder
 {
-private static readonly string[] KnownFlags = new[]
-{
-"--prompt", "--invite", "--load", "--chat", "--help"
-};
+private static readonly string[] KnownFlags =
+[
+"--prompt", "--invite", "--load", "--chat", "--search", "--help"
+];
+private static int _previousSelection = 0;
+private static bool _firstDraw = true;
+private static int[] _optionLinePositions = Array.Empty<int>();
 public static async Task<int> Main(string[] args)
 {
 if (ContainsKnownFlag(args))
@@ -5980,6 +5980,7 @@ return await CommandBootstrap.RunAsync(args);
 }
 Console.CursorVisible = false;
 Console.Title = "LiveNetwork.CLI - Interactive Menu";
+InitializeConsole();
 while (true)
 {
 DrawMenu();
@@ -5995,6 +5996,8 @@ string[] selectedArgs = selectedOption switch
 2 => ["--invite"],
 3 => ["--load"],
 4 => ["--chat"],
+5 => ["--search"],
+6 => ["--help"],
 _ => null!
 };
 if (selectedArgs != null)
@@ -6006,39 +6009,68 @@ await ExecuteCommand(selectedArgs);
 private static void DrawMenu()
 {
 Console.Clear();
-Console.ResetColor();
-Console.ForegroundColor = ConsoleColor.Cyan;
-Console.WriteLine("╔══════════════════════════════════════════╗");
-Console.WriteLine("║           LiveNetwork.CLI Menu           ║");
-Console.WriteLine("╚══════════════════════════════════════════╝");
+Console.ForegroundColor = ConsoleColor.DarkCyan;
+Console.WriteLine("  Navigate with ↑↓ arrows or number keys 1-6 • Enter to select • Esc to exit");
 Console.ResetColor();
 Console.WriteLine();
-Console.WriteLine("  Use ↑↓ arrows to navigate, Enter to select");
-Console.WriteLine();
-string[] options = {
-"🚀  Prompt        (--prompt)",
-"👥  Invite        (--invite)",
-"📂  Load          (--load)",
-"💬  Chat          (--chat)",
-"❌  Exit"
-};
+string[] options = [
+"1. Generate AI Messages     (--prompt) - Create personalized outreach content",
+"2. Send Invitations         (--invite) - Automate connection requests",
+"3. Load Connections         (--load)   - Collect network data & profiles",
+"4. Automated Messaging      (--chat)   - Engage in conversation threads",
+"5. Search Connections       (--search) - Find and filter your network",
+"6. Help & Documentation     (--help)   - View detailed instructions",
+"0. Exit Application"
+];
+string[] descriptions = [
+"  • AI-powered message generation for personalized outreach campaigns",
+"  • Automated connection invitation sending to targeted prospects",
+"  • Data collection and analysis from your existing LinkedIn network",
+"  • Automated follow-up messaging and conversation management",
+"  • Advanced search capabilities to find specific connections",
+"  • Detailed documentation and command reference guide",
+"  • Safely close the application"
+];
+_optionLinePositions = new int[options.Length];
 for (int i = 0; i < options.Length; i++)
 {
-if (i == 4)
+_optionLinePositions[i] = Console.CursorTop;
+if (i == options.Length - 1)
 {
-Console.WriteLine("  ───────────────────────────────────────");
+Console.ForegroundColor = ConsoleColor.DarkGray;
+Console.WriteLine("  ───────────────────────────────────────────────────────────────────────────");
+Console.ResetColor();
+_optionLinePositions[i] = Console.CursorTop;
 }
-Console.WriteLine($"  {options[i]}");
+if (i == _previousSelection && !_firstDraw)
+{
+Console.BackgroundColor = ConsoleColor.DarkBlue;
+Console.ForegroundColor = ConsoleColor.White;
+Console.WriteLine($" {options[i]}");
+Console.ForegroundColor = ConsoleColor.Gray;
+Console.WriteLine($" {descriptions[i]}");
+Console.ResetColor();
+}
+else
+{
+Console.ForegroundColor = i == options.Length - 1 ? ConsoleColor.Red : ConsoleColor.White;
+Console.WriteLine($" {options[i]}");
+Console.ForegroundColor = ConsoleColor.DarkGray;
+Console.WriteLine($" {descriptions[i]}");
+Console.ResetColor();
 }
 Console.WriteLine();
+}
 Console.ForegroundColor = ConsoleColor.DarkGray;
-Console.WriteLine("  Press F1 for help, Esc to exit");
+Console.WriteLine("  Press F1 for help, Home/End to jump to first/last option");
 Console.ResetColor();
+_firstDraw = false;
 }
 private static int HandleMenuNavigation()
 {
-int selectedIndex = 0;
-int totalOptions = 5;
+int selectedIndex = _previousSelection;
+int totalOptions = 7;
+SetCursorPosition(0, _optionLinePositions[selectedIndex]);
 while (true)
 {
 var key = Console.ReadKey(true).Key;
@@ -6046,14 +6078,23 @@ switch (key)
 {
 case ConsoleKey.UpArrow:
 selectedIndex = (selectedIndex - 1 + totalOptions) % totalOptions;
-UpdateSelection(selectedIndex, totalOptions);
+UpdateSelection(selectedIndex);
 break;
 case ConsoleKey.DownArrow:
 selectedIndex = (selectedIndex + 1) % totalOptions;
-UpdateSelection(selectedIndex, totalOptions);
+UpdateSelection(selectedIndex);
+break;
+case ConsoleKey.Home:
+selectedIndex = 0;
+UpdateSelection(selectedIndex);
+break;
+case ConsoleKey.End:
+selectedIndex = totalOptions - 1;
+UpdateSelection(selectedIndex);
 break;
 case ConsoleKey.Enter:
-return selectedIndex + 1;
+_previousSelection = selectedIndex;
+return selectedIndex;
 case ConsoleKey.Escape:
 return 0;
 case ConsoleKey.F1:
@@ -6062,70 +6103,102 @@ DrawMenu();
 break;
 case ConsoleKey.D1:
 case ConsoleKey.NumPad1:
+_previousSelection = 0;
 return 1;
 case ConsoleKey.D2:
 case ConsoleKey.NumPad2:
+_previousSelection = 1;
 return 2;
 case ConsoleKey.D3:
 case ConsoleKey.NumPad3:
+_previousSelection = 2;
 return 3;
 case ConsoleKey.D4:
 case ConsoleKey.NumPad4:
+_previousSelection = 3;
 return 4;
+case ConsoleKey.D5:
+case ConsoleKey.NumPad5:
+_previousSelection = 4;
+return 5;
+case ConsoleKey.D6:
+case ConsoleKey.NumPad6:
+_previousSelection = 5;
+return 6;
 case ConsoleKey.D0:
 case ConsoleKey.NumPad0:
+_previousSelection = 6;
 return 0;
 }
 }
 }
-private static void UpdateSelection(int selectedIndex, int totalOptions)
+private static void UpdateSelection(int selectedIndex)
 {
-Console.SetCursorPosition(0, 6);
-string[] options = {
-"🚀  Prompt        (--prompt)",
-"👥  Invite        (--invite)",
-"📂  Load          (--load)",
-"💬  Chat          (--chat)",
-"❌  Exit"
-};
+int totalOptions = 7;
 for (int i = 0; i < totalOptions; i++)
 {
-Console.SetCursorPosition(0, 6 + i + (i >= 4 ? 1 : 0));
+SetCursorPosition(0, _optionLinePositions[i]);
 if (i == selectedIndex)
 {
-Console.ForegroundColor = ConsoleColor.Black;
-Console.BackgroundColor = ConsoleColor.White;
-Console.Write($"► {options[i]}");
+Console.BackgroundColor = ConsoleColor.DarkBlue;
+Console.ForegroundColor = ConsoleColor.White;
+string optionText = GetOptionText(i);
+Console.Write(" " + optionText);
+Console.Write(new string(' ', Console.WindowWidth - optionText.Length - 1));
 Console.ResetColor();
-Console.Write(new string(' ', Console.WindowWidth - options[i].Length - 3));
 }
 else
 {
 Console.ResetColor();
-Console.Write($"  {options[i]}");
-Console.Write(new string(' ', Console.WindowWidth - options[i].Length - 2));
+string optionText = GetOptionText(i);
+Console.ForegroundColor = i == totalOptions - 1 ? ConsoleColor.Red : ConsoleColor.White;
+Console.Write(" " + optionText);
+Console.Write(new string(' ', Console.WindowWidth - optionText.Length - 1));
+Console.ResetColor();
 }
 }
+SetCursorPosition(0, _optionLinePositions[selectedIndex]);
+_previousSelection = selectedIndex;
+}
+private static string GetOptionText(int index)
+{
+return index switch
+{
+0 => "1. Generate AI Messages     (--prompt) - Create personalized outreach content",
+1 => "2. Send Invitations         (--invite) - Automate connection requests",
+2 => "3. Load Connections         (--load)   - Collect network data & profiles",
+3 => "4. Automated Messaging      (--chat)   - Engage in conversation threads",
+4 => "5. Search Connections       (--search) - Find and filter your network",
+5 => "6. Help & Documentation     (--help)   - View detailed instructions",
+6 => "0. Exit Application",
+_ => ""
+};
 }
 private static async Task ExecuteCommand(string[] args)
 {
 Console.Clear();
-Console.WriteLine($"🚀 Executing: {args[0]}");
-Console.WriteLine("──────────────────────────────────────────");
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+Console.WriteLine("║                             EXECUTING COMMAND                                   ║");
+Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
+Console.ResetColor();
+Console.WriteLine();
+Console.WriteLine($"  • Command: {args[0]}");
+Console.WriteLine("──────────────────────────────────────────────────────────────────────────────────");
 try
 {
 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 var exitCode = await CommandBootstrap.RunAsync(args);
 stopwatch.Stop();
 Console.WriteLine();
-Console.ForegroundColor = exitCode == 0 ? ConsoleColor.Green : ConsoleColor.Red;
-Console.WriteLine($"✅ Command completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
+Console.ForegroundColor = exitCode == 0 ? ConsoleColor.Green : ConsoleColor.Yellow;
+Console.WriteLine($"  • Command completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
 Console.WriteLine($"Exit code: {exitCode}");
 }
 catch (Exception ex)
 {
 Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine("❌ An error occurred:");
+Console.WriteLine("  • An error occurred:");
 Console.WriteLine(ex.Message);
 Console.ResetColor();
 Console.WriteLine();
@@ -6140,51 +6213,76 @@ Console.ReadKey();
 private static void ShowHelp()
 {
 Console.Clear();
-Console.ForegroundColor = ConsoleColor.Yellow;
-Console.WriteLine("🚀 LinkedIn Automation Toolkit - Available Commands:");
-Console.WriteLine("===================================================");
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+Console.WriteLine("║                                HELP & DOCUMENTATION                             ║");
+Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
+Console.ResetColor();
 Console.WriteLine();
-Console.WriteLine("🔍 --search\t\tDiscover and collect potential LinkedIn connections");
-Console.WriteLine("   \t\t\tSearches LinkedIn based on configured criteria and saves results");
+Console.ForegroundColor = ConsoleColor.White;
+Console.WriteLine("Available Commands:");
+Console.ForegroundColor = ConsoleColor.Gray;
+Console.WriteLine("• --prompt   : Generate AI-powered personalized messages for outreach campaigns");
+Console.WriteLine("• --invite   : Automate connection requests with customizable templates");
+Console.WriteLine("• --load     : Extract and analyze your LinkedIn network data");
+Console.WriteLine("• --chat     : Manage automated messaging with your connections");
+Console.WriteLine("• --search   : Advanced search through your network with filters");
 Console.WriteLine();
-Console.WriteLine("💬 --prompt\t\tGenerate AI-powered outreach messages");
-Console.WriteLine("   \t\t\tCreates personalized connection invites using AI prompts");
+Console.ForegroundColor = ConsoleColor.White;
+Console.WriteLine("Navigation Shortcuts:");
+Console.ForegroundColor = ConsoleColor.Gray;
+Console.WriteLine("• Arrow keys: Navigate through menu options");
+Console.WriteLine("• Number keys: Direct selection (0-6)");
+Console.WriteLine("• Home/End: Jump to first/last option");
+Console.WriteLine("• Enter: Select highlighted option");
+Console.WriteLine("• Esc: Exit application");
+Console.WriteLine("• F1: Show this help screen");
 Console.WriteLine();
-Console.WriteLine("📨 --invite\t\tSend connection invitations to discovered profiles");
-Console.WriteLine("   \t\t\tAutomates sending connection requests to collected prospects");
+Console.ForegroundColor = ConsoleColor.White;
+Console.WriteLine("Tips:");
+Console.ForegroundColor = ConsoleColor.Gray;
+Console.WriteLine("• Use --help with any command for command-specific help");
+Console.WriteLine("• Check the documentation for detailed usage examples");
+Console.WriteLine("• Ensure your LinkedIn account is properly configured before automation");
 Console.WriteLine();
-Console.WriteLine("📊 --load\t\tCollect detailed connection information");
-Console.WriteLine("   \t\t\tGathers comprehensive data from your existing LinkedIn network");
-Console.WriteLine();
-Console.WriteLine("💭 --chat\t\tEngage in automated messaging conversations");
-Console.WriteLine("   \t\t\tInitiates and manages follow-up messages with connections");
-Console.WriteLine();
-Console.WriteLine("❓ --help\t\tDisplay this help information and usage guidelines");
-Console.WriteLine();
-Console.WriteLine("===================================================");
-Console.WriteLine("Usage: dotnet run -- [command] [parameters=values]");
-Console.WriteLine("Example: dotnet run -- --search searchText=\"software engineer\"");
-Console.WriteLine();
+Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write("Press any key to continue...");
+Console.ResetColor();
 Console.ReadKey();
 }
 private static void ShowExitAnimation()
 {
 Console.Clear();
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("👋 Thank you for using LiveNetwork.CLI!");
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════╗");
+Console.WriteLine("║                             THANK YOU FOR USING                                 ║");
+Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════╝");
 Console.ResetColor();
-Console.WriteLine("Shutting down...");
-for (int i = 0; i < 3; i++)
+Console.WriteLine();
+Console.ForegroundColor = ConsoleColor.Green;
+Console.WriteLine("  • Thank you for using LiveNetwork CLI!");
+Console.ResetColor();
+Console.WriteLine();
+Console.Write("Shutting down");
+for (int i = 0; i < 5; i++)
 {
 Console.Write(".");
-Thread.Sleep(300);
+Thread.Sleep(200);
 }
 }
 private static bool ContainsKnownFlag(string[] args)
 {
 if (args is null || args.Length == 0) return false;
 return args.Any(arg => KnownFlags.Contains(arg, StringComparer.OrdinalIgnoreCase));
+}
+public static void InitializeConsole()
+{
+Console.CursorVisible = false;
+Console.Title = "LiveNetwork CLI";
+}
+public static void SetCursorPosition(int left, int top)
+{
+Console.SetCursorPosition(left, top);
 }
 }
 
@@ -6201,7 +6299,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.CLI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d04f1cff3feadb86600c46e9fe22c8865ce38460")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.CLI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.CLI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -6539,131 +6637,6 @@ public Message(string content, string experiment, MessageStatus status = Message
 }
 public enum InviteStatus { Draft, Sent, Accepted, Ignored, Withdrawn }
 public enum MessageStatus { Draft, Sent, Delivered, Read, Failed }
-}
-
-=== FILE: F:\Members\LiveNetwork.Domain\ConversationThreadMappings.cs ===
-
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-namespace LiveNetwork.Domain
-{
-using System.Globalization;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using LiveNetwork.Domain;
-using Invite = LiveNetwork.Domain.Invite;
-using InviteStatus = LiveNetwork.Domain.InviteStatus;
-using Message = LiveNetwork.Domain.Message;
-using MessageStatus = LiveNetwork.Domain.MessageStatus;
-public static class ConversationThreadMappings
-{
-public static List<Profile> ToDomainProfiles(this IEnumerable<ConversationThread> threads)
-{
-if (threads is null) throw new ArgumentNullException(nameof(threads));
-var result = new List<Profile>();
-foreach (var t in threads)
-{
-if (t?.TargetProfile is null) continue;
-var mp = t.TargetProfile;
-var profileIdSeed = mp.Url?.ToString() ?? mp.FullName ?? Guid.NewGuid().ToString("N");
-var profileId = Guid.NewGuid().ToString();
-var dp = new Profile(profileId)
-{
-FullName = mp.FullName ?? string.Empty,
-Headline = mp.Headline ?? string.Empty,
-Location = mp.Location ?? string.Empty,
-CurrentCompany = mp.CurrentCompany ?? string.Empty,
-ProfileImageUrl = mp.ProfileImageUrl ?? string.Empty,
-BackgroundImageUrl = mp.BackgroundImageUrl ?? string.Empty,
-ConnectionDegree = mp.ConnectionDegree ?? string.Empty,
-Connections = mp.Connections ?? string.Empty,
-Followers = mp.Followers ?? string.Empty,
-AboutText = mp.AboutText ?? string.Empty,
-Url = mp.Url ?? new Uri("about:blank"),
-};
-if (mp.Experiences is not null)
-{
-var seenRoleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-foreach (var xe in mp.Experiences)
-{
-var expId = Guid.NewGuid().ToString();
-var de = new Experience(expId)
-{
-Company = xe.Company ?? string.Empty,
-CompanyUrl = xe.CompanyUrl ?? string.Empty,
-CompanyLogoUrl = xe.CompanyLogoUrl ?? string.Empty,
-CompanyLogoAlt = xe.CompanyLogoAlt ?? string.Empty,
-EmploymentSummary = xe.EmploymentSummary ?? string.Empty,
-Location = xe.Location ?? string.Empty,
-Roles = []
-};
-if (xe.Roles is not null)
-{
-foreach (var xr in xe.Roles)
-{
-var baseId = MakeId($"ExperienceRole|{de.Id}|{xr.Title}|{xr.DateRange}|{xr.WorkArrangement}");
-var roleId = seenRoleIds.Add(baseId) ? baseId : Guid.NewGuid().ToString();
-var dr = new ExperienceRole(roleId)
-{
-Title = xr.Title ?? string.Empty,
-DateRange = xr.DateRange ?? string.Empty,
-WorkArrangement = xr.WorkArrangement ?? string.Empty,
-Description = xr.Description ?? string.Empty,
-ContextualSkills = xr.ContextualSkills ?? string.Empty
-};
-de.Roles.Add(dr);
-}
-}
-dp.AddExperience(de);
-}
-}
-if (mp.Educations is not null)
-{
-foreach (var xe in mp.Educations)
-{
-var eduId = Guid.NewGuid().ToString();
-var de = new Education(eduId)
-{
-School = xe.School ?? string.Empty,
-SchoolUrl = xe.SchoolUrl ?? string.Empty,
-LogoUrl = xe.LogoUrl ?? string.Empty,
-LogoAlt = xe.LogoAlt ?? string.Empty,
-Degree = xe.Degree ?? string.Empty,
-Field = xe.Field ?? string.Empty,
-DateRange = xe.DateRange ?? string.Empty,
-Description = xe.Description ?? string.Empty
-};
-dp.AddEducation(de);
-}
-}
-if (t.Communications is not null)
-{
-foreach (var xc in t.Communications)
-{
-if (xc is null) continue;
-var commIdSeed = $"{xc.TypeName}|{xc.CreateDate.ToUniversalTime():O}|{xc.Content}|{xc.Experiment}";
-var commId = Guid.NewGuid().ToString();
-}
-}
-result.Add(dp);
-}
-return result;
-}
-private static TEnum ParseEnumSafe<TEnum>(string? value, TEnum @default) where TEnum : struct, Enum
-=> Enum.TryParse<TEnum>(value, ignoreCase: true, out var parsed) ? parsed : @default;
-private static string MakeId(string seed)
-{
-if (string.IsNullOrWhiteSpace(seed)) seed = Guid.NewGuid().ToString("N");
-using var sha = SHA256.Create();
-var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(seed));
-return Convert.ToHexString(bytes, 0, 16);
-}
-}
 }
 
 === FILE: F:\Members\LiveNetwork.Domain\Education.cs ===
@@ -7090,7 +7063,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0c710b065a455c6e032d341534a5ba843862c20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -7265,6 +7238,7 @@ _driverService?.Dispose();
 ﻿using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -7280,6 +7254,8 @@ private readonly ITrackingService _trackingService;
 private readonly ILoginService _loginService;
 private readonly IUtil _util;
 private readonly IProfileCreate _profileCreate;
+private readonly IProfileRead _profileRead;
+private readonly ILinkedInChat _linkedInChat;
 public ConnectionInfoCollector(
 AppConfig config,
 IWebDriverFactory driverFactory,
@@ -7289,7 +7265,9 @@ ExecutionTracker executionOptions,
 ITrackingService trackingService,
 ILoginService loginService,
 IUtil util,
-IProfileCreate profileCreate)
+IProfileCreate profileCreate,
+IProfileRead profileRead,
+ILinkedInChat linkedInChat)
 {
 _config = config ?? throw new ArgumentNullException(nameof(config));
 _driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
@@ -7299,14 +7277,23 @@ _trackingService = trackingService ?? throw new ArgumentNullException(nameof(tra
 _loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
 _util = util;
 _profileCreate = profileCreate ?? throw new ArgumentNullException(nameof(profileCreate));
+_profileRead = profileRead ?? throw new ArgumentNullException(nameof(profileRead));
+_linkedInChat = linkedInChat ?? throw new ArgumentNullException(nameof(linkedInChat));
 }
 public async Task LoadConnectionsAsync()
 {
-var threadsPath = _config.Paths.ConversationOutputFilePath;
-var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
-var listRR = threads.ToDomainProfiles();
-var firts = listRR.FirstOrDefault();
-await _profileCreate.CreateProfilesAsync(listRR);
+var url = "https://www.linkedin.com/mynetwork/invite-connect/connections/";
+_logger.LogInformation("Navigating to profile: {ProfileUrl}", url);
+await _loginService.LoginAsync();
+_driver.Navigate().GoToUrl(url);
+for (int i = 0; i < 15; i++)
+{
+await _util.WaitForPageLoadAsync(10);
+ScrollWorkspaceDown();
+await Task.Delay(50);
+}
+var list = await GetConnections();
+await _linkedInChat.SendMessageAsync(list);
 }
 public async Task<List<ConnectionInfo>> GetConnections()
 {
@@ -7432,6 +7419,7 @@ _logger.LogError(ex, "ScrollWorkspaceDown: Unexpected error while scrolling work
 
 ﻿using System.Security.Cryptography;
 using System.Text;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Invite = LiveNetwork.Domain.Invite;
 using Message = LiveNetwork.Domain.Message;
@@ -7439,7 +7427,7 @@ namespace LiveNetwork.Infrastructure.Services
 {
 public static class ConversationThreadMappings
 {
-public static List<Profile> ToDomainProfiles(this IEnumerable<ConversationThread> threads)
+public static async Task<List<Profile>> ToDomainProfiles(this IEnumerable<ConversationThread> threads, IProfileRead profileRead)
 {
 if (threads is null) throw new ArgumentNullException(nameof(threads));
 var profilesById = new Dictionary<string, Profile>();
@@ -7454,7 +7442,7 @@ if (thread?.TargetProfile is null)
 continue;
 }
 var sourceProfile = thread.TargetProfile;
-var profileId = GenerateProfileId(sourceProfile);
+var profileId = await GenerateProfileId(sourceProfile, profileRead);
 if (!profilesById.TryGetValue(profileId, out var domainProfile))
 {
 domainProfile = CreateDomainProfile(sourceProfile, profileId);
@@ -7581,8 +7569,22 @@ AboutText = sourceProfile.AboutText ?? string.Empty,
 Url = sourceProfile.Url ?? new Uri("about:blank"),
 };
 }
-private static string GenerateProfileId(LinkedInProfile sourceProfile)
+private static async Task<string> GenerateProfileId(LinkedInProfile sourceProfile, IProfileRead profileRead)
 {
+var id = await profileRead.GetProfilesByUrlAsync(sourceProfile.Url?.ToString(), null, 1);
+if (id is not null && id.IsSuccessful)
+{
+if (id.Data != null)
+{
+if (id.Data.Items != null)
+{
+if (id.Data.Items.FirstOrDefault() !=  null)
+{
+return id.Data.Items.FirstOrDefault().Id;
+}
+}
+}
+}
 var profileKey = (sourceProfile.Url?.ToString() ?? sourceProfile.FullName ?? Guid.NewGuid().ToString())
 .Trim().ToLowerInvariant();
 return GenerateId($"profile|{profileKey}");
@@ -7860,8 +7862,12 @@ private async Task<List<ConversationThread>?> LoadThreadsOrWarnAsync(string thre
 var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
 if (threads is null || threads.Count == 0)
 {
+var profilesPath = _config.Paths.DetailedProfilesOutputFilePath;
+_logger.LogInformation("Step 1/6: Loading detailed profiles from path: {ProfilesPath}", profilesPath);
+var swProfiles = Stopwatch.StartNew();
+var profiles = await _trackingService.LoadDetailedProfilesAsync(profilesPath);
+threads.AddRange(profiles.Select(p => new ConversationThread(p)));
 _logger.LogWarning("({CorrelationId}) No conversation threads found at {ThreadsPath}. Nothing to process.", correlationId, threadsPath);
-return null;
 }
 return threads;
 }
@@ -8503,6 +8509,7 @@ using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -8546,10 +8553,10 @@ _profileRead = profileRead ?? throw new ArgumentNullException(nameof(profileRead
 _profileUpdate = profileUpdate ?? throw new ArgumentNullException(nameof(profileUpdate));
 _messageInteractionCreate = messageInteractionCreate ?? throw new ArgumentNullException(nameof(messageInteractionCreate));
 }
-public async Task SendMessageAsync()
+public async Task SendMessageAsync(List<ConnectionInfo>? connections = null)
 {
 int processed = 0, skipped = 0, errors = 0;
-var connections = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
+connections = connections ?? await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
 var remainingConnections  = connections.ToList();
 var sw = Stopwatch.StartNew();
 try
@@ -8564,7 +8571,6 @@ return;
 }
 _logger.LogInformation("Loaded {Count} connections. LastProcessedUtc={LastProcessedUtc:o}", connections.Count, lastProcessedUtc);
 _logger.LogInformation("Starting LinkedIn login…");
-await _loginService.LoginAsync();
 _logger.LogInformation("LinkedIn login completed successfully.");
 foreach (var connection in connections)
 {
@@ -8603,7 +8609,7 @@ var items = profileOp.Data?.Items;
 if (items == null || !items.Any())
 {
 _logger.LogWarning("No profile found in repository for {Url}", url);
-Set(path, content);
+await Set(path, content);
 remainingConnections.Remove(connection);
 await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
 skipped++;
@@ -8656,13 +8662,139 @@ _logger.LogInformation("LinkedInChat finished in {Ms} ms. Processed={Processed},
 sw.ElapsedMilliseconds, processed, skipped, errors, connections.Count);
 _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
 }
-private void Set(string url, string content)
+private async Task Set(string url, string content)
 {
 _driver.Navigate().GoToUrl(url);
 var button = FindMessageButton();
 button.Click();
 var textArea = FindMessageTextArea();
-EnterTextInContentEditable(textArea, content);
+await EnterTextInContentEditable(textArea, content);
+}
+public void DebugChatOverlay()
+{
+try
+{
+Console.WriteLine("=== DEBUG: Checking for chat elements ===");
+var chatWrappers = _driver.FindElements(By.CssSelector(".msg-convo-wrapper, .msg-overlay-conversation-bubble"));
+Console.WriteLine($"Found {chatWrappers.Count} chat wrappers");
+foreach (var wrapper in chatWrappers)
+{
+Console.WriteLine($"Wrapper displayed: {wrapper.Displayed}, enabled: {wrapper.Enabled}");
+}
+var closeButtonsByIcon = _driver.FindElements(By.XPath("
+Console.WriteLine($"Found {closeButtonsByIcon.Count} buttons with close-small icon");
+var closeButtonsByText = _driver.FindElements(By.XPath("
+Console.WriteLine($"Found {closeButtonsByText.Count} buttons with close text");
+var allButtons = _driver.FindElements(By.TagName("button"));
+Console.WriteLine($"Total buttons found: {allButtons.Count}");
+foreach (var button in allButtons.Take(10))
+{
+try
+{
+Console.WriteLine($"Button: {button.Text} | Displayed: {button.Displayed} | ID: {button.GetAttribute("id")}");
+}
+catch (StaleElementReferenceException)
+{
+Console.WriteLine("Button became stale while inspecting");
+}
+}
+}
+catch (Exception ex)
+{
+Console.WriteLine($"Debug error: {ex.Message}");
+}
+}
+public async Task CloseChatOverlay()
+{
+try
+{
+Thread.Sleep(500);
+var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
+IWebElement closeButton = null;
+try
+{
+closeButton = wait.Until(drv =>
+{
+var buttons = drv.FindElements(By.XPath("
+return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+});
+Console.WriteLine("✅ Found button by data-test-icon");
+}
+catch
+{
+Console.WriteLine("❌ Button not found by data-test-icon");
+}
+if (closeButton == null)
+{
+try
+{
+closeButton = wait.Until(drv =>
+{
+var button = drv.FindElement(By.Id("ember500"));
+return button.Displayed && button.Enabled ? button : null;
+});
+Console.WriteLine("✅ Found button by ID");
+}
+catch
+{
+Console.WriteLine("❌ Button not found by ID");
+}
+}
+if (closeButton == null)
+{
+try
+{
+closeButton = wait.Until(drv =>
+{
+var buttons = drv.FindElements(By.CssSelector("button[aria-label*='Close your conversation']"));
+return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+});
+Console.WriteLine("✅ Found button by aria-label");
+}
+catch
+{
+Console.WriteLine("❌ Button not found by aria-label");
+}
+}
+if (closeButton != null)
+{
+((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", closeButton);
+Thread.Sleep(500);
+closeButton.Click();
+Console.WriteLine("✅ Chat overlay closed successfully.");
+Thread.Sleep(1000);
+}
+else
+{
+Console.WriteLine("❌ No close button found using any strategy");
+TryEmergencyClose();
+}
+}
+catch (WebDriverTimeoutException)
+{
+Console.WriteLine("❌ Close button not found within timeout. Chat overlay might not be open.");
+}
+catch (Exception ex)
+{
+Console.WriteLine($"❌ Error closing chat overlay: {ex.Message}");
+}
+}
+private void TryEmergencyClose()
+{
+try
+{
+Console.WriteLine("⚠️ Trying emergency close strategies...");
+new Actions(_driver).SendKeys(Keys.Escape).Perform();
+Console.WriteLine("Sent ESC key");
+Thread.Sleep(1000);
+var body = _driver.FindElement(By.TagName("body"));
+new Actions(_driver).MoveToElement(body, 10, 10).Click().Perform();
+Console.WriteLine("Clicked outside chat area");
+}
+catch (Exception ex)
+{
+Console.WriteLine($"Emergency close failed: {ex.Message}");
+}
 }
 public IWebElement? FindMessageButton()
 {
@@ -8689,7 +8821,7 @@ return wait.Until(drv =>
 return drv.FindElement(By.CssSelector("div[role='textbox'][aria-label='Write a message…']"));
 });
 }
-private void EnterTextInContentEditable(IWebElement textArea, string message)
+private async Task EnterTextInContentEditable(IWebElement textArea, string message)
 {
 try
 {
@@ -8697,6 +8829,7 @@ textArea.Click();
 textArea.Clear();
 textArea.SendKeys(message);
 textArea.SendKeys(Keys.Enter);
+await CloseChatOverlay();
 }
 catch
 {
@@ -9515,7 +9648,7 @@ swPrompt.Stop();
 _logger.LogDebug("Prompt built (elapsed {ElapsedMs} ms).", swPrompt.ElapsedMilliseconds);
 _logger.LogDebug("Requesting OpenAI chat completion...");
 var swAi = Stopwatch.StartNew();
-var content = "Message generation disabled.";
+var content = "Hi, I’m always curious about the challenges others are working through. I’ve learned so much from colleagues and peers, and I’d love to connect—maybe we can share ideas and support each other along the way.";
 if (_config.Options.EnableCustomMessages)
 {
 content = await _openAIClient.GetChatCompletionAsync(prompt);
@@ -11523,7 +11656,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LiveNetwork.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -12170,7 +12303,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -12821,7 +12954,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e94e012137ef4103ab862208869abcbf5ac07df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a21489347d706506ab087535da31b32b227c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Persistence.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

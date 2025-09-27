@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LiveNetwork.Application.Services;
+﻿using LiveNetwork.Application.Services;
 using Microsoft.Extensions.Logging;
-using Services.Interfaces;
 
 namespace Commands
 {

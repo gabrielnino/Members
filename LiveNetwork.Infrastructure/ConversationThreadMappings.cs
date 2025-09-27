@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Invite = LiveNetwork.Domain.Invite;
 using Message = LiveNetwork.Domain.Message;
@@ -8,7 +9,7 @@ namespace LiveNetwork.Infrastructure.Services
 {
     public static class ConversationThreadMappings
     {
-        public static List<Profile> ToDomainProfiles(this IEnumerable<ConversationThread> threads)
+        public static async Task<List<Profile>> ToDomainProfiles(this IEnumerable<ConversationThread> threads, IProfileRead profileRead)
         {
             if (threads is null) throw new ArgumentNullException(nameof(threads));
 
@@ -27,7 +28,7 @@ namespace LiveNetwork.Infrastructure.Services
                 }
 
                 var sourceProfile = thread.TargetProfile;
-                var profileId = GenerateProfileId(sourceProfile);
+                var profileId = await GenerateProfileId(sourceProfile, profileRead);
 
                 if (!profilesById.TryGetValue(profileId, out var domainProfile))
                 {
@@ -167,8 +168,22 @@ namespace LiveNetwork.Infrastructure.Services
         }
 
 
-        private static string GenerateProfileId(LinkedInProfile sourceProfile)
+        private static async Task<string> GenerateProfileId(LinkedInProfile sourceProfile, IProfileRead profileRead)
         {
+            var id = await profileRead.GetProfilesByUrlAsync(sourceProfile.Url?.ToString(), null, 1);
+            if (id is not null && id.IsSuccessful)
+            {
+                if (id.Data != null)
+                {
+                    if (id.Data.Items != null)
+                    {
+                        if (id.Data.Items.FirstOrDefault() !=  null)
+                        {
+                            return id.Data.Items.FirstOrDefault().Id;
+                        }
+                    }
+                }
+            }
             var profileKey = (sourceProfile.Url?.ToString() ?? sourceProfile.FullName ?? Guid.NewGuid().ToString())
                 .Trim().ToLowerInvariant();
             return GenerateId($"profile|{profileKey}");

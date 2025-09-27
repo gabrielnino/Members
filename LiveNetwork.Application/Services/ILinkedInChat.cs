@@ -1,7 +1,9 @@
-﻿namespace LiveNetwork.Application.Services
+﻿using LiveNetwork.Domain;
+
+namespace LiveNetwork.Application.Services
 {
     public interface ILinkedInChat
     {
-        Task SendMessageAsync();
+        Task SendMessageAsync(List<ConnectionInfo>? connections = null);
     }
 }

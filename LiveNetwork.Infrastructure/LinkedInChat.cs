@@ -7,6 +7,7 @@ using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -53,10 +54,10 @@ namespace LiveNetwork.Infrastructure.Services
             _messageInteractionCreate = messageInteractionCreate ?? throw new ArgumentNullException(nameof(messageInteractionCreate));
         }
 
-        public async Task SendMessageAsync()
+        public async Task SendMessageAsync(List<ConnectionInfo>? connections = null)
         {
             int processed = 0, skipped = 0, errors = 0;
-            var connections = await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
+            connections = connections ?? await _trackingService.LoadCollectorConnectionsAsync("Connections_Collected.json") ?? [];
             var remainingConnections  = connections.ToList();
             var sw = Stopwatch.StartNew();
             try
@@ -77,30 +78,19 @@ namespace LiveNetwork.Infrastructure.Services
 
                 // ✅ Login una sola vez antes del loop
                 _logger.LogInformation("Starting LinkedIn login…");
-                await _loginService.LoginAsync();
+                //await _loginService.LoginAsync();
                 _logger.LogInformation("LinkedIn login completed successfully.");
 
-                foreach (var connection in connections)
+                var connectionsNew = connections.Where(d => d.ConnectedOn > lastProcessedUtc);
+                foreach (var connection in connectionsNew)
                 {
-                    // ✅ Filtra por fecha de conexión procesada
-                    if (connection.ConnectedOn < lastProcessedUtc)
-                    {
-                        _logger.LogDebug("Skipping connection (older than last processed): {ConnectedOn:o}", connection.ConnectedOn);
-                        skipped++;
-                        continue;
-                    }
-
                     if (connection?.ProfileUrl == null)
                     {
                         _logger.LogWarning("Connection missing ProfileUrl. Title/Position={Title}", connection?.TitleOrPosition);
                         skipped++;
                         continue;
                     }
-
-                    // ✅ Usa AbsoluteUri para la URL completa
-                    var url = connection.ProfileUrl.IsAbsoluteUri
-                        ? connection.ProfileUrl.AbsoluteUri
-                        : new Uri(new Uri("https://www.linkedin.com"), connection.ProfileUrl).AbsoluteUri;
+                    string url = GetUrl(connection);
 
                     // Para buscar en tu store por path, conserva el PathAndQuery
                     var path = connection.ProfileUrl.OriginalString;
@@ -126,7 +116,7 @@ namespace LiveNetwork.Infrastructure.Services
                     if (items == null || !items.Any())
                     {
                         _logger.LogWarning("No profile found in repository for {Url}", url);
-                        Set(path, content);
+                        OpenUrlAndSendMessage(path, content);
                         remainingConnections.Remove(connection);
                         await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
                         skipped++;
@@ -141,7 +131,7 @@ namespace LiveNetwork.Infrastructure.Services
                         continue;
                     }
 
-                   
+
                     var message = new MessageInteraction
                     (
                         Guid.NewGuid().ToString("N"),
@@ -155,7 +145,7 @@ namespace LiveNetwork.Infrastructure.Services
 
                     // ✅ Navega al perfil
                     _logger.LogInformation("Navigating to profile page: {ProfileUrl}", firstProfile.Url);
-                    Set(firstProfile.Url.OriginalString, content);
+                    OpenUrlAndSendMessage(firstProfile.Url.OriginalString, content);
                     await _messageInteractionCreate.CreateMessageInteractionAsync(message);
                     if (connection.ConnectedOn == null)
                     {
@@ -186,16 +176,155 @@ namespace LiveNetwork.Infrastructure.Services
             _logger.LogInformation("LinkedInChat finished. Processed={Processed} of {Total}.", processed, connections.Count);
         }
 
-        private void Set(string url, string content)
+        private static string GetUrl(ConnectionInfo connection)
         {
+
+            // ✅ Usa AbsoluteUri para la URL completa
+            return connection.ProfileUrl.IsAbsoluteUri
+                ? connection.ProfileUrl.AbsoluteUri
+                : new Uri(new Uri("https://www.linkedin.com"), connection.ProfileUrl).AbsoluteUri;
+        }
+
+        private void OpenUrlAndSendMessage(string url, string content)
+        {
+            _logger.LogInformation("Navigating to {Url}...", url);
             _driver.Navigate().GoToUrl(url);
+
             var button = FindMessageButton();
+            if (button == null)
+            {
+                _logger.LogWarning("Message button not found on page {Url}. Aborting Set().", url);
+                return; // or throw, depending on desired behavior
+            }
+
+            _logger.LogInformation("Clicking message button...");
             button.Click();
+
             var textArea = FindMessageTextArea();
+            if (textArea == null)
+            {
+                _logger.LogWarning("Message text area not found on page {Url}. Aborting Set().", url);
+                return; // or throw
+            }
+
+            _logger.LogInformation("Entering content into message text area...");
             EnterTextInContentEditable(textArea, content);
+
+            _logger.LogInformation("Message content set successfully on {Url}.", url);
         }
 
 
+        public void CloseChatOverlay()
+        {
+            try
+            {
+                Thread.Sleep(500);
+                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
+
+                // Try multiple strategies in sequence
+                IWebElement closeButton = null;
+
+                // Strategy 1: Try by data-test-icon (most reliable)
+                try
+                {
+                    closeButton = wait.Until(drv =>
+                    {
+                        var buttons = drv.FindElements(By.XPath("//button[.//*[@data-test-icon='close-small']]"));
+                        return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+                    });
+                    Console.WriteLine("✅ Found button by data-test-icon");
+                }
+                catch
+                {
+                    Console.WriteLine("❌ Button not found by data-test-icon");
+                }
+
+                // Strategy 2: Try by ID if first approach failed
+                if (closeButton == null)
+                {
+                    try
+                    {
+                        closeButton = wait.Until(drv =>
+                        {
+                            var button = drv.FindElement(By.Id("ember500"));
+                            return button.Displayed && button.Enabled ? button : null;
+                        });
+                        Console.WriteLine("✅ Found button by ID");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("❌ Button not found by ID");
+                    }
+                }
+
+                // Strategy 3: Try by aria-label
+                if (closeButton == null)
+                {
+                    try
+                    {
+                        closeButton = wait.Until(drv =>
+                        {
+                            var buttons = drv.FindElements(By.CssSelector("button[aria-label*='Close your conversation']"));
+                            return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+                        });
+                        Console.WriteLine("✅ Found button by aria-label");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("❌ Button not found by aria-label");
+                    }
+                }
+
+                if (closeButton != null)
+                {
+                    // Scroll into view and click
+                    ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", closeButton);
+                    Thread.Sleep(500); // Brief pause
+                    closeButton.Click();
+                    Console.WriteLine("✅ Chat overlay closed successfully.");
+
+                    // Wait for overlay to disappear
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    Console.WriteLine("❌ No close button found using any strategy");
+
+                    // Emergency fallback: try to escape or find any close button
+                    TryEmergencyClose();
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                Console.WriteLine("❌ Close button not found within timeout. Chat overlay might not be open.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error closing chat overlay: {ex.Message}");
+            }
+        }
+
+        private void TryEmergencyClose()
+        {
+            try
+            {
+                Console.WriteLine("⚠️ Trying emergency close strategies...");
+
+                // Try ESC key
+                new Actions(_driver).SendKeys(Keys.Escape).Perform();
+                Console.WriteLine("Sent ESC key");
+                Thread.Sleep(1000);
+
+                // Try clicking outside the chat
+                var body = _driver.FindElement(By.TagName("body"));
+                new Actions(_driver).MoveToElement(body, 10, 10).Click().Perform();
+                Console.WriteLine("Clicked outside chat area");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Emergency close failed: {ex.Message}");
+            }
+        }
 
         /// <summary>
         /// Finds the "Message" button for a given profile (e.g., "Message Lisa").
@@ -242,6 +371,7 @@ namespace LiveNetwork.Infrastructure.Services
                 textArea.Clear();
                 textArea.SendKeys(message);
                 textArea.SendKeys(Keys.Enter); // To trigger any change events if necessary   
+                CloseChatOverlay();
             }
             catch
             {

@@ -1,6 +1,7 @@
 ﻿using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Application.UseCases.CRUD.Profile;
+using LiveNetwork.Application.UseCases.CRUD.Profile.Query;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -21,6 +22,8 @@ namespace LiveNetwork.Infrastructure.Services
         //const string Stage = "Send";
         private readonly IUtil _util;
         private readonly IProfileCreate _profileCreate;
+        private readonly IProfileRead _profileRead;
+        private readonly ILinkedInChat _linkedInChat;
 
         public ConnectionInfoCollector(
             AppConfig config,
@@ -31,7 +34,9 @@ namespace LiveNetwork.Infrastructure.Services
             ITrackingService trackingService,
             ILoginService loginService,
             IUtil util,
-            IProfileCreate profileCreate)
+            IProfileCreate profileCreate,
+            IProfileRead profileRead,
+            ILinkedInChat linkedInChat)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _driver = driverFactory?.Create(true) ?? throw new ArgumentNullException(nameof(driverFactory));
@@ -42,22 +47,43 @@ namespace LiveNetwork.Infrastructure.Services
             _loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
             _util = util;
             _profileCreate = profileCreate ?? throw new ArgumentNullException(nameof(profileCreate));
+            _profileRead = profileRead ?? throw new ArgumentNullException(nameof(profileRead));
+            _linkedInChat = linkedInChat ?? throw new ArgumentNullException(nameof(linkedInChat));
         }
 
         public async Task LoadConnectionsAsync()
         {
 
-            var threadsPath = _config.Paths.ConversationOutputFilePath;
-            var threads = await _trackingService.LoadConversationThreadAsync(threadsPath);
-            var listRR = threads.ToDomainProfiles();
-            var firts = listRR.FirstOrDefault();
-            await _profileCreate.CreateProfilesAsync(listRR);
-            //await _profileCreate.CreateProfilesAsync(listRR);
-
-
-
+            var url = "https://www.linkedin.com/mynetwork/invite-connect/connections/";
+            _logger.LogInformation("Navigating to profile: {ProfileUrl}", url);
+            await _loginService.LoginAsync();
+            _driver.Navigate().GoToUrl(url);
+            await ScrollWorkspaceRepeatedlyAsync();
+            var list = await GetConnections();
+            await _linkedInChat.SendMessageAsync(list);
 
         }
+
+
+        private async Task ScrollWorkspaceRepeatedlyAsync()
+        {
+            _logger.LogInformation("Starting workspace scrolling sequence...");
+
+            for (int i = 0; i < 15; i++)
+            {
+                _logger.LogInformation("Iteration {Iteration}: Waiting for page load...", i + 1);
+                await _util.WaitForPageLoadAsync(10);
+
+                _logger.LogInformation("Iteration {Iteration}: Scrolling workspace down...", i + 1);
+                ScrollWorkspaceDown();
+
+                _logger.LogInformation("Iteration {Iteration}: Delay 50ms before next scroll...", i + 1);
+                await Task.Delay(50);
+            }
+
+            _logger.LogInformation("Workspace scrolling sequence completed successfully.");
+        }
+
 
         public async Task<List<ConnectionInfo>> GetConnections()
         {
