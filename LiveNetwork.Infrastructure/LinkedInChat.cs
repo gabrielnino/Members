@@ -79,7 +79,7 @@ namespace LiveNetwork.Infrastructure.Services
 
                 // ✅ Login una sola vez antes del loop
                 _logger.LogInformation("Starting LinkedIn login…");
-                //await _loginService.LoginAsync();
+                await _loginService.LoginAsync();
                 _logger.LogInformation("LinkedIn login completed successfully.");
 
                 var connectionsNew = connections.Where(d => d.ConnectedOn > lastProcessedUtc);
