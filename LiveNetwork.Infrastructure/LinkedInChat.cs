@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Application.UseCases.CRUD.IMessageInteraction;
@@ -153,14 +154,13 @@ namespace LiveNetwork.Infrastructure.Services
                         skipped++;
                         continue;
                     }
-                    if (connection.ConnectedOn > newestProcessedUtc)
-                    {
-                        newestProcessedUtc = connection.ConnectedOn.Value;
-                    }
                     processed++;
                     remainingConnections.Remove(connection);
                     await _trackingService.SaveCollectorConnectionsAsync(remainingConnections, "Connections_Collected.json");
                 }
+
+                newestProcessedUtc = connections.Max(d => d.ConnectedOn).Value;
+
                 await _trackingService.SaveLastProcessedDateUtcAsync("Connections_LastProcessedUtc.txt", newestProcessedUtc);
 
             }
@@ -222,15 +222,15 @@ namespace LiveNetwork.Infrastructure.Services
                 var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
 
                 // Try multiple strategies in sequence
-                IWebElement closeButton = null;
+                ReadOnlyCollection<IWebElement> closeButtons = null;
 
                 // Strategy 1: Try by data-test-icon (most reliable)
                 try
                 {
-                    closeButton = wait.Until(drv =>
+                    closeButtons = wait.Until(drv =>
                     {
-                        var buttons = drv.FindElements(By.XPath("//button[.//*[@data-test-icon='close-small']]"));
-                        return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+                        var buttons = drv.FindElements(By.CssSelector("svg[data-test-icon='close-small']"));
+                        return buttons;
                     });
                     Console.WriteLine("✅ Found button by data-test-icon");
                 }
@@ -239,33 +239,22 @@ namespace LiveNetwork.Infrastructure.Services
                     Console.WriteLine("❌ Button not found by data-test-icon");
                 }
 
-                // Strategy 2: Try by ID if first approach failed
-                if (closeButton == null)
+                if (closeButtons != null)
                 {
-                    try
-                    {
-                        closeButton = wait.Until(drv =>
-                        {
-                            var button = drv.FindElement(By.Id("ember500"));
-                            return button.Displayed && button.Enabled ? button : null;
-                        });
-                        Console.WriteLine("✅ Found button by ID");
-                    }
-                    catch
-                    {
-                        Console.WriteLine("❌ Button not found by ID");
-                    }
+                    CloseAll(closeButtons);
+                    return;
                 }
 
                 // Strategy 3: Try by aria-label
-                if (closeButton == null)
+                if (closeButtons == null)
                 {
                     try
                     {
-                        closeButton = wait.Until(drv =>
+                        By closeButtonBy = By.XPath("//button[contains(@aria-label, 'Close your conversation')]");
+                        closeButtons = wait.Until(drv =>
                         {
-                            var buttons = drv.FindElements(By.CssSelector("button[aria-label*='Close your conversation']"));
-                            return buttons.FirstOrDefault(btn => btn.Displayed && btn.Enabled);
+                            var buttons = drv.FindElements(closeButtonBy);
+                            return buttons;
                         });
                         Console.WriteLine("✅ Found button by aria-label");
                     }
@@ -275,23 +264,10 @@ namespace LiveNetwork.Infrastructure.Services
                     }
                 }
 
-                if (closeButton != null)
+                if (closeButtons != null)
                 {
-                    // Scroll into view and click
-                    ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", closeButton);
-                    Thread.Sleep(500); // Brief pause
-                    closeButton.Click();
-                    Console.WriteLine("✅ Chat overlay closed successfully.");
+                    CloseAll(closeButtons);
 
-                    // Wait for overlay to disappear
-                    Thread.Sleep(1000);
-                }
-                else
-                {
-                    Console.WriteLine("❌ No close button found using any strategy");
-
-                    // Emergency fallback: try to escape or find any close button
-                    TryEmergencyClose();
                 }
             }
             catch (WebDriverTimeoutException)
@@ -304,27 +280,16 @@ namespace LiveNetwork.Infrastructure.Services
             }
         }
 
-        private void TryEmergencyClose()
+        private static void CloseAll(ReadOnlyCollection<IWebElement> closeButtons)
         {
-            try
+            foreach (var btn in closeButtons)
             {
-                Console.WriteLine("⚠️ Trying emergency close strategies...");
-
-                // Try ESC key
-                new Actions(_driver).SendKeys(Keys.Escape).Perform();
-                Console.WriteLine("Sent ESC key");
-                Thread.Sleep(1000);
-
-                // Try clicking outside the chat
-                var body = _driver.FindElement(By.TagName("body"));
-                new Actions(_driver).MoveToElement(body, 10, 10).Click().Perform();
-                Console.WriteLine("Clicked outside chat area");
+                btn.Click();
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Emergency close failed: {ex.Message}");
-            }
+
+            Console.WriteLine("✅ Chat overlay closed successfully.");
         }
+
 
         /// <summary>
         /// Finds the "Message" button for a given profile (e.g., "Message Lisa").
