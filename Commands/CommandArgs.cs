@@ -7,6 +7,7 @@
         public const string invite = "--invite";
         public const string load = "--load";
         public const string chat = "--chat";
+        public const string scrape = "--scrape-reviews";
 
         private static readonly HashSet<string> ValidCommands = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -14,7 +15,8 @@
             prompt,
             invite,
             load,
-            chat
+            chat,
+            scrape
         };
 
         public string MainCommand { get; }

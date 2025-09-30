@@ -35,6 +35,9 @@ namespace Commands
                 case CommandArgs.chat:
                     commands.Add(_serviceProvider.GetRequiredService<ChatCommand>());
                     break;
+                case CommandArgs.scrape:
+                    commands.Add(_serviceProvider.GetRequiredService<ScraperCommand>());
+                    break;
                 default:
                     commands.Add(_serviceProvider.GetRequiredService<HelpCommand>());
                     break;

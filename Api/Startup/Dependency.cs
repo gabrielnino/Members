@@ -98,7 +98,8 @@ namespace Api.Startup
             builder.Services.AddSingleton<IInviteConnections, InviteConnections>();
             builder.Services.AddScoped<IConnectionInfoCollector, ConnectionInfoCollector>();
             builder.Services.AddScoped<ILinkedInChat, LinkedInChat>();
-            
+            builder.Services.AddScoped<IScraperService, Scraper>();
+
         }
 
         protected static void Commands(IHostApplicationBuilder builder, string[] args)
@@ -111,6 +112,7 @@ namespace Api.Startup
             builder.Services.AddTransient<InviteCommand>();
             builder.Services.AddTransient<CollectorCommand>();
             builder.Services.AddTransient<ChatCommand>();
+            builder.Services.AddTransient<ScraperCommand>();
         }
 
         protected static void Configuration(IHostApplicationBuilder builder)
