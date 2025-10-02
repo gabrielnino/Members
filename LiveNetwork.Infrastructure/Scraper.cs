@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 using Configuration;
 using LiveNetwork.Application.Services;
+using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
@@ -13,7 +10,7 @@ using SeleniumExtras.WaitHelpers;
 
 namespace LiveNetwork.Infrastructure.Services
 {
-    public sealed class Scraper : IScraperService
+    public sealed class Scraper : ScraperBase, IScraperService
     {
         private readonly IWebDriver _driver;
         private readonly ILogger<Scraper> _logger;
@@ -27,83 +24,32 @@ namespace LiveNetwork.Infrastructure.Services
             _executionOptions = executionOptions ?? throw new ArgumentNullException(nameof(executionOptions));
             _driver = driverFactory.Create(); ;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            // Map products -> review URLs (extend as needed)
             _productUrls = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["quickbooks"] = "https://www.capterra.com/p/190778/QuickBooks-Online/reviews/",
-                ["xero"] = "https://www.capterra.com/p/91822/Xero/reviews/",
-                ["freshbooks"] = "https://www.capterra.com/p/72422/FreshBooks/reviews/",
-                ["clio"] = "https://www.capterra.com/p/115737/Clio/reviews/",
-                ["mycase"] = "https://www.capterra.com/p/115268/MyCase/reviews/",
-                ["practicepanther"] = "https://www.capterra.com/p/147170/PracticePanther-Legal-Software/reviews/",
-                ["toggl"] = "https://www.capterra.com/p/123373/Toggl-Track/reviews/",
-                ["harvest"] = "https://www.capterra.com/p/100397/Harvest/reviews/"
+                ["xero"] = "https://www.capterra.com/p/120109/Xero/reviews/",
+                ["freshbooks"] = "https://www.capterra.com/p/142390/FreshBooks/reviews/",
+                ["clio"] = "https://www.capterra.com/p/105428/Clio/reviews/",
+                ["mycase"] = "https://www.capterra.com/p/115613/MyCase/reviews/",
+                ["practicepanther"] = "https://www.capterra.com/p/140231/PracticePanther-Legal-Software/reviews/",
+                ["toggl"] = "https://www.capterra.com/p/167420/Toggl-Hire/reviews/",
+                ["harvest"] = "https://www.capterra.com/p/75598/Harvest/reviews/"
             };
         }
 
-
-
         public async Task<int> ScrapeAsync()
         {
-            var MaxReviews = 50;
-            var rows = new List<ReviewRow>();
+            var rows = new List<Review>();
             foreach (var (product, url) in _productUrls)
             {
-
-
                 _logger.LogInformation("Opening {Url}", url);
                 _driver.Navigate().GoToUrl(url);
-                var wait = new WebDriverWait(new SystemClock(), _driver, TimeSpan.FromSeconds(20), TimeSpan.FromMilliseconds(300));
-                TryClick(wait, By.CssSelector("button#onetrust-accept-btn-handler, button[aria-label*='Accept']"));
-
-                /*
-                 int attemptsWithoutNew = 0;
-
-                 while (rows.Count < 50 && attemptsWithoutNew < 3)
-                 {
-                     // Selectors are intentionally flexible; adjust if site markup changes.
-                     var cards = _driver.FindElements(By.CssSelector("[data-qa='review-card'], article[class*='Review']"));
-                     foreach (var card in cards)
-                     {
-                         if (rows.Count >= MaxReviews) break;
-
-                         string reviewer = SafeText(card, ".Reviewer__name, [data-qa='reviewer-name'], [class*='reviewerName']");
-                         string role = SafeText(card, "[data-qa='industry'], .Reviewer__role, [class*='industry']");
-                         string date = SafeText(card, "[data-qa='review-date'], time, .Review__date");
-                         string rating = SafeAttr(card, "div[aria-label*='rating'], [data-qa='star-rating']", "aria-label");
-                         string pros = BlockText(card, "section:has(h3:contains('Pros')), [data-qa='review-pros'], .Pros");
-                         string cons = BlockText(card, "section:has(h3:contains('Cons')), [data-qa='review-cons'], .Cons");
-
-                         // Skip empty
-                         if (string.IsNullOrWhiteSpace(pros) && string.IsNullOrWhiteSpace(cons)) continue;
-
-                         rows.Add(new ReviewRow
-                         {
-                             Site = "capterra",
-                             Product = product,
-                             Reviewer = reviewer,
-                             Role = role,
-                             Date = date,
-                             Rating = rating,
-                             Pros = Normalize(pros),
-                             Cons = Normalize(cons)
-                         });
-                     }
-
-                     int before = rows.Count;
-                     // Try to reveal more reviews:
-                     bool clicked = TryClick(wait, By.CssSelector("button:has(span:contains('Load more')), button[aria-label*='Load more'], a[aria-label*='Next'], button:contains('Next')"));
-                     if (!clicked)
-                     {
-                         // Fallback: scroll to bottom to trigger lazy loading
-                         ((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
-                         await Task.Delay(700);
-                     }
-
-                     await Task.Delay(800);
-                     attemptsWithoutNew = (rows.Count > before) ? 0 : attemptsWithoutNew + 1;
-                 }
-                */
+                await SelectSortByAsync(_driver, "MOST_HELPFUL");
+                await SelectCompanySizeSelfEmployedAsync(_driver);
+                await SelectFrequencyDailyAsync(_driver);
+                await ExpandAllContinueReadingAsync(_driver);
+                var reviews = ExtractReviews(_driver, TimeSpan.FromSeconds(12), Console.WriteLine);
+                rows.AddRange(reviews);
             }
             var OutputPath = Path.Combine(_executionOptions.ExecutionFolder, "capterra_reviews.csv");
             WriteCsv(_executionOptions.ExecutionFolder, rows);
@@ -111,80 +57,99 @@ namespace LiveNetwork.Infrastructure.Services
             return rows.Count;
         }
 
-        private static string Normalize(string? s) => (s ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
-
-        private static bool TryClick(WebDriverWait wait, By by)
+        private static void WriteCsv(string path, IEnumerable<Review> reviews)
         {
-            try
+            if (path is null)
             {
-                var el = wait.Until(ExpectedConditions.ElementToBeClickable(by));
-                el?.Click();
-                return true;
+                throw new ArgumentNullException(nameof(path));
             }
-            catch { return false; }
-        }
 
-        private static string SafeText(ISearchContext ctx, string css)
-        {
-            try { return ctx.FindElement(By.CssSelector(css)).Text?.Trim() ?? ""; }
-            catch { return ""; }
-        }
-
-        private static string SafeAttr(ISearchContext ctx, string css, string attr)
-        {
-            try { return ctx.FindElement(By.CssSelector(css)).GetAttribute(attr)?.Trim() ?? ""; }
-            catch { return ""; }
-        }
-
-        // “:contains()” is not native in CSS; some drivers/polyfills support it; if not, fall back:
-        private static string BlockText(IWebElement card, string primaryCss)
-        {
-            // Try direct
-            try { return card.FindElement(By.CssSelector(primaryCss)).Text?.Trim() ?? ""; }
-            catch { /* ignore */ }
-
-            // Fallback: look for heading with text and read next sibling
-            foreach (var headingSel in new[] { "h3", "h4", "strong" })
+            if (reviews is null)
             {
-                var headings = card.FindElements(By.CssSelector(headingSel));
-                foreach (var h in headings)
+                throw new ArgumentNullException(nameof(reviews));
+            }
+
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+               
+
+            // UTF-8 con BOM para mejor compatibilidad con Excel
+            using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
+            using var sw = new StreamWriter(fs, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+
+            // Cabecera
+            var header = new[]
+            {
+                "reviewer_name","reviewer_role","reviewer_industry","reviewer_used_for","reviewer_avatar_url",
+                "title","review_date",
+                "overall_rating","ease_of_use","customer_service","features","value_for_money",
+                "likelihood_to_recommend_0_10",
+                "pros","cons","free_text",
+                "alternatives_considered","reason_for_choosing","switched_from","switch_reason"
+            };
+            sw.WriteLine(string.Join(",", header));
+
+            foreach (var review in reviews)
+            {
+                var alternatives = GetAlternativesConsidered(review);
+                var switchedFrom = GetSwitchedFrom(review);
+
+                var fields = new[]
                 {
-                    var t = h.Text?.Trim().ToLowerInvariant();
-                    if (t == "cons" || t?.Contains("cons") == true) return h.FindElement(By.XPath("following-sibling::*")).Text.Trim();
-                    if (t == "pros" || t?.Contains("pros") == true) return h.FindElement(By.XPath("following-sibling::*")).Text.Trim();
-                }
+                    Csv(review.Reviewer?.Name),
+                    Csv(review.Reviewer?.Role),
+                    Csv(review.Reviewer?.Industry),
+                    Csv(review.Reviewer?.UsedFor),
+                    Csv(review.Reviewer?.AvatarUrl),
+                    Csv(review.Title),
+                    Csv(review.ReviewDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                    Csv(review.OverallRating?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.Ratings?.EaseOfUse?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.Ratings?.CustomerService?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.Ratings?.Features?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.Ratings?.ValueForMoney?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.LikelihoodToRecommend10?.ToString(CultureInfo.InvariantCulture)),
+                    Csv(review.Pros),
+                    Csv(review.Cons),
+                    Csv(review.FreeText),
+                    Csv(alternatives),
+                    Csv(review.ReasonForChoosing),
+                    Csv(switchedFrom),
+                    Csv(review.SwitchReason),
+                };
+
+                sw.WriteLine(string.Join(",", fields));
             }
-            return "";
         }
 
-        private static void WriteCsv(string path, List<ReviewRow> rows)
+        private static string? GetSwitchedFrom(Review r)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".");
-            var sb = new StringBuilder();
-            sb.AppendLine("Site,Product,Reviewer,Role,Date,Rating,Pros,Cons");
-            foreach (var r in rows)
-            {
-                sb.AppendLine(string.Join(",", new[]
-                {
-                    Csv(r.Site), Csv(r.Product), Csv(r.Reviewer), Csv(r.Role),
-                    Csv(r.Date), Csv(r.Rating), Csv(r.Pros), Csv(r.Cons)
-                }));
-            }
-            File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
-
-            static string Csv(string s) => $"\"{s.Replace("\"", "\"\"")}\"";
+            return (r.SwitchedFrom != null && r.SwitchedFrom.Count != 0)
+                ? string.Join(" | ", r.SwitchedFrom)
+                : null;
         }
 
-        private sealed class ReviewRow
+        private static string? GetAlternativesConsidered(Review r)
         {
-            public string Site { get; set; } = "";
-            public string Product { get; set; } = "";
-            public string Reviewer { get; set; } = "";
-            public string Role { get; set; } = "";
-            public string Date { get; set; } = "";
-            public string Rating { get; set; } = "";
-            public string Pros { get; set; } = "";
-            public string Cons { get; set; } = "";
+            return (r.AlternativesConsidered != null && r.AlternativesConsidered.Count != 0)
+                ? string.Join(" | ", r.AlternativesConsidered)
+                : null;
+        }
+
+        private static string Csv(string? input)
+        {
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+
+            var s = input.Replace("\r\n", "\n").Replace("\r", "\n");
+            var containsSpecial = s.Contains(',') || s.Contains('"') || s.Contains('\n');
+
+            if (s.Contains('"'))
+                s = s.Replace("\"", "\"\"");
+
+            return containsSpecial ? $"\"{s}\"" : s;
         }
     }
 }
