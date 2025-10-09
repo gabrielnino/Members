@@ -8,143 +8,190 @@ namespace LiveNetwork.Infrastructure.Services
 {
     public class ScraperBase
     {
-
-        public static IReadOnlyList<Review> ExtractReviews(IWebDriver driver, TimeSpan? waitTimeout = null, Action<string>? log = null)
+        public static IReadOnlyList<Review> ExtractReviews(
+            IWebDriver driver,
+            TimeSpan? waitTimeout = null,
+            Action<string>? log = null)
         {
+            log?.Invoke("[Capterra] => ExtractReviews: inicio");
             var results = new List<Review>();
             var wait = new WebDriverWait(driver, waitTimeout ?? TimeSpan.FromSeconds(10));
 
-            // Espera el contenedor principal
-            var container = wait.Until(ExpectedConditions.ElementExists(By.CssSelector("[data-test-id='review-cards-container']")));
-
-            // Cada card es un hijo directo <div> dentro del contenedor
-            var cards = container.FindElements(By.XPath("./div"));
-            log?.Invoke($"[Capterra] Encontradas {cards.Count} tarjetas de review.");
-
-            foreach (var card in cards)
+            try
             {
-                try
+                log?.Invoke("[Capterra] Esperando contenedor principal de reviews…");
+                var container = wait.Until(ExpectedConditions.ElementExists(
+                    By.CssSelector("[data-test-id='review-cards-container']")));
+
+                // Cada card es un hijo directo <div> dentro del contenedor
+                var cards = container.FindElements(By.XPath("./div"));
+                log?.Invoke($"[Capterra] Encontradas {cards.Count} tarjetas de review.");
+
+                for (int i = 0; i < cards.Count; i++)
                 {
-                    var review = new Review();
-                    review.Reviewer.Name = TextOrNull(FindFirstOrDefault(card, By.CssSelector("span.typo-20.font-semibold")));
-                    var metaBlock = FindFirstOrDefault(card, By.CssSelector(".typo-10.text-neutral-90"));
-                    if (metaBlock is not null)
+                    var card = cards[i];
+                    log?.Invoke($"[Capterra] -> Procesando tarjeta #{i + 1}/{cards.Count}");
+
+                    try
                     {
-                        var lines = metaBlock.Text?.Split('\n').Select(t => t.Trim()).Where(t => !string.IsNullOrWhiteSpace(t)).ToArray() ?? Array.Empty<string>();
-                        if (lines.Length > 0) review.Reviewer.Role = lines[0];
-                        if (lines.Length > 1) review.Reviewer.Industry = lines[1];
-                        if (lines.Length > 2) review.Reviewer.UsedFor = lines[2];
+                        var review = new Review();
+
+                        // Reviewer
+                        review.Reviewer.Name = TextOrNull(FindFirstOrDefault(card, By.CssSelector("span.typo-20.font-semibold")));
+                        var metaBlock = FindFirstOrDefault(card, By.CssSelector(".typo-10.text-neutral-90"));
+                        if (metaBlock is not null)
+                        {
+                            var lines = metaBlock.Text?.Split('\n')
+                                .Select(t => t.Trim())
+                                .Where(t => !string.IsNullOrWhiteSpace(t))
+                                .ToArray() ?? Array.Empty<string>();
+
+                            if (lines.Length > 0) review.Reviewer.Role = lines[0];
+                            if (lines.Length > 1) review.Reviewer.Industry = lines[1];
+                            if (lines.Length > 2) review.Reviewer.UsedFor = lines[2];
+                        }
+
+                        // Avatar
+                       // var avatarImg = FindFirstOrDefault(card, By.CssSelector("img[data-testid='reviewer-profile-pic']"));
+                        //review.Reviewer.AvatarUrl = avatarImg?.GetAttribute("src");
+
+                        // Título y fecha
+                        review.Title = TextOrNull(FindFirstOrDefault(card, By.CssSelector("h3.typo-20.font-semibold")));
+                        var dateEl = FindFirstOrDefault(card, By.CssSelector(".typo-0.text-neutral-90"));
+                        review.ReviewDate = ParseDateEn(TextOrNull(dateEl));
+
+                        // Rating general
+                        var overallBlock = FindFirstOrDefault(card, By.CssSelector("[data-testid='rating'] span.e1xzmg0z.sr2r3oj, [data-testid='rating'] span.sr2r3oj"));
+                        review.OverallRating = ParseDouble(TextOrNull(overallBlock));
+
+                        // Desglose ratings
+                        review.Ratings.EaseOfUse = ExtractLabeledRating(card, "Ease of Use");
+                        review.Ratings.CustomerService = ExtractLabeledRating(card, "Customer Service");
+                        review.Ratings.Features = ExtractLabeledRating(card, "Features");
+                        review.Ratings.ValueForMoney = ExtractLabeledRating(card, "Value for Money");
+
+                        // Likelihood 0–10
+                        //review.LikelihoodToRecommend10 = ExtractLikelihood10(card);
+
+                        // Pros / Cons / Free text
+                        review.Pros = ExtractLabeledParagraph(card, "Pros");
+                        review.Cons = ExtractLabeledParagraph(card, "Cons");
+                        review.FreeText = ExtractFreeTextIfAny(card);
+
+                        // Alternatives / Reason / Switched from
+                        //review.AlternativesConsidered = ExtractListUnderLabel(card, "Alternatives considered");
+                        //review.ReasonForChoosing = ExtractFollowingParagraph(card, "Reason for choosing");
+                        //review.SwitchedFrom = ExtractListUnderLabel(card, "Switched from");
+                        //review.SwitchReason = ExtractParagraphAfterLabelBlock(card, "Switched from");
+
+                        results.Add(review);
+                        log?.Invoke($"[Capterra] <- Tarjeta #{i + 1}: OK");
                     }
-
-                    // Avatar (si existe imagen)
-                    var avatarImg = FindFirstOrDefault(card, By.CssSelector("img[data-testid='reviewer-profile-pic']"));
-                    review.Reviewer.AvatarUrl = avatarImg?.GetAttribute("src");
-
-                    // --- Título y fecha ---
-                    review.Title = TextOrNull(FindFirstOrDefault(card, By.CssSelector("h3.typo-20.font-semibold")));
-
-                    var dateEl = FindFirstOrDefault(card, By.CssSelector(".typo-0.text-neutral-90"));
-                    review.ReviewDate = ParseDateEn(TextOrNull(dateEl));
-
-                    // --- Rating general visible (5.0) ---
-                    // Primer bloque [data-testid='rating'] dentro de la cabecera de rating
-                    var overallBlock = FindFirstOrDefault(card, By.CssSelector("[data-testid='rating'] span.e1xzmg0z.sr2r3oj, [data-testid='rating'] span.sr2r3oj"));
-                    review.OverallRating = ParseDouble(TextOrNull(overallBlock));
-
-                    // --- Desglose de ratings ---
-                    review.Ratings.EaseOfUse = ExtractLabeledRating(card, "Ease of Use");
-                    review.Ratings.CustomerService = ExtractLabeledRating(card, "Customer Service");
-                    review.Ratings.Features = ExtractLabeledRating(card, "Features");
-                    review.Ratings.ValueForMoney = ExtractLabeledRating(card, "Value for Money");
-
-                    // --- Likelihood to Recommend (0-10) ---
-                    review.LikelihoodToRecommend10 = ExtractLikelihood10(card);
-
-                    // --- Pros & Cons ---
-                    review.Pros = ExtractLabeledParagraph(card, "Pros");
-                    review.Cons = ExtractLabeledParagraph(card, "Cons");
-
-                    // --- Free text paragraph (si existe entre los bloques de pros/cons) ---
-                    // En algunos cards aparece un párrafo suelto antes de Pros/Cons.
-                    review.FreeText = ExtractFreeTextIfAny(card);
-
-                    // --- Alternatives considered ---
-                    review.AlternativesConsidered = ExtractListUnderLabel(card, "Alternatives considered");
-
-                    // --- Reason for choosing QuickBooks Online (o el producto de turno) ---
-                    review.ReasonForChoosing = ExtractFollowingParagraph(card, "Reason for choosing");
-
-                    // --- Switched from + texto del motivo de cambio (si existe) ---
-                    review.SwitchedFrom = ExtractListUnderLabel(card, "Switched from");
-                    review.SwitchReason = ExtractParagraphAfterLabelBlock(card, "Switched from");
-
-                    results.Add(review);
-                }
-                catch (Exception ex)
-                {
-                    log?.Invoke($"[Capterra] Error parseando una tarjeta: {ex.Message}");
+                    catch (Exception exCard)
+                    {
+                        log?.Invoke($"[Capterra] ! Error parseando tarjeta #{i + 1}: {exCard.Message}");
+                    }
                 }
             }
+            catch (WebDriverTimeoutException tex)
+            {
+                log?.Invoke($"[Capterra] ! Timeout esperando contenedor de reviews: {tex.Message}");
+            }
+            catch (NoSuchElementException nse)
+            {
+                log?.Invoke($"[Capterra] ! No se encontró el contenedor de reviews: {nse.Message}");
+            }
+            catch (Exception ex)
+            {
+                log?.Invoke($"[Capterra] ! Error inesperado en ExtractReviews: {ex.Message}");
+            }
 
+            log?.Invoke($"[Capterra] <= ExtractReviews: fin. Total recopiladas: {results.Count}");
             return results;
         }
+
         public static async Task SelectFrequencyDailyAsync(
-                    IWebDriver driver,
-                    bool deselectOthers = true,
-                    TimeSpan? timeout = null,
-                    CancellationToken ct = default)
+            IWebDriver driver,
+            bool deselectOthers = true,
+            TimeSpan? timeout = null,
+            CancellationToken ct = default,
+            Action<string>? log = null)
         {
             timeout ??= TimeSpan.FromSeconds(12);
             var wait = new WebDriverWait(new SystemClock(), driver, timeout.Value, TimeSpan.FromMilliseconds(150));
 
-            // 1) Open the "Frequency of Use" combobox
-            var trigger = wait.Until(ExpectedConditions.ElementToBeClickable(
-                By.CssSelector("[data-testid='filter-frequencyUsedProduct']")));
-            SafeClick(driver, trigger);
+            log?.Invoke("[Capterra] => SelectFrequencyDailyAsync: inicio");
 
-            // 2) Wait for dialog to appear (role="dialog")
-            var dialog = wait.Until(drv =>
+            // 1) Abrir combobox
+            try
             {
-                var dlg = drv.FindElements(By.CssSelector("div[role='dialog']")).FirstOrDefault(e => e.Displayed);
-                return dlg ?? null;
-            });
+                log?.Invoke("[Capterra] Abriendo combobox 'Frequency of Use'…");
+                var trigger = wait.Until(ExpectedConditions.ElementToBeClickable(
+                    By.CssSelector("[data-testid='filter-frequencyUsedProduct']")));
+                SafeClick(driver, trigger);
 
-            // 3) Select "Daily"
-            var daily = wait.Until(ExpectedConditions.ElementToBeClickable(
-                By.CssSelector("[data-testid='filter-frequencyUsedProduct-Daily']")));
-            EnsureSelected(driver, daily);
-
-            // 4) (Optional) Deselect the other options so only Daily is active
-            if (deselectOthers)
-            {
-                var others = new[]
+                // 2) Esperar diálogo
+                log?.Invoke("[Capterra] Esperando diálogo de frecuencia…");
+                var dialog = wait.Until(drv =>
                 {
-                    "filter-frequencyUsedProduct-Weekly",
-                    "filter-frequencyUsedProduct-Monthly",
-                    "filter-frequencyUsedProduct-Other"
-                };
+                    var dlg = drv.FindElements(By.CssSelector("div[role='dialog']")).FirstOrDefault(e => e.Displayed);
+                    return dlg ?? null;
+                });
 
-                foreach (var testId in others)
+                // 3) Seleccionar Daily
+                log?.Invoke("[Capterra] Seleccionando 'Daily'…");
+                var daily = wait.Until(ExpectedConditions.ElementToBeClickable(
+                    By.CssSelector("[data-testid='filter-frequencyUsedProduct-Daily']")));
+                EnsureSelected(driver, daily);
+                log?.Invoke("[Capterra] 'Daily' seleccionado.");
+
+                // 4) Deseleccionar otros (opcional)
+                if (deselectOthers)
                 {
-                    var opt = dialog.FindElements(By.CssSelector($"[data-testid='{testId}']")).FirstOrDefault();
-                    if (opt != null && IsSelected(opt))
+                    log?.Invoke("[Capterra] Deseleccionando otras opciones de frecuencia…");
+                    var others = new[]
                     {
-                        SafeClick(driver, opt);   // toggle off
-                        await Task.Delay(75, ct); // small UI settle
+                        "filter-frequencyUsedProduct-Weekly",
+                        "filter-frequencyUsedProduct-Monthly",
+                        "filter-frequencyUsedProduct-Other"
+                    };
+
+                    int toggledOff = 0;
+                    foreach (var testId in others)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var opt = dialog.FindElements(By.CssSelector($"[data-testid='{testId}']")).FirstOrDefault();
+                        if (opt != null && IsSelected(opt))
+                        {
+                            SafeClick(driver, opt);
+                            toggledOff++;
+                            await Task.Delay(75, ct);
+                        }
                     }
+                    log?.Invoke($"[Capterra] Otras opciones desactivadas: {toggledOff}");
                 }
-            }
 
-            // 5) Close the dropdown (best effort): click trigger again or send Escape
-            try { SafeClick(driver, trigger); }
-            catch
+                // 5) Cerrar dropdown
+                log?.Invoke("[Capterra] Cerrando dropdown de frecuencia…");
+                try { SafeClick(driver, trigger); }
+                catch
+                {
+                    try
+                    {
+                        ((IJavaScriptExecutor)driver)
+                            .ExecuteScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));");
+                    }
+                    catch { /* ignore */ }
+                }
+
+                await Task.Delay(200, ct);
+                log?.Invoke("[Capterra] <= SelectFrequencyDailyAsync: fin (OK)");
+            }
+            catch (Exception ex)
             {
-                try { ((IJavaScriptExecutor)driver).ExecuteScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));"); }
-                catch { /* ignore */ }
+                log?.Invoke($"[Capterra] ! Error en SelectFrequencyDailyAsync: {ex.Message}");
+                throw;
             }
-
-            // Let the list refresh with the new filter
-            await Task.Delay(200, ct);
         }
 
         private static string? Between(string source, string start, string end)
@@ -158,29 +205,29 @@ namespace LiveNetwork.Infrastructure.Services
             return source.Substring(i, j - i);
         }
 
-
         private static void EnsureSelected(IWebDriver driver, IWebElement optionEl)
         {
-            if (!IsSelected(optionEl))
-                SafeClick(driver, optionEl);
+            try
+            {
+                if (!IsSelected(optionEl))
+                {
+                    SafeClick(driver, optionEl);
+                }
+            }
+            catch { /* logging de alto nivel ya lo cubre el caller */ }
         }
 
         private static string? ExtractFollowingParagraph(IWebElement card, string labelPrefix)
         {
-            // Busca un span que empiece por "Reason for choosing"
             try
             {
                 var span = card.FindElements(By.XPath($".//span[starts-with(normalize-space(),'{labelPrefix}')]")).FirstOrDefault();
                 if (span is null) return null;
 
-                // Toma el siguiente <p>
                 var p = span.FindElements(By.XPath("./following::p[1]")).FirstOrDefault();
                 return TextOrNull(p);
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static string? ExtractFreeTextIfAny(IWebElement card)
@@ -190,36 +237,26 @@ namespace LiveNetwork.Infrastructure.Services
                 var block = card.FindElements(By.XPath(".//div[contains(@class,'!mt-4') or contains(@class,'mt-4')]//p")).FirstOrDefault();
                 return TextOrNull(block);
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static string? ExtractLabeledParagraph(IWebElement card, string label)
         {
             try
             {
-                // Busca el span exacto (Pros/Cons) y toma el siguiente <p>
                 var labelSpan = card.FindElements(By.XPath($".//span[normalize-space()='{label}']")).FirstOrDefault();
                 if (labelSpan is null) return null;
 
-                // Siguiente p dentro del mismo bloque
                 var p = labelSpan.FindElements(By.XPath("./ancestor::div[contains(@class,'space-y-2')][1]//p")).FirstOrDefault()
                         ?? labelSpan.FindElements(By.XPath("./following::p[1]")).FirstOrDefault();
 
                 return TextOrNull(p);
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static double? ExtractLabeledRating(IWebElement card, string label)
         {
-            // Busca el bloque que contiene el texto del label y luego el hijo data-testid='[Label]-rating'
-            // Ejemplo: <span>Ease of Use</span><div data-testid="Ease of Use-rating"> ... <span class="sr2r3oj">4.0</span></div>
             try
             {
                 var block = card.FindElements(By.XPath($".//div[.//span[normalize-space()='{label}']]")).FirstOrDefault();
@@ -228,21 +265,16 @@ namespace LiveNetwork.Infrastructure.Services
                 var ratingBlock = FindFirstOrDefault(block, By.CssSelector($"[data-testid='{label}-rating'] span.sr2r3oj"));
                 return ParseDouble(TextOrNull(ratingBlock));
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static int? ExtractLikelihood10(IWebElement card)
         {
             try
             {
-                // Localiza la fila que contiene "Likelihood to Recommend"
                 var row = card.FindElements(By.XPath(".//div[.//span[normalize-space()='Likelihood to Recommend']]")).FirstOrDefault();
                 if (row is null) return null;
 
-                // Intenta leer <progress max="10" value="9">
                 var progress = FindFirstOrDefault(row, By.CssSelector("progress[max='10']"));
                 if (progress != null)
                 {
@@ -250,7 +282,6 @@ namespace LiveNetwork.Infrastructure.Services
                     if (int.TryParse(valAttr, out var val)) return val;
                 }
 
-                // Fallback: texto tipo "9/10" que aparece a la derecha
                 var text = row.Text ?? string.Empty;
                 var token = text.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault(t => t.Contains('/'));
                 if (!string.IsNullOrEmpty(token))
@@ -259,22 +290,17 @@ namespace LiveNetwork.Infrastructure.Services
                     if (int.TryParse(left, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)) return parsed;
                 }
 
-                // Último recurso: ancho de barra (style="width: 90%;")
                 var bar = FindFirstOrDefault(row, By.CssSelector("[data-testid='Likelihood to Recommend-rating'] .bavdpqa"));
                 var style = bar?.GetAttribute("style") ?? string.Empty;
                 var pctStr = Between(style, "width:", "%");
                 if (pctStr != null && double.TryParse(pctStr.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var pct))
                 {
-                    // redondea a escala 0-10
                     return (int)Math.Round(pct / 10.0, MidpointRounding.AwayFromZero);
                 }
 
                 return null;
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static List<string> ExtractListUnderLabel(IWebElement card, string label)
@@ -304,42 +330,31 @@ namespace LiveNetwork.Infrastructure.Services
 
         private static string? ExtractParagraphAfterLabelBlock(IWebElement card, string label)
         {
-            // Tras el bloque de "Switched from" suele venir un <p> explicando motivo
             try
             {
                 var span = card.FindElements(By.XPath($".//span[normalize-space()='{label}']")).FirstOrDefault();
                 if (span is null) return null;
 
-                // Buscar el primer <p> después del contenedor del label
                 var p = span.FindElements(By.XPath("./ancestor::span[1]/following-sibling::p[1]")).FirstOrDefault()
                         ?? span.FindElements(By.XPath("./following::p[1]")).FirstOrDefault();
 
                 return TextOrNull(p);
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private static IWebElement? FindFirstOrDefault(ISearchContext ctx, By by)
         {
-            try
-            {
-                return ctx.FindElements(by).FirstOrDefault();
-            }
-            catch
-            {
-                return null;
-            }
+            try { return ctx.FindElements(by).FirstOrDefault(); }
+            catch { return null; }
         }
+
         private static bool IsClickableVisible(IWebElement el)
         {
             try
             {
                 if (!el.Displayed) return false;
 
-                // Heuristic: skip if has 'hidden' in class or zero area
                 var cls = el.GetAttribute("class") ?? string.Empty;
                 if (cls.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                        .Any(c => c.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
@@ -352,7 +367,6 @@ namespace LiveNetwork.Infrastructure.Services
             }
             catch { return false; }
         }
-
 
         private static bool IsSelected(IWebElement optionEl)
         {
@@ -369,12 +383,10 @@ namespace LiveNetwork.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(s)) return null;
 
-            // Formatos típicos: "August 8, 2025"
             var formats = new[] { "MMMM d, yyyy", "MMM d, yyyy", "MMMM dd, yyyy", "MMM dd, yyyy" };
             if (DateTime.TryParseExact(s.Trim(), formats, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out var dt))
                 return dt;
 
-            // fallback
             if (DateTime.TryParse(s, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out dt))
                 return dt;
 
@@ -387,9 +399,7 @@ namespace LiveNetwork.Infrastructure.Services
             return double.TryParse(s.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : null;
         }
 
-        /// <summary>
-        /// Clicks an element, falling back to JS click when Selenium's native click is intercepted.
-        /// </summary>
+        /// <summary>Clicks an element, falling back to JS click when Selenium's native click is intercepted.</summary>
         private static void SafeClick(IWebDriver driver, IWebElement el)
         {
             try
@@ -402,7 +412,6 @@ namespace LiveNetwork.Infrastructure.Services
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el);
             }
         }
-
 
         private static IWebElement[] SafeFind(ISearchContext scope, By by)
         {
@@ -426,47 +435,56 @@ namespace LiveNetwork.Infrastructure.Services
             return string.IsNullOrWhiteSpace(t) ? null : t;
         }
 
-
         public async Task<int> ExpandAllContinueReadingAsync(
-    IWebDriver driver,
-    ISearchContext? scope = null,
-    int maxPasses = 5,
-    int perClickDelayMs = 120,
-    CancellationToken ct = default)
+            IWebDriver driver,
+            ISearchContext? scope = null,
+            int maxPasses = 5,
+            int perClickDelayMs = 120,
+            CancellationToken ct = default,
+            Action<string>? log = null)
         {
             scope ??= driver;
             int totalClicked = 0;
+            log?.Invoke("[Capterra] => ExpandAllContinueReadingAsync: inicio");
 
             for (int pass = 0; pass < maxPasses; pass++)
             {
                 ct.ThrowIfCancellationRequested();
+                log?.Invoke($"[Capterra] Pase {pass + 1}/{maxPasses}: buscando botones 'Continue Reading'…");
 
                 var buttons = SafeFind(scope, By.CssSelector("[data-testid='continue-reading-button']"))
                     .Where(IsClickableVisible)
                     .ToList();
 
-                if (buttons.Count == 0)
-                    break;
+                log?.Invoke($"[Capterra] Botones visibles: {buttons.Count}");
+                if (buttons.Count == 0) { log?.Invoke("[Capterra] No hay más botones por expandir. Fin anticipado."); break; }
 
+                int clickedThisPass = 0;
                 foreach (var btn in buttons)
                 {
                     ct.ThrowIfCancellationRequested();
 
-                    if (!IsClickableVisible(btn))
-                        continue;
+                    if (!IsClickableVisible(btn)) continue;
 
-                    SafeScrollIntoView(driver, btn);
-                    SafeClick(driver, btn);
-                    totalClicked++;
-
-                    // let the expanded content render
-                    await Task.Delay(perClickDelayMs, ct);
+                    try
+                    {
+                        SafeScrollIntoView(driver, btn);
+                        SafeClick(driver, btn);
+                        clickedThisPass++;
+                        totalClicked++;
+                        await Task.Delay(perClickDelayMs, ct);
+                    }
+                    catch (Exception exBtn)
+                    {
+                        log?.Invoke($"[Capterra] ! Error al expandir un botón: {exBtn.Message}");
+                    }
                 }
 
-                // small settle between passes
+                log?.Invoke($"[Capterra] Pase {pass + 1}: botones expandidos = {clickedThisPass}");
                 await Task.Delay(200, ct);
             }
 
+            log?.Invoke($"[Capterra] <= ExpandAllContinueReadingAsync: fin. Total expandidos = {totalClicked}");
             return totalClicked;
         }
 
@@ -474,102 +492,150 @@ namespace LiveNetwork.Infrastructure.Services
             IWebDriver driver,
             bool deselectOthers = true,
             TimeSpan? timeout = null,
-            CancellationToken ct = default)
+            CancellationToken ct = default,
+            Action<string>? log = null)
         {
             timeout ??= TimeSpan.FromSeconds(12);
             var wait = new WebDriverWait(new SystemClock(), driver, timeout.Value, TimeSpan.FromMilliseconds(150));
+            log?.Invoke("[Capterra] => SelectCompanySizeSelfEmployedAsync: inicio");
 
-            // 1) Open the "Company Size" combobox
-            var trigger = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector("[data-testid='filter-companySize']")));
-            SafeClick(driver, trigger);
-
-            // 2) Wait for dialog to appear
-            var dialog = wait.Until(drv =>
+            try
             {
-                var dlg = drv.FindElements(By.CssSelector("div[role='dialog']")).FirstOrDefault(e => e.Displayed);
-                return dlg ?? null;
-            });
+                // 1) Open the "Company Size" combobox
+                log?.Invoke("[Capterra] Abriendo combobox 'Company Size'…");
+                var trigger = wait.Until(ExpectedConditions.ElementToBeClickable(
+                    By.CssSelector("[data-testid='filter-companySize']")));
+                SafeClick(driver, trigger);
 
-            // 3) Select "Self-employed"
-            var selfEmp = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector("[data-testid='filter-companySize-A']")));
-            EnsureSelected(driver, selfEmp);
-
-            // 4) (Optional) Deselect all other sizes so only Self-employed remains
-            if (deselectOthers)
-            {
-                var others = dialog.FindElements(By.CssSelector("[data-dropdown-item='true']"))
-                                   .Where(e => !Equals(e.GetAttribute("data-testid"), "filter-companySize-A"))
-                                   .ToList();
-
-                foreach (var opt in others)
+                // 2) Wait for dialog
+                log?.Invoke("[Capterra] Esperando diálogo de tamaños de empresa…");
+                var dialog = wait.Until(drv =>
                 {
-                    if (IsSelected(opt))
+                    var dlg = drv.FindElements(By.CssSelector("div[role='dialog']")).FirstOrDefault(e => e.Displayed);
+                    return dlg ?? null;
+                });
+
+                // 3) Select "Self-employed"
+                log?.Invoke("[Capterra] Seleccionando 'Self-employed'…");
+                var selfEmp = wait.Until(ExpectedConditions.ElementToBeClickable(
+                    By.CssSelector("[data-testid='filter-companySize-A']")));
+                EnsureSelected(driver, selfEmp);
+                log?.Invoke("[Capterra] 'Self-employed' seleccionado.");
+
+                // 4) Deselect others
+                if (deselectOthers)
+                {
+                    log?.Invoke("[Capterra] Deseleccionando otros tamaños…");
+                    var others = dialog.FindElements(By.CssSelector("[data-dropdown-item='true']"))
+                                       .Where(e => !Equals(e.GetAttribute("data-testid"), "filter-companySize-A"))
+                                       .ToList();
+
+                    int toggledOff = 0;
+                    foreach (var opt in others)
                     {
-                        SafeClick(driver, opt); // toggle off
-                        // brief pause to let UI update class state
-                        await Task.Delay(75, ct);
+                        ct.ThrowIfCancellationRequested();
+                        try
+                        {
+                            if (IsSelected(opt))
+                            {
+                                SafeClick(driver, opt);
+                                toggledOff++;
+                                await Task.Delay(75, ct);
+                            }
+                        }
+                        catch (Exception exOpt)
+                        {
+                            log?.Invoke($"[Capterra] ! Error deseleccionando opción: {exOpt.Message}");
+                        }
                     }
+                    log?.Invoke($"[Capterra] Otras opciones desactivadas: {toggledOff}");
                 }
-            }
 
-            // 5) Close the dropdown (best-effort): click trigger again or send Escape
-            try { SafeClick(driver, trigger); }
-            catch
+                // 5) Close dropdown
+                log?.Invoke("[Capterra] Cerrando dropdown 'Company Size'…");
+                try { SafeClick(driver, trigger); }
+                catch
+                {
+                    try
+                    {
+                        ((IJavaScriptExecutor)driver)
+                            .ExecuteScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));");
+                    }
+                    catch { /* ignore */ }
+                }
+
+                await Task.Delay(200, ct);
+                log?.Invoke("[Capterra] <= SelectCompanySizeSelfEmployedAsync: fin (OK)");
+            }
+            catch (Exception ex)
             {
-                try { ((IJavaScriptExecutor)driver).ExecuteScript("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));"); }
-                catch { /* ignore */ }
+                log?.Invoke($"[Capterra] ! Error en SelectCompanySizeSelfEmployedAsync: {ex.Message}");
+                throw;
             }
-
-            // Small pause for the list to refresh using new filter
-            await Task.Delay(200, ct);
         }
 
         public async Task SelectSortByAsync(
-                    IWebDriver driver,
-                    string sortKey = "MOST_HELPFUL",
-                    TimeSpan? timeout = null,
-                    CancellationToken ct = default)
+            IWebDriver driver,
+            string sortKey = "MOST_HELPFUL",
+            TimeSpan? timeout = null,
+            CancellationToken ct = default,
+            Action<string>? log = null)
         {
             timeout ??= TimeSpan.FromSeconds(12);
             var wait = new WebDriverWait(new SystemClock(), driver, timeout.Value, TimeSpan.FromMilliseconds(150));
 
-            // 1) Open the combobox (if not already open)
-            var display = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector("[data-testid='filters-sort-by']")));
-            SafeClick(driver, display);
+            log?.Invoke($"[Capterra] => SelectSortByAsync: inicio (sortKey={sortKey})");
 
-            // 2) Wait for the dialog and the desired option to appear
-            var optionSelector = By.CssSelector($"[data-testid='filter-sort-{sortKey}']");
-            var option = wait.Until(drv =>
+            try
             {
-                var elems = drv.FindElements(optionSelector);
-                return elems.Count > 0 && elems[0].Displayed ? elems[0] : null;
-            });
+                // 1) Open the combobox
+                log?.Invoke("[Capterra] Abriendo combobox 'Sort by'…");
+                var display = wait.Until(ExpectedConditions.ElementToBeClickable(
+                    By.CssSelector("[data-testid='filters-sort-by']")));
+                SafeClick(driver, display);
 
-            // 3) Click the option (with robust fallback)
-            SafeClick(driver, option);
-
-            // 4) Wait until the display text reflects the chosen value
-            var expectedText = sortKey switch
-            {
-                "MOST_HELPFUL" => "Most Helpful",
-                "MOST_RECENT" => "Most Recent",
-                "HIGHEST_RATED" => "Highest Rating",
-                "LOWEST_RATED" => "Lowest Rating",
-                _ => "Most Helpful"
-            };
-
-            wait.Until(drv =>
-            {
-                try
+                // 2) Wait for option
+                var optionSelector = By.CssSelector($"[data-testid='filter-sort-{sortKey}']");
+                log?.Invoke($"[Capterra] Esperando opción de ordenamiento '{sortKey}'…");
+                var option = wait.Until(drv =>
                 {
-                    var span = drv.FindElement(By.CssSelector("[data-testid='filters-sort-by'] span"));
-                    return span.Displayed && string.Equals(span.Text?.Trim(), expectedText, StringComparison.OrdinalIgnoreCase);
-                }
-                catch { return false; }
-            });
+                    var elems = drv.FindElements(optionSelector);
+                    return elems.Count > 0 && elems[0].Displayed ? elems[0] : null;
+                });
 
-            // small pause so subsequent queries see the re-sorted list
-            await Task.Delay(200, ct);
+                // 3) Click option
+                log?.Invoke($"[Capterra] Seleccionando opción '{sortKey}'…");
+                SafeClick(driver, option);
+
+                // 4) Wait until display reflects choice
+                var expectedText = sortKey switch
+                {
+                    "MOST_HELPFUL" => "Most Helpful",
+                    "MOST_RECENT" => "Most Recent",
+                    "HIGHEST_RATED" => "Highest Rating",
+                    "LOWEST_RATED" => "Lowest Rating",
+                    _ => "Most Helpful"
+                };
+
+                log?.Invoke($"[Capterra] Verificando etiqueta visible del combobox = '{expectedText}'…");
+                wait.Until(drv =>
+                {
+                    try
+                    {
+                        var span = drv.FindElement(By.CssSelector("[data-testid='filters-sort-by'] span"));
+                        return span.Displayed && string.Equals(span.Text?.Trim(), expectedText, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch { return false; }
+                });
+
+                await Task.Delay(200, ct);
+                log?.Invoke("[Capterra] <= SelectSortByAsync: fin (OK)");
+            }
+            catch (Exception ex)
+            {
+                log?.Invoke($"[Capterra] ! Error en SelectSortByAsync: {ex.Message}");
+                throw;
+            }
         }
     }
 }

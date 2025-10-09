@@ -170,6 +170,22 @@ namespace LiveNetwork.Domain
             return JsonSerializer.Serialize(new { messages = GetApiMessages() }, options);
         }
 
+        public string ExportToJsonString(bool includeFormatting = true)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = includeFormatting,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            // Create a serializable DTO to avoid circular references
+            var exportData = new AIPromptBuilderExportDto(this);
+
+            return JsonSerializer.Serialize(exportData, options);
+        }
+
+
         private static void AppendLineIfNotNull(StringBuilder sb, string label, string value)
         {
             if (!string.IsNullOrWhiteSpace(value))
@@ -185,6 +201,48 @@ namespace LiveNetwork.Domain
                 sb.AppendLine($"{title}:");
                 foreach (var item in items)
                     sb.AppendLine($"- {item}");
+            }
+        }
+
+        private class AIPromptBuilderExportDto
+        {
+            public string? Role { get; set; }
+            public string? Task { get; set; }
+            public string? Context { get; set; }
+            public string? Format { get; set; }
+            public string? Tone { get; set; }
+            public string? Style { get; set; }
+            public int? MaxLength { get; set; }
+            public bool? IncludeSources { get; set; }
+            public bool? StepByStep { get; set; }
+            public List<string> Examples { get; set; } = new();
+            public List<string> Constraints { get; set; } = new();
+            public Dictionary<string, string> AdditionalParameters { get; set; } = new();
+            public List<ChatMessage> ConversationHistory { get; set; } = new();
+            public AIPromptBuilderExportDto? NextTask { get; set; }
+
+            public AIPromptBuilderExportDto() { }
+
+            public AIPromptBuilderExportDto(AIPromptBuilder builder)
+            {
+                Role = builder.Role;
+                Task = builder.Task;
+                Context = builder.Context;
+                Format = builder.Format;
+                Tone = builder.Tone;
+                Style = builder.Style;
+                MaxLength = builder.MaxLength;
+                IncludeSources = builder.IncludeSources;
+                StepByStep = builder.StepByStep;
+                Examples = new List<string>(builder.Examples);
+                Constraints = new List<string>(builder.Constraints);
+                AdditionalParameters = new Dictionary<string, string>(builder.AdditionalParameters);
+                ConversationHistory = new List<ChatMessage>(builder.ConversationHistory);
+
+                if (builder.NextTask != null)
+                {
+                    NextTask = new AIPromptBuilderExportDto(builder.NextTask);
+                }
             }
         }
     }

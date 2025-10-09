@@ -25,174 +25,110 @@ namespace LiveNetwork.Infrastructure.Services
         /// </summary>
         public async Task GeneratPrompt() // kept for compatibility
         {
-            var runId = Guid.NewGuid().ToString("N");
-            var swRun = Stopwatch.StartNew();
+            var ctx = new ContextBundle(
+    Meta: new MetaSection(
+        Geography: "Canada (BC/Vancouver emphasis)",
+        Source: "Capterra",
+        Audience: "Small businesses & independent consultants",
+        Version: "v1.0"),
+    SearchCriteria: new SearchCriteriaSection(
+        Software: ["QuickBooks", "Xero", "FreshBooks", "Wave", "Zoho Books", "Toggl", "Harvest"],
+        Features: ["proposals/estimates", "invoicing", "timesheets", "spreadsheets/manual", "reconciliation", "e-Transfer", "receipt capture"],
+        Segments: ["independent consultants", "freelancers", "micro-agencies", "small firms (2–10)"],
+        Locations: ["Canada", "BC", "Vancouver", "CRA"],
+        MustMentionAny: ["Canada", "BC", "Vancouver", "CRA"]),
+    Focus: new FocusSection(
+        ResearchGoal: "Identify pains & opportunities in billing/time/tax workflows for small professional services.",
+        MustDeliver: ["Top Product Matches", "Most Common Pains & Complaints", "Canadian-Specific Pains", "Synthesized Pain Points Summary"],
+        Exclusions: ["Exclude ERP/enterprise-only tools unless reviews clearly mention small teams"])
+);
 
-            using (_logger.BeginScope(new Dictionary<string, object?>
+            const string OutputFormatSmallBiz = @"{
+  ""searchCriteria"": {
+    ""softwareFeatures"": [
+      ""Proposals & Estimates"",
+      ""Invoicing & Timesheets"",
+      ""Manual Entry / Spreadsheets"",
+      ""Reconciliation & Payments""
+    ],
+    ""segments"": {
+      ""SmallBusinesses"": [""Small Professional Services"", ""Micro-Agencies"", ""Small Firms (2–10)""],
+      ""IndependentConsultants"": [""Independent Consultants"", ""Freelancers"", ""Solo Practitioners""]
+    },
+    ""locations"": [""Canada"", ""BC / Vancouver"", ""CRA References""]
+  },
+  ""topProductMatches"": [],
+  ""mostCommonPainsAndComplaints"": [],
+  ""canadianSpecificPains"": [],
+  ""synthesizedPainPointsSummary"": [],
+  ""charts"": {
+    ""marketCoverage"": {
+      ""description"": ""This chart shows how well different software categories serve the market. The upper right quadrant represents the best opportunities."",
+      ""datasets"": [
+        { ""label"": ""Proposal/Project Mgmt"", ""data"": [ { ""x"": 35, ""y"": 60, ""r"": 14 }, { ""x"": 62, ""y"": 48, ""r"": 12 }, { ""x"": 72, ""y"": 68, ""r"": 18 } ],
+          ""backgroundColor"": ""rgba(52, 152, 219, 0.7)"", ""borderColor"": ""rgba(52, 152, 219, 1)"" },
+        { ""label"": ""Accounting/Invoicing"", ""data"": [ { ""x"": 68, ""y"": 75, ""r"": 18 }, { ""x"": 84, ""y"": 58, ""r"": 15 }, { ""x"": 70, ""y"": 50, ""r"": 12 } ],
+          ""backgroundColor"": ""rgba(46, 204, 113, 0.7)"", ""borderColor"": ""rgba(46, 204, 113, 1)"" },
+        { ""label"": ""Opportunity Areas"", ""data"": [ { ""x"": 28, ""y"": 82, ""r"": 24 }, { ""x"": 32, ""y"": 86, ""r"": 20 } ],
+          ""backgroundColor"": ""rgba(231, 76, 60, 0.7)"", ""borderColor"": ""rgba(231, 76, 60, 1)"" }
+      ]
+    },
+    ""painPoints"": {
+      ""description"": ""Areas with high pain severity and frequency represent the best opportunities for new solutions."",
+      ""labels"": [ ""Integration Issues (Time→Invoice)"", ""CRA Compliance (GST/HST/PST/QST)"", ""Late Payments & Cash Flow"", ""Billing Complexity"", ""Learning Curve"", ""e-Transfer Reconciliation"" ],
+      ""data"": [ 8.6, 9.0, 8.4, 7.6, 7.1, 8.2 ],
+      ""backgroundColors"": [ ""rgba(231, 76, 60, 0.7)"", ""rgba(231, 76, 60, 0.7)"", ""rgba(243, 156, 18, 0.7)"", ""rgba(243, 156, 18, 0.7)"", ""rgba(52, 152, 219, 0.7)"", ""rgba(231, 76, 60, 0.7)"" ],
+      ""borderColors"": [ ""rgba(231, 76, 60, 1)"", ""rgba(231, 76, 60, 1)"", ""rgba(243, 156, 18, 1)"", ""rgba(243, 156, 18, 1)"", ""rgba(52, 152, 219, 1)"", ""rgba(231, 76, 60, 1)"" ]
+    }
+  },
+  ""opportunities"": [
+    { ""title"": ""Canadian Freelancer Billing Suite"", ""level"": ""high"", ""description"": ""Simple proposals→time→invoice flow with built-in GST/HST/PST handling, automated reminders, and e-Transfer reconciliation."",
+      ""stats"": { ""satisfactionGap"": ""81%"", ""marketValue"": ""$14M"", ""competition"": ""Low"" } },
+    { ""title"": ""Proposal-to-Payment Automation (Canada)"", ""level"": ""high"", ""description"": ""Unified proposal acceptance, scope→tasks, time capture, and instant invoicing with CRA-ready taxes and deposits."",
+      ""stats"": { ""satisfactionGap"": ""77%"", ""marketValue"": ""$16M"", ""competition"": ""Medium"" } },
+    { ""title"": ""Cash Flow & Receivables Coach"", ""level"": ""medium"", ""description"": ""Predictive cash flow + automated dunning, partial payments, and bank feed/e-Transfer matching for micro-firms."",
+      ""stats"": { ""satisfactionGap"": ""70%"", ""marketValue"": ""$8M"", ""competition"": ""Medium"" } }
+  ],
+  ""recommendation"": {
+    ""title"": ""Canadian Freelancer Billing Suite"",
+    ""score"": ""9.1/10"",
+    ""description"": ""Highest pain concentration around tax compliance, reconciliation, and late payments for freelancers and micro-agencies; low specialization among incumbents creates a strong entry point."",
+    ""features"": [
+      ""End-to-end proposals→invoice with one-click tax setup"",
+      ""Automated e-Transfer and bank-feed reconciliation"",
+      ""Cash-flow reminders and deposits/retainers"",
+      ""Tight time-tracking→invoicing integrations"",
+      ""CRA/QBO/Xero-friendly exports and reports""
+    ]
+  }
+}";
+
+            var promptBuilder = new AIPromptBuilder
             {
-                ["RunId"] = runId
-            }))
-            {
-                _logger.LogInformation("Starting invite generation run. MaxInvites={MaxInvites}.", MaxInvites);
-
-                try
-                {
-                    MaxInvites = Math.Max(1, Math.Min(1000, _config.Options.MaxInvites));
-                    // 1) Load profiles
-                    var profilesPath = _config.Paths.DetailedProfilesOutputFilePath;
-                    _logger.LogInformation("Step 1/6: Loading detailed profiles from path: {ProfilesPath}", profilesPath);
-
-                    var swProfiles = Stopwatch.StartNew();
-                    var profiles = await _trackingService.LoadDetailedProfilesAsync(profilesPath);
-                    swProfiles.Stop();
-
-                    if (profiles == null || profiles.Count == 0)
-                    {
-                        _logger.LogInformation("No profiles found (elapsed {ElapsedMs} ms). Nothing to do.", swProfiles.ElapsedMilliseconds);
-                        return;
-                    }
-                    _logger.LogInformation("Loaded {ProfileCount} profiles (elapsed {ElapsedMs} ms).",
-                        profiles.Count, swProfiles.ElapsedMilliseconds);
-
-                    // 2) Load or initialize conversation threads
-                    var threadsPath = _config.Paths.ConversationOutputFilePath;
-                    _logger.LogInformation("Step 2/6: Loading conversation threads from path: {ThreadsPath}", threadsPath);
-
-                    var swThreads = Stopwatch.StartNew();
-                    var threads = await _trackingService.LoadConversationThreadAsync(threadsPath) ?? [];
-                    swThreads.Stop();
-
-                    if (threads.Count == 0)
-                    {
-                        _logger.LogInformation("No existing threads found. Initializing from profiles...");
-                        var swInit = Stopwatch.StartNew();
-                        threads.AddRange(profiles.Select(p => new ConversationThread(p)));
-                        swInit.Stop();
-                        _logger.LogInformation("Initialized {ThreadCount} threads from profiles (elapsed {ElapsedMs} ms).",
-                        threads.Count, swInit.ElapsedMilliseconds);
-                    }
-                    else
-                    {
-                        _logger.LogInformation("Loaded {ThreadCount} existing threads (elapsed {ElapsedMs} ms).",
-                            threads.Count, swThreads.ElapsedMilliseconds);
-                    }
-
-                    // 3) Determine eligible threads (no initial invite yet)
-                    _logger.LogInformation("Step 3/6: Selecting eligible threads (no initial invite).");
-                    var eligible = threads.Where(t => !t.HasActivity).ToList();
-                    _logger.LogInformation("{EligibleCount} threads are eligible out of {TotalThreads}.",
-                        eligible.Count, threads.Count);
-
-                    if (eligible.Count == 0)
-                    {
-                        _logger.LogInformation("All threads already have an initial invite. Exiting.");
-                        return;
-                    }
-
-                    // 4) Shuffle and select up to MaxInvites
-                    _logger.LogInformation("Step 4/6: Shuffling eligible threads and taking up to {MaxInvites}.", MaxInvites);
-                    var swShuffle = Stopwatch.StartNew();
-                    ShuffleInPlace(eligible);
-                    var selected = eligible.Take(MaxInvites).ToList();
-                    swShuffle.Stop();
-
-                    _logger.LogInformation("Selected {SelectedCount} threads (elapsed {ElapsedMs} ms).",
-                        selected.Count, swShuffle.ElapsedMilliseconds);
-
-                    // 5) Build prompt, call OpenAI, and add invite for each selected thread
-                    _logger.LogInformation("Step 5/6: Generating invites for selected threads.");
-                    int successCount = 0;
-                    int failCount = 0;
-
-                    for (int i = 0; i < selected.Count; i++)
-                    {
-                        var thread = selected[i];
-                        using (_logger.BeginScope(new Dictionary<string, object?>
-                        {
-                            ["ThreadIndex"] = i,
-                            ["SelectedCount"] = selected.Count,
-                            ["RunId"] = runId
-                        }))
-                        {
-                            _logger.LogDebug("Processing thread {Index}/{Total}.", i + 1, selected.Count);
-
-                            try
-                            {
-                                _logger.LogDebug("Building prompt for target profile.");
-                                var swPrompt = Stopwatch.StartNew();
-                                var prompt = InvitePrompt.BuildPrompt(thread.TargetProfile);
-                                swPrompt.Stop();
-                                _logger.LogDebug("Prompt built (elapsed {ElapsedMs} ms).", swPrompt.ElapsedMilliseconds);
-
-                                _logger.LogDebug("Requesting OpenAI chat completion...");
-                                var swAi = Stopwatch.StartNew();
-                                var content = "Hi, I’m always curious about the challenges others are working through. I’ve learned so much from colleagues and peers, and I’d love to connect—maybe we can share ideas and support each other along the way.";
-
-                                if (_config.Options.EnableCustomMessages)
-                                {
-                                    content = await _openAIClient.GetChatCompletionAsync(prompt);
-                                }
-                                swAi.Stop();
-                                _logger.LogDebug("Received OpenAI response (elapsed {ElapsedMs} ms, ContentLength={ContentLength}).",
-                                    swAi.ElapsedMilliseconds, content?.Length ?? 0);
-
-                                _logger.LogDebug("Adding invite to thread.");
-                                if (string.IsNullOrWhiteSpace(content))
-                                    throw new InvalidOperationException("Received empty content from OpenAI.");
-                                var invite = new Invite(content, InvitePrompt.Experiment, InviteStatus.Draft);
-                                var contentScore = string.Empty;
-                                if (_config.Options.EnableCustomMessages)
-                                {
-                                    var scorePrompt = ScorePrompt.BuildSandlerReviewPrompt(content, thread.TargetProfile);
-                                    contentScore = await _openAIClient.GetChatCompletionAsync(scorePrompt);
-                                }
-                                invite.FeedbackNotes = contentScore;
-                                thread.AddInvite(invite);
-
-                                successCount++;
-                                _logger.LogInformation("Invite added successfully for thread {Index}.", i + 1);
-
-                                _logger.LogInformation("Step 6/6: Saving conversation threads to path: {ThreadsPath}", threadsPath);
-                                await _trackingService.SaveConversationThreadAsync(threads, threadsPath);
-                            }
-                            catch (Exception exThread)
-                            {
-                                failCount++;
-                                _logger.LogError(exThread, "Failed to generate invite for thread {Index}. Continuing with next.", i + 1);
-                            }
-                        }
-                    }
-
-                    _logger.LogInformation("Invite generation complete: Success={SuccessCount}, Failed={FailCount}.", successCount, failCount);
-
-                    // 6) Persist conversation threads
-                    _logger.LogInformation("Step 6/6: Saving conversation threads to path: {ThreadsPath}", threadsPath);
-                    var swSave = Stopwatch.StartNew();
-                    await _trackingService.SaveConversationThreadAsync(threads, threadsPath);
-                    swSave.Stop();
-                    _logger.LogInformation("Conversation threads saved (elapsed {ElapsedMs} ms).", swSave.ElapsedMilliseconds);
-
-                    _logger.LogInformation("Run finished successfully in {ElapsedMs} ms. RunId={RunId}.", swRun.ElapsedMilliseconds, runId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Run failed with an unhandled error. RunId={RunId}.", runId);
-                    throw;
-                }
-                finally
-                {
-                    swRun.Stop();
-                }
+                Role = "You are a professional market research analyst specializing in software evaluation for small professional service businesses and independent consultants in Canada.",
+                Task = "Do a search for these terms on Capterra and deliver a pain-focused analysis with the four required sections (Top Product Matches, Most Common Pains & Complaints, Canadian-Specific Pains, Synthesized Pain Points Summary).",
+                Tone = "professional",
+                Style = "concise",
+                IncludeSources = true,
+                StepByStep = false,
+                Format = OutputFormatSmallBiz
             }
+.WithJsonContext(ctx)
+.WithDefaultReviewConstraints()
+.WithExamplesSmallBiz();
+
+            // (Opcional) parámetros adicionales que quieras loggear/usar
+            promptBuilder.AddParameter("scoring.hi_severity_weight", "0.6");
+            promptBuilder.AddParameter("scoring.hi_frequency_weight", "0.4");
+            promptBuilder.AddParameter("output.language", "en");
+
+            // si quieres historial de conversación breve (piezas pequeñas)
+            promptBuilder.AddToConversationHistory("user", "Focus on e-Transfer reconciliation and late payments.");
+            promptBuilder.AddToConversationHistory("assistant", "Acknowledged. Will elevate cash-flow pains.");
+
+            var json = promptBuilder.GetApiRequestJson();
         }
 
-        private static void ShuffleInPlace<T>(IList<T> list)
-        {
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int j = _random.Next(i + 1);
-                (list[i], list[j]) = (list[j], list[i]);
-            }
-        }
+
     }
 }
