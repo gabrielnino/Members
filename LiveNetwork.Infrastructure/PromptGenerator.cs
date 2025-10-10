@@ -7,10 +7,11 @@ using Services.Interfaces;
 
 namespace LiveNetwork.Infrastructure.Services
 {
-    public class PromptGenerator(IOpenAIClient openAIClient,
-                                 ILogger<PromptGenerator> logger,
-                                 ITrackingService trackingService,
-                                 AppConfig config) : IPromptGenerator
+    public class PromptGenerator(
+        IOpenAIClient openAIClient,
+        ILogger<PromptGenerator> logger,
+        ITrackingService trackingService,
+        AppConfig config) : IPromptGenerator
     {
         private readonly IOpenAIClient _openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         private readonly ILogger<PromptGenerator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -18,28 +19,80 @@ namespace LiveNetwork.Infrastructure.Services
         private readonly AppConfig _config = config ?? throw new ArgumentNullException(nameof(config));
 
         private static readonly Random _random = new();
-        private readonly int MaxInvites = 100; // Limit to 10 invites per run
+        private readonly int MaxInvites = 100; // Limit to 100 invites per run
 
         /// <summary>
         /// Generates up to MaxInvites first-time invites, with detailed step-by-step logging.
         /// </summary>
-        public static void GeneratPrompt() // kept for compatibility
+        public async Task GeneratPrompt() // kept for compatibility
         {
             var meta = new MetaSection(
-                    ReviewOrigin: "Reviews written by users located in Vancouver, BC, Canada",
-                    Source: "Capterra",
-                    Audience: "Small businesses & independent consultants",
-                    Version: "v1.1");
+                ReviewOrigin: "Reviews written by users located in Vancouver, BC, Canada",
+                Source: "Capterra",
+                Audience: "Small businesses & independent consultants",
+                Version: "v1.1");
+
             var searchCriteria = new SearchCriteriaSection(
-                    Software: ["QuickBooks", "Xero", "FreshBooks", "Wave", "Zoho Books", "Toggl", "Harvest"],
-                    Features: ["proposals/estimates", "invoicing", "timesheets", "spreadsheets/manual", "reconciliation", "e-Transfer", "receipt capture"],
-                    Segments: ["independent consultants", "freelancers", "micro-agencies", "small firms (2–10)"],
-                    Locations: ["Canada", "BC", "Vancouver", "CRA"],
-                    MustMentionAny: ["Canada", "BC", "Vancouver", "CRA"]);
+                Software: [
+                                "QuickBooks", 
+                                "Xero", 
+                                "FreshBooks", 
+                                "Wave", 
+                                "Sage", 
+                                "Zoho Books", 
+                                "Toggl", 
+                                "Harvest"
+                          ],
+                Features: [
+                                "proposals/estimates", 
+                                "invoicing", 
+                                "timesheets", 
+                                "spreadsheets/manual", 
+                                "reconciliation", 
+                                "e-Transfer", 
+                                "receipt capture",
+                                "client intake", 
+                                "billing", 
+                                "timesheet", 
+                                "spreadsheet",
+                                "manual billing",
+                                "manual entry",
+                         ],
+                Segments: [
+                                "independent consultants", 
+                                "freelancers", 
+                                "micro-agencies", 
+                                "small firms (2–10)",
+                                "bookkeeping",
+                                "law firm",
+                                "accounting",
+                                "self-employee bookkeeping",
+                                "self-employee law firm",
+                                "self-employee accounting",
+                                "independent bookkeeping",
+                                "independent lawyer",
+                                "independent accounting",
+                          ],
+                Locations: 
+                          [
+                                "Canada", 
+                                "BC", 
+                                "Vancouver", 
+                                "CRA"
+                          ],
+                MustMentionAny: 
+                          [
+                                "Canada", 
+                                "BC", 
+                                "Vancouver", 
+                                "CRA"
+                          ]);
+
             var focus = new FocusSection(
-                    ResearchGoal: "Identify pains & opportunities in billing/time/tax workflows for small professional services.",
-                    MustDeliver: ["Top Product Matches", "Most Common Pains & Complaints", "Canadian-Specific Pains", "Synthesized Pain Points Summary"],
-                    Exclusions: ["Exclude ERP/enterprise-only tools unless reviews clearly mention small teams"]);
+                ResearchGoal: "Identify pains & opportunities in billing/time/tax workflows for small professional services.",
+                MustDeliver: ["Top Product Matches", "Most Common Pains & Complaints", "Canadian-Specific Pains", "Synthesized Pain Points Summary"],
+                Exclusions: ["Exclude ERP/enterprise-only tools unless reviews clearly mention small teams"]);
+
             var ctx = new ContextBundle(Meta: meta, SearchCriteria: searchCriteria, Focus: focus);
 
             const string OutputFormatSmallBiz = @"{
@@ -116,18 +169,16 @@ namespace LiveNetwork.Infrastructure.Services
             .WithDefaultReviewConstraints()
             .WithExamplesSmallBiz();
 
-            // (Opcional) parámetros adicionales que quieras loggear/usar
+            // Optional parameters to log or tune behavior
             promptBuilder.AddParameter("scoring.hi_severity_weight", "0.6");
             promptBuilder.AddParameter("scoring.hi_frequency_weight", "0.4");
             promptBuilder.AddParameter("output.language", "en");
 
-            // si quieres historial de conversación breve (piezas pequeñas)
+            // Example of conversation history (small context fragments)
             promptBuilder.AddToConversationHistory("user", "Focus on e-Transfer reconciliation and late payments.");
             promptBuilder.AddToConversationHistory("assistant", "Acknowledged. Will elevate cash-flow pains.");
 
             var json = promptBuilder.GetApiRequestJson();
         }
-
-
     }
 }
