@@ -32,60 +32,63 @@ namespace LiveNetwork.Infrastructure.Services
                 Version: "v1.1");
 
             var searchCriteria = new SearchCriteriaSection(
-                Software: [
-                                "QuickBooks", 
-                                "Xero", 
-                                "FreshBooks", 
-                                "Wave", 
-                                "Sage", 
-                                "Zoho Books", 
-                                "Toggl", 
-                                "Harvest"
-                          ],
-                Features: [
-                                "proposals/estimates", 
-                                "invoicing", 
-                                "timesheets", 
-                                "spreadsheets/manual", 
-                                "reconciliation", 
-                                "e-Transfer", 
-                                "receipt capture",
-                                "client intake", 
-                                "billing", 
-                                "timesheet", 
-                                "spreadsheet",
-                                "manual billing",
-                                "manual entry",
-                         ],
-                Segments: [
-                                "independent consultants", 
-                                "freelancers", 
-                                "micro-agencies", 
-                                "small firms (2–10)",
-                                "bookkeeping",
-                                "law firm",
-                                "accounting",
-                                "self-employee bookkeeping",
-                                "self-employee law firm",
-                                "self-employee accounting",
-                                "independent bookkeeping",
-                                "independent lawyer",
-                                "independent accounting",
-                          ],
-                Locations: 
-                          [
-                                "Canada", 
-                                "BC", 
-                                "Vancouver", 
-                                "CRA"
-                          ],
-                MustMentionAny: 
-                          [
-                                "Canada", 
-                                "BC", 
-                                "Vancouver", 
-                                "CRA"
-                          ]);
+                Software:
+                [
+                    "QuickBooks",
+                    "Xero",
+                    "FreshBooks",
+                    "Wave",
+                    "Sage",
+                    "Zoho Books",
+                    "Toggl",
+                    "Harvest"
+                ],
+                Features:
+                [
+                    "proposals/estimates",
+                    "invoicing",
+                    "timesheets",
+                    "spreadsheets/manual",
+                    "reconciliation",
+                    "e-Transfer",
+                    "receipt capture",
+                    "client intake",
+                    "billing",
+                    "timesheet",
+                    "spreadsheet",
+                    "manual billing",
+                    "manual entry",
+                ],
+                Segments:
+                [
+                    "independent consultants",
+                    "freelancers",
+                    "micro-agencies",
+                    "small firms (2–10)",
+                    "bookkeeping",
+                    "law firm",
+                    "accounting",
+                    "self-employee bookkeeping",
+                    "self-employee law firm",
+                    "self-employee accounting",
+                    "independent bookkeeping",
+                    "independent lawyer",
+                    "independent accounting",
+                ],
+                Locations:
+                [
+                    "Canada",
+                    "BC",
+                    "Vancouver",
+                    "CRA"
+                ],
+                MustMentionAny:
+                [
+                    "Canada",
+                    "BC",
+                    "Vancouver",
+                    "CRA"
+                ]);
 
             var focus = new FocusSection(
                 ResearchGoal: "Identify pains & opportunities in billing/time/tax workflows for small professional services.",
@@ -93,21 +96,21 @@ namespace LiveNetwork.Infrastructure.Services
                 Exclusions: ["Exclude ERP/enterprise-only tools unless reviews clearly mention small teams"]);
 
             var reviewMetadata = new ReviewMetadataSection(
-       MinReviewCount: 50,
-       MaxReviewCount: 200,
-       PublishedAfter: new DateTime(2023, 1, 1),
-       PublishedBefore: DateTime.Now,
-       DateRanges: new[] { "last-12-months", "2023-2024" },
-       MinimumRating: 3,
-       MaximumRating: 5
-   );
-
+                MinReviewCount: 50,
+                MaxReviewCount: 200,
+                PublishedAfter: new DateTime(2023, 1, 1),
+                PublishedBefore: DateTime.Now,
+                DateRanges: ["last-12-months", "2023-2024"],
+                MinimumRating: 3,
+                MaximumRating: 5
+            );
 
             var ctx = new ContextBundle(
-    Meta: meta,
-    SearchCriteria: searchCriteria,
-    Focus: focus,
-    ReviewMetadata: reviewMetadata);
+                Meta: meta,
+                SearchCriteria: searchCriteria,
+                Focus: focus,
+                ReviewMetadata: reviewMetadata
+            );
 
             const string OutputFormatSmallBiz = @"{
               ""searchCriteria"": {
@@ -202,8 +205,8 @@ namespace LiveNetwork.Infrastructure.Services
             promptBuilder.AddParameter("output.language", "en");
 
             // Example of conversation history (small context fragments)
-            promptBuilder.AddToConversationHistory("user", "Focus on e-Transfer reconciliation and late payments.");
-            promptBuilder.AddToConversationHistory("assistant", "Acknowledged. Will elevate cash-flow pains.");
+            //promptBuilder.AddToConversationHistory("user", "Focus on e-Transfer reconciliation and late payments.");
+            //promptBuilder.AddToConversationHistory("assistant", "Acknowledged. Will elevate cash-flow pains.");
 
             var json = promptBuilder.GetApiRequestJson();
         }
