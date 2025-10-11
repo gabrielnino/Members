@@ -65,6 +65,13 @@ namespace LiveNetwork.Domain
         public void AddParameter(string key, string value) => AdditionalParameters[key] = value;
         public void AddToConversationHistory(string role, string content) => ConversationHistory.Add(new ChatMessage(role, content));
         public void ClearConversationHistory() => ConversationHistory.Clear();
+        public int? MinReviewCount { get; set; }
+        public int? MaxReviewCount { get; set; }
+        public DateTime? ReviewsPublishedAfter { get; set; }
+        public DateTime? ReviewsPublishedBefore { get; set; }
+        public string[]? ReviewDateRanges { get; set; }
+        public int? MinimumReviewRating { get; set; }
+        public int? MaximumReviewRating { get; set; }
         public string BuildPrompt()
         {
             var sb = new StringBuilder();
@@ -74,8 +81,13 @@ namespace LiveNetwork.Domain
             AppendLineIfNotNull(sb, "Response Format", Format);
             AppendList(sb, "Examples", Examples);
             AppendList(sb, "Constraints", Constraints);
+
+            // Review metadata section
+            AppendReviewMetadata(sb);
+
             sb.AppendLine($"Tone: {Tone}");
             sb.AppendLine($"Style: {Style}");
+
             if (MaxLength.HasValue)
             {
                 sb.AppendLine($"Maximum length: {MaxLength} words");
@@ -109,6 +121,10 @@ namespace LiveNetwork.Domain
             AppendLineIfNotNull(userBuilder, "Role", Role);
             AppendLineIfNotNull(userBuilder, "Response Format", Format);
             AppendList(userBuilder, "Examples", Examples);
+
+            // Add review metadata to user content
+            AppendReviewMetadata(userBuilder);
+
             userBuilder.AppendLine($"Tone: {Tone}");
             userBuilder.AppendLine($"Style: {Style}");
 
@@ -138,6 +154,51 @@ namespace LiveNetwork.Domain
                 SystemContent = systemBuilder.ToString().Trim().Replace(AIPromptBuilder.StepTag, result ?? string.Empty),
                 UserContent = userBuilder.ToString().Trim(),
             };
+        }
+        private void AppendReviewMetadata(StringBuilder sb)
+        {
+            if (MinReviewCount.HasValue || MaxReviewCount.HasValue)
+            {
+                var countText = MinReviewCount.HasValue && MaxReviewCount.HasValue
+                    ? $"{MinReviewCount}-{MaxReviewCount} reviews"
+                    : MinReviewCount.HasValue
+                        ? $"at least {MinReviewCount} reviews"
+                        : $"up to {MaxReviewCount} reviews";
+                sb.AppendLine($"Review Quantity: {countText}");
+            }
+
+            if (ReviewsPublishedAfter.HasValue || ReviewsPublishedBefore.HasValue)
+            {
+                var dateRange = string.Empty;
+                if (ReviewsPublishedAfter.HasValue && ReviewsPublishedBefore.HasValue)
+                {
+                    dateRange = $"between {ReviewsPublishedAfter.Value:yyyy-MM-dd} and {ReviewsPublishedBefore.Value:yyyy-MM-dd}";
+                }
+                else if (ReviewsPublishedAfter.HasValue)
+                {
+                    dateRange = $"published after {ReviewsPublishedAfter.Value:yyyy-MM-dd}";
+                }
+                else if (ReviewsPublishedBefore.HasValue)
+                {
+                    dateRange = $"published before {ReviewsPublishedBefore.Value:yyyy-MM-dd}";
+                }
+                sb.AppendLine($"Review Dates: {dateRange}");
+            }
+
+            if (ReviewDateRanges?.Length > 0)
+            {
+                sb.AppendLine($"Review Date Ranges: {string.Join(", ", ReviewDateRanges)}");
+            }
+
+            if (MinimumReviewRating.HasValue || MaximumReviewRating.HasValue)
+            {
+                var ratingText = MinimumReviewRating.HasValue && MaximumReviewRating.HasValue
+                    ? $"{MinimumReviewRating}-{MaximumReviewRating} stars"
+                    : MinimumReviewRating.HasValue
+                        ? $"at least {MinimumReviewRating} stars"
+                        : $"up to {MaximumReviewRating} stars";
+                sb.AppendLine($"Review Ratings: {ratingText}");
+            }
         }
         public List<ChatMessage> GetApiMessages()
         {
@@ -221,6 +282,14 @@ namespace LiveNetwork.Domain
             public List<ChatMessage> ConversationHistory { get; set; } = new();
             public AIPromptBuilderExportDto? NextTask { get; set; }
 
+            public int? MinReviewCount { get; set; }
+            public int? MaxReviewCount { get; set; }
+            public DateTime? ReviewsPublishedAfter { get; set; }
+            public DateTime? ReviewsPublishedBefore { get; set; }
+            public string[]? ReviewDateRanges { get; set; }
+            public int? MinimumReviewRating { get; set; }
+            public int? MaximumReviewRating { get; set; }
+
             public AIPromptBuilderExportDto() { }
 
             public AIPromptBuilderExportDto(AIPromptBuilder builder)
@@ -238,6 +307,13 @@ namespace LiveNetwork.Domain
                 Constraints = new List<string>(builder.Constraints);
                 AdditionalParameters = new Dictionary<string, string>(builder.AdditionalParameters);
                 ConversationHistory = new List<ChatMessage>(builder.ConversationHistory);
+                MinReviewCount = builder.MinReviewCount;
+                MaxReviewCount = builder.MaxReviewCount;
+                ReviewsPublishedAfter = builder.ReviewsPublishedAfter;
+                ReviewsPublishedBefore = builder.ReviewsPublishedBefore;
+                ReviewDateRanges = builder.ReviewDateRanges?.ToArray();
+                MinimumReviewRating = builder.MinimumReviewRating;
+                MaximumReviewRating = builder.MaximumReviewRating;
 
                 if (builder.NextTask != null)
                 {
@@ -277,12 +353,57 @@ namespace LiveNetwork.Domain
             builder.AddExample("Pain framing: “I export hours from Toggl to CSV, then re-type in QuickBooks.” Impact: double entry, billing delays, cash-flow risk.");
             return builder;
         }
+
+        public static AIPromptBuilder WithReviewQuantity(this AIPromptBuilder builder, int minCount, int? maxCount = null)
+        {
+            builder.MinReviewCount = minCount;
+            builder.MaxReviewCount = maxCount;
+            return builder;
+        }
+
+        public static AIPromptBuilder WithReviewDateRange(this AIPromptBuilder builder, DateTime? after = null, DateTime? before = null)
+        {
+            builder.ReviewsPublishedAfter = after;
+            builder.ReviewsPublishedBefore = before;
+            return builder;
+        }
+
+        public static AIPromptBuilder WithReviewDateRanges(this AIPromptBuilder builder, params string[] dateRanges)
+        {
+            builder.ReviewDateRanges = dateRanges;
+            return builder;
+        }
+
+        public static AIPromptBuilder WithReviewRatingRange(this AIPromptBuilder builder, int? minRating = null, int? maxRating = null)
+        {
+            builder.MinimumReviewRating = minRating;
+            builder.MaximumReviewRating = maxRating;
+            return builder;
+        }
+
+        public static AIPromptBuilder WithRecentReviews(this AIPromptBuilder builder, int months = 12)
+        {
+            builder.ReviewsPublishedAfter = DateTime.Now.AddMonths(-months);
+            builder.ReviewDateRanges = new[] { $"last-{months}-months" };
+            return builder;
+        }
     }
 
     public record ContextBundle(
         MetaSection Meta,
         SearchCriteriaSection SearchCriteria,
-        FocusSection Focus);
+        FocusSection Focus,
+        ReviewMetadataSection? ReviewMetadata = null); // Added optional ReviewMetadata
+
+    public record ReviewMetadataSection(
+    int? MinReviewCount = null,
+    int? MaxReviewCount = null,
+    DateTime? PublishedAfter = null,
+    DateTime? PublishedBefore = null,
+    string[]? DateRanges = null, // e.g., ["last-30-days", "last-6-months", "last-year"]
+    int? MinimumRating = null,   // 1-5 stars
+    int? MaximumRating = null
+);
 
     public record MetaSection(
         string ReviewOrigin,      // <-- replaces Geography

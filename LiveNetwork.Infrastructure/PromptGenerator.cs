@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Configuration;
+﻿using Configuration;
 using LiveNetwork.Application.Services;
 using LiveNetwork.Domain;
 using Microsoft.Extensions.Logging;
@@ -93,7 +92,22 @@ namespace LiveNetwork.Infrastructure.Services
                 MustDeliver: ["Top Product Matches", "Most Common Pains & Complaints", "Canadian-Specific Pains", "Synthesized Pain Points Summary"],
                 Exclusions: ["Exclude ERP/enterprise-only tools unless reviews clearly mention small teams"]);
 
-            var ctx = new ContextBundle(Meta: meta, SearchCriteria: searchCriteria, Focus: focus);
+            var reviewMetadata = new ReviewMetadataSection(
+       MinReviewCount: 50,
+       MaxReviewCount: 200,
+       PublishedAfter: new DateTime(2023, 1, 1),
+       PublishedBefore: DateTime.Now,
+       DateRanges: new[] { "last-12-months", "2023-2024" },
+       MinimumRating: 3,
+       MaximumRating: 5
+   );
+
+
+            var ctx = new ContextBundle(
+    Meta: meta,
+    SearchCriteria: searchCriteria,
+    Focus: focus,
+    ReviewMetadata: reviewMetadata);
 
             const string OutputFormatSmallBiz = @"{
               ""searchCriteria"": {
@@ -163,11 +177,24 @@ namespace LiveNetwork.Infrastructure.Services
                 Style = "concise",
                 IncludeSources = true,
                 StepByStep = false,
-                Format = OutputFormatSmallBiz
+                Format = OutputFormatSmallBiz,
+
+                // New review metadata properties
+                MinReviewCount = 50,
+                MaxReviewCount = 200,
+                ReviewsPublishedAfter = new DateTime(2023, 1, 1),
+                ReviewsPublishedBefore = DateTime.Now,
+                ReviewDateRanges = ["last-12-months", "2023-2024"],
+                MinimumReviewRating = 3,
+                MaximumReviewRating = 5
             }
             .WithJsonContext(ctx)
             .WithDefaultReviewConstraints()
-            .WithExamplesSmallBiz();
+            .WithExamplesSmallBiz()
+            // Using the new extension methods
+            .WithReviewQuantity(50, 200)
+            .WithRecentReviews(12)
+            .WithReviewRatingRange(3, 5);
 
             // Optional parameters to log or tune behavior
             promptBuilder.AddParameter("scoring.hi_severity_weight", "0.6");
