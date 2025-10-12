@@ -6,19 +6,9 @@ using Services.Interfaces;
 
 namespace LiveNetwork.Infrastructure.Services
 {
-    public class PromptGenerator(
-        IOpenAIClient openAIClient,
-        ILogger<PromptGenerator> logger,
-        ITrackingService trackingService,
-        AppConfig config) : IPromptGenerator
+    public class PromptGenerator() : IPromptGenerator
     {
-        private readonly IOpenAIClient _openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
-        private readonly ILogger<PromptGenerator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly ITrackingService _trackingService = trackingService ?? throw new ArgumentNullException(nameof(trackingService));
-        private readonly AppConfig _config = config ?? throw new ArgumentNullException(nameof(config));
 
-        private static readonly Random _random = new();
-        private readonly int MaxInvites = 100; // Limit to 100 invites per run
 
         /// <summary>
         /// Generates up to MaxInvites first-time invites, with detailed step-by-step logging.
@@ -114,17 +104,59 @@ namespace LiveNetwork.Infrastructure.Services
 
             const string OutputFormatSmallBiz = @"{
               ""searchCriteria"": {
-                ""softwareFeatures"": [
-                  ""Proposals & Estimates"",
-                  ""Invoicing & Timesheets"",
-                  ""Manual Entry / Spreadsheets"",
-                  ""Reconciliation & Payments""
+                ""Software"": [
+                    ""QuickBooks"",
+                    ""Xero"",
+                    ""FreshBooks"",
+                    ""Wave"",
+                    ""Sage"",
+                    ""Zoho Books"",
+                    ""Toggl"",
+                    ""Harvest""
+                ],
+                ""Features"": [
+                    ""proposals/estimates"",
+                    ""invoicing"",
+                    ""timesheets"",
+                    ""spreadsheets/manual"",
+                    ""reconciliation"",
+                    ""e-Transfer"",
+                    ""receipt capture"",
+                    ""client intake"",
+                    ""billing"",
+                    ""timesheet"",
+                    ""spreadsheet"",
+                    ""manual billing"",
+                    ""manual entry"",
                 ],
                 ""segments"": {
-                  ""SmallBusinesses"": [""Small Professional Services"", ""Micro-Agencies"", ""Small Firms (2–10)""],
-                  ""IndependentConsultants"": [""Independent Consultants"", ""Freelancers"", ""Solo Practitioners""]
+                  ""SmallBusinesses"": 
+                                        [
+                                            ""independent consultants"",
+                                            ""freelancers"",
+                                            ""independent bookkeeping"",
+                                            ""independent lawyer"",
+                                            ""independent accounting"",
+                                            ""bookkeeping"",
+	                                        ""self-employee bookkeeping"",
+                                            ""self-employee law firm"",
+                                            ""self-employee accounting""
+                                        ],
+                  ""IndependentConsultants"": 
+                                        [
+                                            ""law firm"",
+                                            ""accounting"",
+                                            ""micro-agencies"",
+                                            ""small firms (2–10)""
+                                        ]
                 },
-                ""locations"": [""Canada"", ""BC / Vancouver"", ""CRA References""]
+                ""locations"": 
+                                        [
+                                            ""Canada"",
+                                            ""BC"",
+                                            ""Vancouver"",
+                                            ""CRA""
+                                        ]
               },
               ""topProductMatches"": [],
               ""mostCommonPainsAndComplaints"": [],
@@ -180,7 +212,7 @@ namespace LiveNetwork.Infrastructure.Services
                 Style = "concise",
                 IncludeSources = true,
                 StepByStep = false,
-                Format = OutputFormatSmallBiz,
+                //Format = OutputFormatSmallBiz,
 
                 // New review metadata properties
                 MinReviewCount = 50,
