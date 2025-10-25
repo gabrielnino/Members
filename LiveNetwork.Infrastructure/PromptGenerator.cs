@@ -47,7 +47,7 @@ namespace LiveNetwork.Infrastructure.Services
                 MaxReviewCount = 200,
                 ReviewsPublishedAfter = new DateTime(2023, 1, 1),
                 ReviewsPublishedBefore = DateTime.Now,
-                ReviewDateRanges = ["last-12-months", "2023-2024"],
+                ReviewDateRanges = ["last-24-months", "2022-2024"],
                 MinimumReviewRating = 3,
                 MaximumReviewRating = 5
             }
@@ -128,7 +128,7 @@ namespace LiveNetwork.Infrastructure.Services
 
               ""filters_applied"": {
                 ""reviewCount"": { ""min"": 50, ""max"": 200 },
-                ""publishedRange"": { ""after"": ""2023-01-01"", ""before"": ""<ISO-8601-LOCAL-NOW>"", ""ranges"": [""last-12-months"", ""2023-2024""] },
+                ""publishedRange"": { ""after"": ""2022-01-01"", ""before"": ""<ISO-8601-LOCAL-NOW>"", ""ranges"": [""last-24-months"", ""2023-2024""] },
                 ""ratingRange"": { ""min"": 3, ""max"": 5 },
                 ""locationsMustMentionAny"": [""Canada"", ""BC"", ""Vancouver"", ""CRA""]
               },
@@ -271,7 +271,7 @@ namespace LiveNetwork.Infrastructure.Services
                 MaxReviewCount: 350,
                 PublishedAfter: new DateTime(2023, 1, 1),
                 PublishedBefore: DateTime.Now,
-                DateRanges: ["last-12-months", "2023-2024"],
+                DateRanges: ["last-24-months", "2022-2024"],
                 MinimumRating: 3,
                 MaximumRating: 5
             );
