@@ -27,7 +27,7 @@ namespace LiveNetwork.Infrastructure.Services
             var focus = GetFocus();
             var reviewMetadata = GetReviewMeta();
             var ctx = GetContext(meta, searchCriteria, focus, reviewMetadata);
-            string OutputFormatSmallBizV2 = "";// GetJsonFormat();
+            string OutputFormatSmallBizV2 = GetJsonFormat();
 
             var promptBuilder = new AIPromptBuilder
             {
